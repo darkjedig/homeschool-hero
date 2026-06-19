@@ -70,9 +70,14 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 - [x] Verified: typecheck/lint 0 errors, Convex pushed (cron live), pages render
 - [ ] Populate with real content (parent builds course → cron/auto generates weekly challenge)
 
-### Phase 6 — Adaptive Learning  ⏳
-- [ ] Rolling per-topic performance, next-difficulty query
-- [ ] Get-Help drawer below 60%, recommended-review list
+### Phase 6 — Adaptive Learning  ✅ COMPLETE
+- [x] `convex/adaptive.ts`: `topicPerformance` (rolling avg of last 5 attempts per topic via quiz→topic joins), `recommendedReview` (topics < 70%), `nextDifficulty` (tier: ≥85 advanced / ≥65 intermediate / else beginner)
+- [x] `components/student/get-help-drawer.tsx`: adaptive drawer (missed-question explanations, step-by-step hints, rewatch-lesson link, retry)
+- [x] Quiz page: <60% surfaces "Get Help" → drawer with missed questions + lesson link + retry
+- [x] Dashboard "Need a Hint?" card opens the adaptive drawer
+- [x] Dashboard "Recommended Review" widget (auto-hides when none weak)
+- [x] Verified: typecheck/lint 0 errors, Convex pushed, dashboard renders
+- [ ] Easier practice questions inside the drawer arrive with AI (Phase 7)
 
 ### Phase 7 — AI Course & Lesson Builder (OpenRouter BYOK)  ⏳
 - [ ] Parent AI settings (BYOK key stored server-side, never exposed)

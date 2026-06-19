@@ -12,6 +12,7 @@ import { SubjectTile } from "@/components/student/subject-tile";
 import { AchievementBadge } from "@/components/student/achievement-badge";
 import { RewardShopStrip } from "@/components/student/reward-shop-strip";
 import { HintCard } from "@/components/student/hint-card";
+import { RecommendedReview } from "@/components/student/recommended-review";
 import {
   Coins,
   Flame,
@@ -189,6 +190,9 @@ export default function DashboardPage() {
           </a>
         </section>
       </section>
+
+      {/* Adaptive recommended review (auto-hides when nothing is weak) */}
+      <RecommendedReview />
 
       {/* Footer widgets */}
       <section className="flex flex-wrap gap-4">

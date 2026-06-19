@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams, notFound } from "next/navigation";
-import { Check, X, Trophy, RotateCcw } from "lucide-react";
+import { Check, X, Trophy, RotateCcw, LifeBuoy } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import type { Doc } from "@/convex/_generated/dataModel";
+import { GetHelpDrawer, type HelpItem } from "@/components/student/get-help-drawer";
 
 type Q = Doc<"quizQuestions">;
 
@@ -25,6 +26,7 @@ export default function QuizPage() {
     percentage: number;
     pointsEarned: number;
   } | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   if (data === undefined) {
     return <div className="h-64 animate-pulse rounded-2xl bg-white/5" />;
@@ -35,6 +37,23 @@ export default function QuizPage() {
 
   if (result || questions.length === 0) {
     const correctCount = answers.filter((a) => a.correct).length;
+    const needsHelp = !!result && result.percentage < 60;
+    const helpItems: HelpItem[] = answers
+      .filter((a) => !a.correct)
+      .map((a) => {
+        const q = questions.find((qq) => qq._id === a.questionId);
+        return {
+          question: q?.questionText,
+          explanation: q?.explanation ?? "Review this concept in the lesson notes.",
+        };
+      });
+    const retry = () => {
+      setCurrent(0);
+      setSelected(null);
+      setRevealed(false);
+      setAnswers([]);
+      setResult(null);
+    };
     return (
       <div className="mx-auto max-w-lg text-center">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
@@ -55,15 +74,18 @@ export default function QuizPage() {
                   +{result.pointsEarned} pts
                 </span>
               </p>
+              {needsHelp && (
+                <button
+                  type="button"
+                  onClick={() => setHelpOpen(true)}
+                  className="mx-auto mt-3 flex items-center gap-2 rounded-xl border border-orange-500/40 bg-orange-500/15 px-5 py-2.5 text-sm font-semibold text-orange-300 transition hover:bg-orange-500/25"
+                >
+                  <LifeBuoy size={16} /> Get Help
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() => {
-                  setCurrent(0);
-                  setSelected(null);
-                  setRevealed(false);
-                  setAnswers([]);
-                  setResult(null);
-                }}
+                onClick={retry}
                 className="mx-auto mt-6 flex items-center gap-2 rounded-xl bg-blue-500 px-6 py-3 font-semibold text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:bg-blue-400"
               >
                 <RotateCcw size={16} /> Try again
@@ -71,6 +93,17 @@ export default function QuizPage() {
             </>
           )}
         </div>
+
+        {needsHelp && (
+          <GetHelpDrawer
+            open={helpOpen}
+            onOpenChange={setHelpOpen}
+            title="Let's get this sorted"
+            items={helpItems}
+            lessonHref={`/lessons/${quiz.lessonId}`}
+            onRetry={retry}
+          />
+        )}
       </div>
     );
   }

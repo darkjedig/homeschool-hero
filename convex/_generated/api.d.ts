@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as adaptive from "../adaptive.js";
 import type * as auth from "../auth.js";
 import type * as authHelpers from "../authHelpers.js";
 import type * as courses from "../courses.js";
@@ -35,6 +36,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  adaptive: typeof adaptive;
   auth: typeof auth;
   authHelpers: typeof authHelpers;
   courses: typeof courses;

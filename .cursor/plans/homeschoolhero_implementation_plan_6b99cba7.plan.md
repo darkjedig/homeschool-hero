@@ -43,7 +43,7 @@ A permanently-live, cloud-backed, gamified homeschool platform with a student po
 ## Recommended Tech Stack
 
 - **Framework**: Next.js 16 (App Router, RSC-first) + TypeScript
-- **Styling**: Tailwind CSS + `tailwind.config.ts` — theme tokens defined per [`.cursor/skills/design/SKILL.md`](.cursor/skills/design/SKILL.md) (dark space theme, subject colours, glass cards, glow effects)
+- **Styling**: Tailwind CSS + `tailwind.config.ts` — theme tokens defined per `[.cursor/skills/design/SKILL.md](.cursor/skills/design/SKILL.md)` (dark space theme, subject colours, glass cards, glow effects)
 - **Components**: shadcn/ui (kebab-case file names, e.g. `lesson-card.tsx`)
 - **Backend**: Convex (database, auth, storage, realtime, scheduled cron for Friday quizzes)
 - **Auth**: Convex Auth (or `@convex-dev/auth`) with role-based access (`parent` / `student`)
@@ -60,11 +60,13 @@ A permanently-live, cloud-backed, gamified homeschool platform with a student po
 
 **Mandatory reference for all UI work.** Before building or styling any page or component, read and follow:
 
-| Resource | Path | Purpose |
-|----------|------|---------|
-| Design skill | [`.cursor/skills/design/SKILL.md`](.cursor/skills/design/SKILL.md) | Theme tokens, component checklist, layout rules, Tailwind snippets |
-| Dashboard wireframe | [`.cursor/skills/design/dashboard-layout.md`](.cursor/skills/design/dashboard-layout.md) | ASCII wireframe, grid proportions, z-index layers |
-| Visual mockup | [`ChatGPT Image Jun 18, 2026, 12_32_48 PM.png`](ChatGPT%20Image%20Jun%2018,%202026,%2012_32_48%20PM.png) | Source of truth for student dashboard look and feel |
+
+| Resource            | Path                                                                                                     | Purpose                                                            |
+| ------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Design skill        | `[.cursor/skills/design/SKILL.md](.cursor/skills/design/SKILL.md)`                                       | Theme tokens, component checklist, layout rules, Tailwind snippets |
+| Dashboard wireframe | `[.cursor/skills/design/dashboard-layout.md](.cursor/skills/design/dashboard-layout.md)`                 | ASCII wireframe, grid proportions, z-index layers                  |
+| Visual mockup       | `[ChatGPT Image Jun 18, 2026, 12_32_48 PM.png](ChatGPT%20Image%20Jun%2018,%202026,%2012_32_48%20PM.png)` | Source of truth for student dashboard look and feel                |
+
 
 **Agent workflow**: invoke `@design` (or read the skill) whenever implementing student pages, parent pages, shared components, `tailwind.config.ts`, or `globals.css`. Do not use generic shadcn defaults without applying HomeschoolHero tokens.
 
@@ -176,7 +178,7 @@ flowchart LR
 2. Smoke test: add `convex/hello.ts` exporting `export const hello = query(() => "HomeschoolHero online");` and render it on the home page via `useQuery(api.hello.hello)`.
 3. **Gate**: do not proceed until the smoke test prints live data.
 4. Initialise `specs.md` (root) with the phase checklist and `.agent/memory.md` with architecture + next steps per house rules.
-5. **Design foundation**: read [`.cursor/skills/design/SKILL.md`](.cursor/skills/design/SKILL.md) and apply theme tokens to `tailwind.config.ts` + `app/globals.css` (`bg-app`, subject colours, glass card utilities, glow shadows). No UI pages beyond smoke test until tokens are in place.
+5. **Design foundation**: read `[.cursor/skills/design/SKILL.md](.cursor/skills/design/SKILL.md)` and apply theme tokens to `tailwind.config.ts` + `app/globals.css` (`bg-app`, subject colours, glass card utilities, glow shadows). No UI pages beyond smoke test until tokens are in place.
 
 ---
 
@@ -228,7 +230,7 @@ Indexes on every foreign-key column + `by_user_lesson` composite indexes on `vid
 
 ## Phase 3 — Student Portal MVP
 
-**Design gate**: read `@design` skill ([`.cursor/skills/design/SKILL.md`](.cursor/skills/design/SKILL.md)) and wireframe ([`dashboard-layout.md`](.cursor/skills/design/dashboard-layout.md)) before writing any student UI. Compare finished dashboard against the verification checklist in the skill.
+**Design gate**: read `@design` skill (`[.cursor/skills/design/SKILL.md](.cursor/skills/design/SKILL.md)`) and wireframe (`[dashboard-layout.md](.cursor/skills/design/dashboard-layout.md)`) before writing any student UI. Compare finished dashboard against the verification checklist in the skill.
 
 Client-island components under `components/student/` per the skill's component checklist; pages under `app/(student)/`.
 
@@ -254,7 +256,7 @@ Client-island components under `components/student/` per the skill's component c
 
 ## Phase 4 — Parent Dashboard MVP
 
-**Design gate**: reuse tokens from `@design` skill — same dark theme, card styles, subject colours — but admin-focused layout (no mascot, no gamification hero clutter). See "Parent Dashboard Adaptation" section in [`.cursor/skills/design/SKILL.md`](.cursor/skills/design/SKILL.md).
+**Design gate**: reuse tokens from `@design` skill — same dark theme, card styles, subject colours — but admin-focused layout (no mascot, no gamification hero clutter). See "Parent Dashboard Adaptation" section in `[.cursor/skills/design/SKILL.md](.cursor/skills/design/SKILL.md)`.
 
 Pages under `app/(parent)/`.
 
@@ -286,14 +288,17 @@ Pages under `app/(parent)/`.
 ## Phase 7 — AI Course & Lesson Builder (OpenRouter BYOK)
 
 ### Why Convex action, not a Next.js API route
+
 Convex actions can run for **up to 10 minutes** — there is no Vercel-style timeout. A full-course generation call (subject + topics + lessons + quizzes) is safe to run as a single Convex action without chunking or background-job infrastructure. The browser stays connected reactively via `useQuery` on the draft table; when the action completes and writes the draft, the UI updates automatically.
 
 ### AI settings (BYOK)
-- Parent-only [app/(parent)/settings/page.tsx](app/(parent)/settings/page.tsx) AI section: paste OpenRouter API key, pick a model from a curated dropdown (`openai/gpt-4o-mini`, `anthropic/claude-3.5-sonnet`, `google/gemini-flash-1.5`, plus free-text for any other model), and a "Test connection" button.
+
+- Parent-only [app/(parent)/settings/page.tsx](app/(parent)/settings/page.tsx) AI section: paste OpenRouter API key, pick a model from a curated dropdown (`openai/gpt-5.4-mini`, `anthropic/claude-3.7-sonnet`, `google/gemini-flash-3.5`, plus free-text for any other model), and a "Test connection" button.
 - `settings:saveAiConfig` mutation writes the key to the `settings` table. Client-facing queries on `settings` return only `{ keyIsSet: boolean, model: string }` — the raw key is never returned. The action reads the key via an `internalQuery`.
 - Alternative: set `OPENROUTER_API_KEY` as a Convex environment variable in the Convex dashboard instead of the in-app UI — both approaches work identically.
 
 ### AI builder flow
+
 - Parent-only [app/(parent)/ai-builder/page.tsx](app/(parent)/ai-builder/page.tsx) with a prompt box and a mode toggle: **Full course** or **Single lesson**.
 - Clicking "Generate" immediately writes a `status: "generating"` draft row and calls the Convex `action aiCourseBuilder:generate`. The UI subscribes to the draft via `useQuery` and shows a live "Generating…" state while the action runs.
 - The action calls `https://openrouter.ai/api/v1/chat/completions` with `response_format: { type: "json_object" }` and a strict JSON schema in the system prompt:
@@ -315,7 +320,7 @@ Convex actions can run for **up to 10 minutes** — there is no Vercel-style tim
 - **Animations** (per design skill Motion section): Framer Motion staggered card reveals, progress rings, confetti on quiz success, level-up screens, badge unlock toasts, animated subject cards, reward-shop purchase animation
 - **Interactive learning objects**: clickable timelines (History), drag-and-drop event ordering, tap-to-reveal hints, simple science/CS simulations — use subject accent colours and glass card styling throughout
 - **Badges engine** [convex/badges.ts](convex/badges.ts): scheduled check after each `quizAttempt` / lesson completion evaluates badge `criteria` and awards new `studentBadges` + bonus points; badge icons match **Recent Achievements** row styling from mockup
-- **Dashboard verification**: run checklist at bottom of [`.cursor/skills/design/SKILL.md`](.cursor/skills/design/SKILL.md) against live student dashboard before marking phase complete
+- **Dashboard verification**: run checklist at bottom of `[.cursor/skills/design/SKILL.md](.cursor/skills/design/SKILL.md)` against live student dashboard before marking phase complete
 
 ---
 
