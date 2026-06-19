@@ -126,7 +126,7 @@ export default function ParentDashboardPage() {
               {(stats?.recentAttempts ?? []).map((a) => (
                 <tr key={a._id} className="border-t border-white/5">
                   <td className="py-3 pr-4 font-mono text-xs text-muted-foreground">
-                    {a.quizId.slice(-8)}
+                    {a.quizId ? a.quizId.slice(-8) : "Friday"}
                   </td>
                   <td className="py-3 pr-4 text-white">
                     {a.correctAnswers}/{a.totalQuestions}

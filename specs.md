@@ -61,9 +61,14 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 - [x] Verified: typecheck 0 errors, lint 0 errors, all parent + login + student routes 200
 - [ ] Real account/invitation flow + stricter role assignment (Phase 9)
 
-### Phase 5 — Friday Quiz System  ⏳
-- [ ] Weekly cron to assemble Friday quiz from prior-week questions
-- [ ] Student Friday Challenge UI (boss start, double points, results + review)
+### Phase 5 — Friday Quiz System  ✅ COMPLETE
+- [x] Schema tweak: `quizAttempts.quizId` optional + `fridayQuizId` field + `by_friday_quiz` index (Friday attempts reference the weekly doc, not a single lesson quiz)
+- [x] `convex/fridayQuiz.ts`: `getCurrent` (this week's challenge + questions, enriched with subjectId), `generateForWeek` (internal; idempotent; samples prior-week completed-lesson questions, fallback to any published, deterministic shuffle, 10 Q), `submitFriday` (records attempt + **double points** via pointsLedger `friday_quiz`), `listHistory` (parent), `generateCurrentWeek` (parent dev trigger)
+- [x] `convex/crons.ts`: weekly cron `5 0 * * 1` (Mon 00:05) → `generateForWeek`
+- [x] Student `app/(student)/friday-quiz/page.tsx`: purple boss-level intro (Framer Motion), 10-Q one-per-screen flow with instant feedback, results screen with score + 2× points + per-subject strong/weak + recommended review (<70%)
+- [x] Dashboard Friday card "Get Ready!" → links to `/friday-quiz`
+- [x] Verified: typecheck/lint 0 errors, Convex pushed (cron live), pages render
+- [ ] Populate with real content (parent builds course → cron/auto generates weekly challenge)
 
 ### Phase 6 — Adaptive Learning  ⏳
 - [ ] Rolling per-topic performance, next-difficulty query

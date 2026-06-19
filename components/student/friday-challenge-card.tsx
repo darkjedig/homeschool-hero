@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Gamepad2 } from "lucide-react";
 
 type Remaining = { days: number; hours: number; mins: number; secs: number };
@@ -77,12 +78,12 @@ export function FridayChallengeCard({
           </div>
         ))}
       </div>
-      <button
-        type="button"
-        className="mt-4 w-full rounded-xl bg-purple-500 px-4 py-2.5 font-semibold text-white shadow-[0_0_18px_rgba(168,85,247,0.45)] transition hover:bg-purple-400"
+      <Link
+        href="/friday-quiz"
+        className="mt-4 block w-full rounded-xl bg-purple-500 px-4 py-2.5 text-center font-semibold text-white shadow-[0_0_18px_rgba(168,85,247,0.45)] transition hover:bg-purple-400"
       >
         Get Ready!
-      </button>
+      </Link>
     </section>
   );
 }

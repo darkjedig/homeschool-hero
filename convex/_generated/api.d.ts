@@ -11,9 +11,11 @@
 import type * as auth from "../auth.js";
 import type * as authHelpers from "../authHelpers.js";
 import type * as courses from "../courses.js";
+import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
 import type * as export_ from "../export.js";
 import type * as exportData from "../exportData.js";
+import type * as fridayQuiz from "../fridayQuiz.js";
 import type * as hello from "../hello.js";
 import type * as http from "../http.js";
 import type * as lessons from "../lessons.js";
@@ -36,9 +38,11 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   authHelpers: typeof authHelpers;
   courses: typeof courses;
+  crons: typeof crons;
   dashboard: typeof dashboard;
   export: typeof export_;
   exportData: typeof exportData;
+  fridayQuiz: typeof fridayQuiz;
   hello: typeof hello;
   http: typeof http;
   lessons: typeof lessons;

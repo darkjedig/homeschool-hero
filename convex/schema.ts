@@ -118,7 +118,8 @@ export default defineSchema({
 
   quizAttempts: defineTable({
     userId: v.id("users"),
-    quizId: v.id("quizzes"),
+    quizId: v.optional(v.id("quizzes")),
+    fridayQuizId: v.optional(v.id("fridayQuizzes")),
     score: v.number(),
     totalQuestions: v.number(),
     correctAnswers: v.number(),
@@ -135,6 +136,7 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_quiz", ["quizId"])
+    .index("by_friday_quiz", ["fridayQuizId"])
     .index("by_user_and_quiz", ["userId", "quizId"]),
 
   fridayQuizzes: defineTable({
