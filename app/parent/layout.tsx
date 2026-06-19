@@ -8,7 +8,7 @@ export default function ParentLayout({
   return (
     <div className="min-h-screen bg-app">
       <ParentSidebar />
-      <main className="lg:pl-60">
+      <main className="min-w-0 overflow-x-hidden lg:pl-60">
         <div className="mx-auto max-w-6xl space-y-6 p-6">{children}</div>
       </main>
     </div>
