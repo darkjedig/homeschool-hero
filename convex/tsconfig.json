@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["ES2021", "DOM"],
+    "allowJs": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Bundler",
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "types": ["node"]
+  },
+  "include": ["./**/*.ts", "./**/*.tsx", "./_generated/**/*.d.ts", "./_generated/**/*.ts"]
+}

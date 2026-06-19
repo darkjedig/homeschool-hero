@@ -1,0 +1,13 @@
+---
+alwaysApply: true
+---
+
+Persistent Memory (State Management) Workflow
+File Responsibility: The agent is responsible for managing or creating the .agent/memory.md file to serve as its long-term state.
+Sync Workflow: Follow these structured steps to ensure consistency:
+1. Pre-Task: Read memory.md to load the current context, including the objective, technical architecture, recent progress, known issues, and next steps.
+2. Post-Task: Update "Recent Progress" with any changes, record any new debt in "Known Issues," and clear completed items from "Next Steps."
+3. Error Handling: If the read operation fails, initialize a default structure and log the incident under "Known Issues."
+4. Reflection Loop: After performing updates, conduct a self-reflection to ensure alignment with projectinfo.md and flag any deviations.
+5. Ensure security first, never expose any API keys, keep them in separate routes, especially when we start to use any database keys or AI API keys for accessing AI models for adding courses, etc. you should think about security first. 
+

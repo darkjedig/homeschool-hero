@@ -1,0 +1,93 @@
+# HomeschoolHero — Build Specs
+
+Gamified, cloud-backed homeschool platform: student portal (video lessons, quizzes, points, badges, Friday quiz, reward shop) + parent admin dashboard (progress, manual + AI lesson builder, reward manager, CSV/JSON export). Single-student MVP, role-based access, real-time via Convex.
+
+**Plan**: `.cursor/plans/homeschoolhero_implementation_plan_6b99cba7.plan.md`
+**Design standard**: `.cursor/skills/design/SKILL.md`
+**Backend**: Convex deployment `oceanic-crane-853` (dev/ryan-gliozzo) — `https://oceanic-crane-853.eu-west-1.convex.cloud`
+
+---
+
+## Phase Checklist
+
+### Phase 1 — Foundation & Convex Wiring  ✅ COMPLETE
+- [x] Scaffold Next.js 16 (TS, Tailwind v4, App Router, ESLint, `@/*` alias)
+- [x] Install deps: convex, @convex-dev/auth, lucide-react, framer-motion, recharts
+- [x] shadcn/ui initialised; added button, card, input, label, dialog, drawer, badge, progress, table, tabs
+- [x] Convex linked to existing `oceanic-crane-853` (deploy-key auth, non-interactive)
+- [x] `.env.local` set (NEXT_PUBLIC_CONVEX_URL, CONVEX_DEPLOY_KEY, CONVEX_DEPLOYMENT, NEXT_PUBLIC_CONVEX_SITE_URL)
+- [x] `ConvexAuthProvider` wired via `app/providers.tsx` in `app/layout.tsx`
+- [x] `convex/hello.ts` smoke query → returns `"HomeschoolHero online"`
+- [x] `convex/auth.ts`, `convex/auth.config.ts`, `convex/http.ts` created via `@convex-dev/auth` setup; SITE_URL/JWT_PRIVATE_KEY/JWKS set on deployment
+- [x] Design tokens seeded in `app/globals.css` (`@theme`) + `tailwind.config.ts` reference
+- [x] `specs.md` + `.agent/memory.md` initialised
+- [x] **Gate**: smoke test shows live Convex data (verified: `convex run hello:hello` → `"HomeschoolHero online"`; home page SSR + client hydration wired)
+- [ ] Convex MCP read tools (tables/functionSpec/run) — pending opencode restart to load deploy key into MCP server
+
+### Phase 2 — Core Data Model  ✅ COMPLETE
+- [x] `convex/schema.ts` with 17 tables + indexes (spreads `authTables` from `@convex-dev/auth`): userProfiles, subjects, topics, lessons, quizzes, quizQuestions, quizAttempts, fridayQuizzes, videoProgress, pointsLedger, rewards, rewardRedemptions, badges, studentBadges, aiLessonDrafts, aiCourseDrafts, settings + auth component tables
+- [x] Role-based access via `convex/authHelpers.ts` (`requireRole`/`requireParent`/`requireStudent`) using `getAuthUserId` + `userProfiles.role` (`parent`/`student`)
+- [x] `convex/auth.ts` + `convex/auth.config.ts` (Convex Auth wired)
+- [x] Schema pushed to cloud `oceanic-crane-853` (all indexes created)
+- [x] Seed script `convex/seed.ts` → 8 subjects + 39 starter topics seeded (idempotent)
+- [x] Read queries (`subjects:list`, `subjects:bySlug`) verified live
+- [ ] Sample lessons: deferred to Phase 3/4 (require a parent `createdBy` account, created via sign-in flow)
+- [ ] Parent + student accounts: created when auth login UI lands (Phase 3); role mechanism ready
+
+### Phase 3 — Student Portal MVP  ⏳
+- [ ] Student app shell + sidebar matching design skill layout
+- [ ] Dashboard (mirror mockup: stats, missions, continue learning, Friday challenge, progress, subjects, achievements, parent insights, footer, FAB)
+- [ ] Subject overview, lesson page (YouTube IFrame island + progress mutations)
+- [ ] Quiz flow, reward shop
+- [ ] Empty/loading/error states
+
+### Phase 4 — Parent Dashboard MVP  ⏳
+- [ ] Parent dashboard (Recharts analytics)
+- [ ] Manual full-course builder + single-lesson builder
+- [ ] Reward manager CRUD
+- [ ] CSV + JSON export action (parent-only)
+
+### Phase 5 — Friday Quiz System  ⏳
+- [ ] Weekly cron to assemble Friday quiz from prior-week questions
+- [ ] Student Friday Challenge UI (boss start, double points, results + review)
+
+### Phase 6 — Adaptive Learning  ⏳
+- [ ] Rolling per-topic performance, next-difficulty query
+- [ ] Get-Help drawer below 60%, recommended-review list
+
+### Phase 7 — AI Course & Lesson Builder (OpenRouter BYOK)  ⏳
+- [ ] Parent AI settings (BYOK key stored server-side, never exposed)
+- [ ] Convex action `aiCourseBuilder:generate` (OpenRouter, up to 10 min)
+- [ ] Full-course + single-lesson draft review/approve flow (transactional publish)
+
+### Phase 8 — Premium UI & Gamification  ⏳
+- [ ] Framer Motion animations (stagger, confetti, level-up, rings)
+- [ ] Interactive learning objects (timelines, drag-drop, simulations)
+- [ ] Badges engine + dashboard verification against mockup checklist
+
+### Phase 9 — Security, Testing, Polish  ⏳
+- [ ] RBAC audit on every Convex function + route group
+- [ ] Playwright smoke + Vitest unit tests
+- [ ] Mobile polish, error boundaries, optimistic updates
+- [ ] README + specs finalised, Vercel deploy
+
+---
+
+## Architecture Notes
+
+- **Convex only**: database, auth, storage, realtime, scheduled crons. AI generation is Phase 7 (Convex action).
+- **Component files**: kebab-case.
+- **RSC-first**: minimal `'use client'` (providers, charts, countdown, video player, FAB).
+- **No secrets in browser**: only `NEXT_PUBLIC_*` exposed; deploy/BYOK keys stay server-side.
+
+## Design Token Reference (v4 CSS-first, see `app/globals.css`)
+
+| Class intent | Token |
+|---|---|
+| Page bg | `bg-app` (`#050810`) |
+| Card surface | `bg-card` (`#0f172a`) / `bg-card-hover` (`#1e293b`) |
+| Primary text | `text-foreground` (`#ffffff`) |
+| Secondary text | `text-muted-foreground` (`#94a3b8`) |
+| Subtle border | `border-subtle` (`rgba(255,255,255,0.08)`) |
+| Accents | `accent-blue/purple/green/orange/gold/pink/cyan` |
+| Subjects | `maths / english / science / history / aics / gamedev / homemaking / building` |
