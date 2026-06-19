@@ -79,10 +79,16 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 - [x] Verified: typecheck/lint 0 errors, Convex pushed, dashboard renders
 - [ ] Easier practice questions inside the drawer arrive with AI (Phase 7)
 
-### Phase 7 — AI Course & Lesson Builder (OpenRouter BYOK)  ⏳
-- [ ] Parent AI settings (BYOK key stored server-side, never exposed)
-- [ ] Convex action `aiCourseBuilder:generate` (OpenRouter, up to 10 min)
-- [ ] Full-course + single-lesson draft review/approve flow (transactional publish)
+### Phase 7 — AI Course & Lesson Builder (OpenRouter BYOK)  ✅ COMPLETE
+- [x] Schema: `aiCourseDrafts`/`aiLessonDrafts` evolved (status `generating`/`pending`/`approved`/`rejected`/`failed`, optional proposed fields, errorMessage, `by_requester` index)
+- [x] `convex/settings.ts`: `getAiConfig` (returns `keyIsSet` only — raw key never sent to client), `saveAiConfig` (parent), `getAiConfigInternal` internalQuery (raw key for actions, parent-only)
+- [x] `convex/aiDrafts.ts`: create/list/get drafts, internal `saveCourseResult`/`saveLessonResult`, `approveCourseDraft`/`approveLessonDraft` (transactional publish into subjects+topics+lessons+quizzes+questions, marks approved)
+- [x] `convex/aiCourseBuilder.ts` actions: `generate` (full course | single lesson via OpenRouter `chat/completions` w/ `response_format: json_object` + strict JSON schema), `testConnection`
+- [x] Parent **Settings** page: BYOK key (write-only), model dropdown + custom, YouTube toggle, Test connection
+- [x] Parent **AI Builder** page: mode toggle, prompt, live draft subscription (generating → pending → approved/failed), editable review, approve → publish
+- [x] Student queries still filter `status: published` — nothing AI-generated visible until parent approves
+- [x] Verified: typecheck/lint 0 errors, Convex pushed, pages render
+- [ ] Live end-to-end test once a real OpenRouter key is added in Settings
 
 ### Phase 8 — Premium UI & Gamification  ⏳
 - [ ] Framer Motion animations (stagger, confetti, level-up, rings)

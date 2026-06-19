@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   FolderPlus,
   BookCopy,
+  Wand2,
   Gift,
   Download,
   Settings,
@@ -15,6 +16,7 @@ import {
 const NAV = [
   { label: "Dashboard", href: "/parent/dashboard", icon: LayoutDashboard },
   { label: "New Course", href: "/parent/courses/new", icon: FolderPlus },
+  { label: "AI Builder", href: "/parent/ai-builder", icon: Wand2 },
   { label: "Lessons", href: "/parent/lessons", icon: BookCopy },
   { label: "Rewards", href: "/parent/rewards", icon: Gift },
   { label: "Export", href: "/parent/history", icon: Download },

@@ -9,6 +9,8 @@
  */
 
 import type * as adaptive from "../adaptive.js";
+import type * as aiCourseBuilder from "../aiCourseBuilder.js";
+import type * as aiDrafts from "../aiDrafts.js";
 import type * as auth from "../auth.js";
 import type * as authHelpers from "../authHelpers.js";
 import type * as courses from "../courses.js";
@@ -24,6 +26,7 @@ import type * as points from "../points.js";
 import type * as quizzes from "../quizzes.js";
 import type * as rewards from "../rewards.js";
 import type * as seed from "../seed.js";
+import type * as settings from "../settings.js";
 import type * as subjects from "../subjects.js";
 import type * as topics from "../topics.js";
 import type * as userProfiles from "../userProfiles.js";
@@ -37,6 +40,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   adaptive: typeof adaptive;
+  aiCourseBuilder: typeof aiCourseBuilder;
+  aiDrafts: typeof aiDrafts;
   auth: typeof auth;
   authHelpers: typeof authHelpers;
   courses: typeof courses;
@@ -52,6 +57,7 @@ declare const fullApi: ApiFromModules<{
   quizzes: typeof quizzes;
   rewards: typeof rewards;
   seed: typeof seed;
+  settings: typeof settings;
   subjects: typeof subjects;
   topics: typeof topics;
   userProfiles: typeof userProfiles;

@@ -20,13 +20,9 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - Source of truth: `.cursor/skills/design/SKILL.md`. Applied in `app/globals.css` (`:root` permanent dark theme) + `tailwind.config.ts` (reference).
 - Tailwind v4: tokens live in CSS `@theme`. Note: design skill's `text-primary`/`text-secondary` map to shadcn `text-foreground` (#fff) / `text-muted-foreground` (#94a3b8) to avoid clobbering shadcn component tokens. Subject + accent utilities available (`bg-maths`, `text-accent-purple`, etc.).
 
-## Recent Progress — Phases 1–6 COMPLETE
-- Phase 1: scaffold + Convex wiring + smoke test.
-- Phase 2: schema (17 tables), authHelpers (roles), seed (8 subjects + 39 topics).
-- Phase 3: full student portal (dashboard mirroring mockup, subject/lesson/quiz/rewards, YouTube island).
-- Phase 4: parent console (login + role claim, Recharts dashboard, full-course builder `courses.create`, single-lesson builder, lesson manager, reward manager CRUD, CSV/JSON export). Parent routes gated by `components/parent/parent-gate.tsx`.
-- Phase 5: Friday Challenge — `fridayQuiz.ts` (getCurrent, generateForWeek internal cron sampler, submitFriday double points), `crons.ts` (Mon 00:05), student boss-level UI w/ per-subject results. Dashboard Friday card → /friday-quiz.
-- Phase 6: Adaptive — `convex/adaptive.ts` (topicPerformance rolling-avg last-5 per topic; recommendedReview <70%; nextDifficulty tier), `components/student/get-help-drawer.tsx` (missed-question explanations, hints, lesson link, retry). Quiz <60% → "Get Help" drawer; dashboard "Need a Hint?" opens same drawer; `recommended-review.tsx` widget auto-hides when none weak. Blog Part 5 written. Typecheck+lint clean; Convex pushed.
+## Recent Progress — Phases 1–7 COMPLETE
+- Phases 1–6: foundation, schema, student portal, parent console, Friday Challenge, adaptive learning (see prior entries).
+- Phase 7: AI lesson builder (OpenRouter BYOK). `convex/settings.ts` (getAiConfig returns keyIsSet only; saveAiConfig; getAiConfigInternal internalQuery raw key parent-only). `convex/aiDrafts.ts` (create/list/get course+lesson drafts, internal saveCourseResult/saveLessonResult, approveCourseDraft/approveLessonDraft transactional publish). `convex/aiCourseBuilder.ts` actions (generate course|lesson via OpenRouter json_object + strict schema; testConnection). Schema evolved: draft tables status generating/pending/approved/rejected/failed, optional proposed fields, errorMessage, by_requester index. Parent Settings page (BYOK key write-only, model picker, test) + AI Builder page (mode toggle, prompt, live draft subscription, editable review, approve). Student queries unchanged (filter published). Blog Part 6 written. Typecheck+lint clean; Convex pushed.
 
 ## Next.js routing note
 - Route groups `(name)` do NOT create URL segments. Student routes use `(student)` → top-level URLs (`/dashboard`); parent routes MUST use a real `parent` segment (`app/parent/**` → `/parent/...`) to avoid colliding with same-named student routes.
@@ -47,5 +43,5 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - **Convex MCP disabled** in `~/.config/opencode/opencode.json` (auth bug: v2 token "Not Authorized" loop even with valid login + override). Verify Convex via CLI instead: `npx convex run <fn>` and `npx convex dev --once` (convex auto-loads `.env.local`; do NOT `source` it in zsh — the `|` in the deploy key breaks sourcing). Cloud `oceanic-crane-853` is fully working via CLI + deploy key + the running Next.js app.
 - **GitHub repo creation blocked**: fine-grained PAT returns 403 for `POST /user/repos`. Repo `darkjedig/HomeschoolHero` not created; user must create manually or supply a classic PAT with `repo` scope.
 
-## Next Steps (Phase 7)
-- AI lesson builder: `convex/settings.ts` (BYOK OpenRouter key server-side, client sees only keyIsSet), parent settings page, `convex/aiCourseBuilder.ts` action (OpenRouter chat/completions, JSON schema, up to 10 min), full-course + single-lesson drafts → `aiCourseDrafts`/`aiLessonDrafts`, parent review/approve transactionally into published content. Then Phase 8 polish/animations/badges, Phase 9 RBAC audit + tests.
+## Next Steps (Phase 8)
+- Polish & gamification: Framer Motion throughout (staggered reveals, confetti on quiz wins, level-up/badge-unlock toasts, progress rings), interactive learning objects (clickable History timelines, drag-drop), badges engine (`convex/badges.ts` — scheduled check after attempts/lesson completion awards studentBadges + bonus points). Verify dashboard vs mockup checklist. Then Phase 9 RBAC audit + Playwright/Vitest + mobile polish + README.

@@ -230,23 +230,26 @@ export default defineSchema({
   aiLessonDrafts: defineTable({
     requestedBy: v.id("users"),
     prompt: v.string(),
+    model: v.optional(v.string()),
     subjectId: v.optional(v.id("subjects")),
     topicId: v.optional(v.id("topics")),
-    proposedTitle: v.string(),
-    proposedNotes: v.string(),
-    proposedVideoUrl: v.string(),
-    proposedQuizQuestions: v.array(
-      v.object({
-        questionText: v.string(),
-        questionType: v.union(
-          v.literal("mcq"),
-          v.literal("truefalse"),
-          v.literal("ordering"),
-        ),
-        options: v.array(v.string()),
-        correctAnswer: v.string(),
-        explanation: v.string(),
-      }),
+    proposedTitle: v.optional(v.string()),
+    proposedNotes: v.optional(v.string()),
+    proposedVideoUrl: v.optional(v.string()),
+    proposedQuizQuestions: v.optional(
+      v.array(
+        v.object({
+          questionText: v.string(),
+          questionType: v.union(
+            v.literal("mcq"),
+            v.literal("truefalse"),
+            v.literal("ordering"),
+          ),
+          options: v.array(v.string()),
+          correctAnswer: v.string(),
+          explanation: v.string(),
+        }),
+      ),
     ),
     difficultyLevel: v.union(
       v.literal("beginner"),
@@ -254,70 +257,86 @@ export default defineSchema({
       v.literal("advanced"),
     ),
     status: v.union(
+      v.literal("generating"),
       v.literal("pending"),
       v.literal("approved"),
       v.literal("rejected"),
+      v.literal("failed"),
     ),
+    errorMessage: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_status", ["status"]),
+  })
+    .index("by_status", ["status"])
+    .index("by_requester", ["requestedBy"]),
 
   aiCourseDrafts: defineTable({
     requestedBy: v.id("users"),
     prompt: v.string(),
-    model: v.string(),
-    proposedSubject: v.object({
-      name: v.string(),
-      description: v.string(),
-      icon: v.string(),
-      color: v.string(),
-    }),
-    proposedTopics: v.array(
+    model: v.optional(v.string()),
+    proposedSubject: v.optional(
       v.object({
         name: v.string(),
         description: v.string(),
-        difficultyLevel: v.union(
-          v.literal("beginner"),
-          v.literal("intermediate"),
-          v.literal("advanced"),
-        ),
+        icon: v.string(),
+        color: v.string(),
       }),
     ),
-    proposedLessons: v.array(
-      v.object({
-        topicIndex: v.number(),
-        title: v.string(),
-        notes: v.string(),
-        videoUrl: v.string(),
-        difficultyLevel: v.union(
-          v.literal("beginner"),
-          v.literal("intermediate"),
-          v.literal("advanced"),
-        ),
-        pointsAwarded: v.number(),
-        quizQuestions: v.array(
-          v.object({
-            questionText: v.string(),
-            questionType: v.union(
-              v.literal("mcq"),
-              v.literal("truefalse"),
-              v.literal("ordering"),
-            ),
-            options: v.array(v.string()),
-            correctAnswer: v.string(),
-            explanation: v.string(),
-          }),
-        ),
-      }),
+    proposedTopics: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          description: v.string(),
+          difficultyLevel: v.union(
+            v.literal("beginner"),
+            v.literal("intermediate"),
+            v.literal("advanced"),
+          ),
+        }),
+      ),
+    ),
+    proposedLessons: v.optional(
+      v.array(
+        v.object({
+          topicIndex: v.number(),
+          title: v.string(),
+          notes: v.string(),
+          videoUrl: v.string(),
+          difficultyLevel: v.union(
+            v.literal("beginner"),
+            v.literal("intermediate"),
+            v.literal("advanced"),
+          ),
+          pointsAwarded: v.number(),
+          quizQuestions: v.array(
+            v.object({
+              questionText: v.string(),
+              questionType: v.union(
+                v.literal("mcq"),
+                v.literal("truefalse"),
+                v.literal("ordering"),
+              ),
+              options: v.array(v.string()),
+              correctAnswer: v.string(),
+              explanation: v.string(),
+            }),
+          ),
+        }),
+      ),
     ),
     status: v.union(
+      v.literal("generating"),
       v.literal("pending"),
       v.literal("approved"),
       v.literal("rejected"),
+      v.literal("failed"),
     ),
+    errorMessage: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_status", ["status"]),
+  })
+    .index("by_status", ["status"])
+    .index("by_requester", ["requestedBy"]),
 
   // Single parent-scoped settings doc. openRouterKey is write-only from the
   // client's perspective (queries return keyIsSet only); the raw key is read
