@@ -12,8 +12,14 @@ import type * as auth from "../auth.js";
 import type * as authHelpers from "../authHelpers.js";
 import type * as hello from "../hello.js";
 import type * as http from "../http.js";
+import type * as lessons from "../lessons.js";
+import type * as points from "../points.js";
+import type * as quizzes from "../quizzes.js";
+import type * as rewards from "../rewards.js";
 import type * as seed from "../seed.js";
 import type * as subjects from "../subjects.js";
+import type * as topics from "../topics.js";
+import type * as videoProgress from "../videoProgress.js";
 
 import type {
   ApiFromModules,
@@ -26,8 +32,14 @@ declare const fullApi: ApiFromModules<{
   authHelpers: typeof authHelpers;
   hello: typeof hello;
   http: typeof http;
+  lessons: typeof lessons;
+  points: typeof points;
+  quizzes: typeof quizzes;
+  rewards: typeof rewards;
   seed: typeof seed;
   subjects: typeof subjects;
+  topics: typeof topics;
+  videoProgress: typeof videoProgress;
 }>;
 
 /**

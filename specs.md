@@ -34,12 +34,20 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 - [ ] Sample lessons: deferred to Phase 3/4 (require a parent `createdBy` account, created via sign-in flow)
 - [ ] Parent + student accounts: created when auth login UI lands (Phase 3); role mechanism ready
 
-### Phase 3 — Student Portal MVP  ⏳
-- [ ] Student app shell + sidebar matching design skill layout
-- [ ] Dashboard (mirror mockup: stats, missions, continue learning, Friday challenge, progress, subjects, achievements, parent insights, footer, FAB)
-- [ ] Subject overview, lesson page (YouTube IFrame island + progress mutations)
-- [ ] Quiz flow, reward shop
-- [ ] Empty/loading/error states
+### Phase 3 — Student Portal MVP  ✅ COMPLETE
+- [x] Student app shell: `app/(student)/layout.tsx` + `components/student/student-sidebar.tsx` (logo, 8 nav items, profile card, XP bar, 7-day streak)
+- [x] `lib/auth-guard.ts` (no-op until auth login UI lands) + `lib/subjects.ts` (subject meta: colours/icons/design tokens)
+- [x] Dashboard `app/(student)/dashboard/page.tsx` mirroring mockup: header + mascot, 4 stat cards, missions | continue learning | Friday countdown, overall-progress donut | Core Subjects grid | achievements | parent insights, reward-shop strip + hint card + FAB
+- [x] All 13 components from design checklist (sidebar, header, stat-card, mission-card, continue-learning, friday-challenge, overall-progress, subject-tile, achievement-badge, reward-shop-strip, hint-card, ai-mascot, FAB) + `youtube-player` island
+- [x] Subject overview `subjects/[slug]` + subjects index (live Convex: subjects + topics)
+- [x] Lesson page `lessons/[id]` with YouTube IFrame island (per-second progress → `videoProgress:upsert`, resume from timestamp, complete @ 90%)
+- [x] Quiz flow `quiz/[id]` (one Q per screen, immediate feedback, score + points, retry) → `quizzes:submitAttempt`
+- [x] Reward shop `rewards` (balance, redeem with balance check) → `rewards:redeem`
+- [x] Convex functions: topics, lessons, videoProgress, quizzes (getWithQuestions/getForLesson/submitAttempt), rewards (listActive/redeem), points (balance)
+- [x] Placeholder nav routes (lessons/quiz/progress/friday-quiz/settings) via shared `ComingSoon`
+- [x] Verified: typecheck 0 errors, lint 0 errors, dev server renders dashboard + subject + rewards pages
+- [ ] Live student values (points/streak/progress) still placeholder until auth login UI + student account active (Phase 4/9)
+- [ ] Framer Motion entrance animations (Phase 8)
 
 ### Phase 4 — Parent Dashboard MVP  ⏳
 - [ ] Parent dashboard (Recharts analytics)

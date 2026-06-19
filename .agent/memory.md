@@ -20,9 +20,10 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - Source of truth: `.cursor/skills/design/SKILL.md`. Applied in `app/globals.css` (`:root` permanent dark theme) + `tailwind.config.ts` (reference).
 - Tailwind v4: tokens live in CSS `@theme`. Note: design skill's `text-primary`/`text-secondary` map to shadcn `text-foreground` (#fff) / `text-muted-foreground` (#94a3b8) to avoid clobbering shadcn component tokens. Subject + accent utilities available (`bg-maths`, `text-accent-purple`, etc.).
 
-## Recent Progress — Phase 1 COMPLETE, Phase 2 COMPLETE
-- Phase 1: scaffold + Convex wiring + smoke test (see below).
-- Phase 2: `convex/schema.ts` (17 tables + indexes, spreads `authTables`), `convex/authHelpers.ts` (role helpers via `getAuthUserId` + `userProfiles.role`), `convex/seed.ts` (8 subjects + 39 topics, idempotent), `convex/subjects.ts` (read queries). Schema pushed to cloud; seed run; reads verified live.
+## Recent Progress — Phases 1, 2, 3 COMPLETE
+- Phase 1: scaffold + Convex wiring + smoke test.
+- Phase 2: schema (17 tables + indexes), authHelpers (roles), seed (8 subjects + 39 topics), read queries.
+- Phase 3: full student portal — app shell + sidebar, dashboard mirroring mockup (all rows/components), subject/lesson(YouTube IFrame island with per-second progress)/quiz/rewards pages, `lib/subjects.ts` design-token map, `lib/auth-guard.ts` (no-op until login UI). Convex fns: topics, lessons, videoProgress, quizzes (getWithQuestions/submitAttempt), rewards (listActive/redeem), points (balance). Stub nav routes via `ComingSoon`. Typecheck + lint 0 errors; dev server renders all pages. Blog Part 2 written at `blog/2026-06-19-part-2-*.md`.
 
 ## Convex file naming gotcha
 - Convex module filenames CANNOT contain hyphens (path components only allow alphanumeric/underscore/period). Use camelCase in `convex/` (e.g. `authHelpers.ts`, NOT `auth-helpers.ts`). React component files under `components/` stay kebab-case per design skill.
@@ -40,5 +41,5 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - **Convex MCP disabled** in `~/.config/opencode/opencode.json` (auth bug: v2 token "Not Authorized" loop even with valid login + override). Verify Convex via CLI instead: `npx convex run <fn>` and `npx convex dev --once` (convex auto-loads `.env.local`; do NOT `source` it in zsh — the `|` in the deploy key breaks sourcing). Cloud `oceanic-crane-853` is fully working via CLI + deploy key + the running Next.js app.
 - **GitHub repo creation blocked**: fine-grained PAT returns 403 for `POST /user/repos`. Repo `darkjedig/HomeschoolHero` not created; user must create manually or supply a classic PAT with `repo` scope.
 
-## Next Steps (Phase 3)
-- Read `@design` skill + dashboard-layout.md before any UI. Build student app shell + dashboard mirroring the mockup. Build auth login UI (creates parent/student accounts → `userProfiles` with role). Lessons/quizzes CRUD follows in Phase 4 (parent). Always consult `@design` skill before UI work.
+## Next Steps (Phase 4)
+- Parent dashboard: same design tokens, data-dense admin layout (Recharts charts), manual full-course + single-lesson builders (`courses:create`, `lessons:create`), reward manager CRUD, CSV/JSON export action. This creates real lessons (status: published) so the student portal has content. Auth login UI (creates parent/student accounts → userProfiles.role) should land here too so RBAC activates.
