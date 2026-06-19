@@ -1,4 +1,5 @@
 import { ParentSidebar } from "@/components/parent/parent-sidebar";
+import { ParentGate } from "@/components/parent/parent-gate";
 
 export default function ParentLayout({
   children,
@@ -9,7 +10,9 @@ export default function ParentLayout({
     <div className="min-h-screen bg-app">
       <ParentSidebar />
       <main className="min-w-0 overflow-x-hidden lg:pl-60">
-        <div className="mx-auto max-w-[1400px] space-y-6 p-6 lg:p-8">{children}</div>
+        <div className="mx-auto max-w-[1400px] space-y-6 p-6 lg:p-8">
+          <ParentGate>{children}</ParentGate>
+        </div>
       </main>
     </div>
   );
