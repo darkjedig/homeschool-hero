@@ -3,6 +3,7 @@ import type { MutationCtx } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Id } from "./_generated/dataModel";
+import { requireParent } from "./authHelpers";
 
 /** Active rewards, cheapest first (student reward shop). */
 export const listActive = query({
@@ -62,3 +63,75 @@ async function currentPoints(
     .take(500);
   return entries.reduce((sum, e) => sum + e.points, 0);
 }
+
+/** All rewards for the parent manager (incl. inactive). */
+export const listAll = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("rewards").withIndex("by_active").take(100);
+  },
+});
+
+/** Create a reward. Parent-only. */
+export const create = mutation({
+  args: {
+    title: v.string(),
+    description: v.string(),
+    pointsCost: v.number(),
+    rewardType: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const parent = await requireParent(ctx);
+    const now = Date.now();
+    return await ctx.db.insert("rewards", {
+      title: args.title,
+      description: args.description,
+      pointsCost: args.pointsCost,
+      rewardType: args.rewardType,
+      active: true,
+      createdBy: parent,
+      createdAt: now,
+    });
+  },
+});
+
+/** Update a reward. Parent-only. */
+export const update = mutation({
+  args: {
+    rewardId: v.id("rewards"),
+    title: v.string(),
+    description: v.string(),
+    pointsCost: v.number(),
+    active: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    await requireParent(ctx);
+    await ctx.db.patch(args.rewardId, {
+      title: args.title,
+      description: args.description,
+      pointsCost: args.pointsCost,
+      active: args.active,
+    });
+  },
+});
+
+/** List redemption requests. Parent-only. */
+export const listRedemptions = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireParent(ctx);
+    return await ctx.db.query("rewardRedemptions").withIndex("by_status").take(100);
+  },
+});
+
+/** Approve a redemption request. Parent-only. */
+export const approveRedemption = mutation({
+  args: { redemptionId: v.id("rewardRedemptions") },
+  handler: async (ctx, args) => {
+    await requireParent(ctx);
+    await ctx.db.patch(args.redemptionId, {
+      status: "approved",
+      updatedAt: Date.now(),
+    });
+  },
+});

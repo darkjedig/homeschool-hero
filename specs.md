@@ -49,11 +49,17 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 - [ ] Live student values (points/streak/progress) still placeholder until auth login UI + student account active (Phase 4/9)
 - [ ] Framer Motion entrance animations (Phase 8)
 
-### Phase 4 — Parent Dashboard MVP  ⏳
-- [ ] Parent dashboard (Recharts analytics)
-- [ ] Manual full-course builder + single-lesson builder
-- [ ] Reward manager CRUD
-- [ ] CSV + JSON export action (parent-only)
+### Phase 4 — Parent Dashboard MVP  ✅ COMPLETE
+- [x] Auth login page `app/(auth)/login` (anonymous sign-in + role claim → `userProfiles.ensureMine`/`setMyRole`)
+- [x] Parent shell `app/parent/layout.tsx` + `components/parent/parent-sidebar.tsx` (real `parent` segment — route groups collide with student)
+- [x] Parent dashboard `app/parent/dashboard` (Recharts bar + area, stat cards, recent attempts table, `dashboard.overview`)
+- [x] Manual full-course builder `app/parent/courses/new` (subject → topics → lessons + quiz questions → transactional `courses.create`)
+- [x] Single-lesson builder `app/parent/lessons/new` (`lessons.createSingle`) + lesson manager `app/parent/lessons` (publish/unpublish via `lessons.setStatus`)
+- [x] Reward manager `app/parent/rewards` (CRUD via `rewards.create/update`, approve redemptions `rewards.approveRedemption`)
+- [x] Export `app/parent/history` (CSV + JSON via `export.exportCsv`/`exportJson` action + internal `exportData.allData` query)
+- [x] RBAC: all parent mutations/actions call `requireParent`; redeem enforces balance
+- [x] Verified: typecheck 0 errors, lint 0 errors, all parent + login + student routes 200
+- [ ] Real account/invitation flow + stricter role assignment (Phase 9)
 
 ### Phase 5 — Friday Quiz System  ⏳
 - [ ] Weekly cron to assemble Friday quiz from prior-week questions

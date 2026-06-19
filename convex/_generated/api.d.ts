@@ -10,6 +10,10 @@
 
 import type * as auth from "../auth.js";
 import type * as authHelpers from "../authHelpers.js";
+import type * as courses from "../courses.js";
+import type * as dashboard from "../dashboard.js";
+import type * as export_ from "../export.js";
+import type * as exportData from "../exportData.js";
 import type * as hello from "../hello.js";
 import type * as http from "../http.js";
 import type * as lessons from "../lessons.js";
@@ -19,6 +23,7 @@ import type * as rewards from "../rewards.js";
 import type * as seed from "../seed.js";
 import type * as subjects from "../subjects.js";
 import type * as topics from "../topics.js";
+import type * as userProfiles from "../userProfiles.js";
 import type * as videoProgress from "../videoProgress.js";
 
 import type {
@@ -30,6 +35,10 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   authHelpers: typeof authHelpers;
+  courses: typeof courses;
+  dashboard: typeof dashboard;
+  export: typeof export_;
+  exportData: typeof exportData;
   hello: typeof hello;
   http: typeof http;
   lessons: typeof lessons;
@@ -39,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   seed: typeof seed;
   subjects: typeof subjects;
   topics: typeof topics;
+  userProfiles: typeof userProfiles;
   videoProgress: typeof videoProgress;
 }>;
 
