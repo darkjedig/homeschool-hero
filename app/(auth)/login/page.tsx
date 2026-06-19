@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useConvexAuth, useMutation } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@/convex/_generated/api";
@@ -8,26 +8,34 @@ import { Rocket, Loader2, Shield, GraduationCap } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const { isAuthenticated } = useConvexAuth();
+  const { isAuthenticated, isLoading } = useConvexAuth();
   const { signIn } = useAuthActions();
   const ensure = useMutation(api.userProfiles.ensureMine);
   const setRole = useMutation(api.userProfiles.setMyRole);
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
 
-  const enter = async (role: "parent" | "student") => {
-    setBusy(true);
-    try {
-      if (!isAuthenticated) {
-        await signIn("anonymous");
-        // Wait for the Convex auth token to be available before mutating.
-        await new Promise((r) => setTimeout(r, 800));
+  // The role the user asked to enter as; fulfilled once auth is ready.
+  const [pendingRole, setPendingRole] = useState<"parent" | "student" | null>(null);
+
+  // When authentication completes, finish claiming the chosen role.
+  useEffect(() => {
+    if (!isAuthenticated || !pendingRole) return;
+    (async () => {
+      try {
+        await ensure({ displayName: pendingRole === "parent" ? "Parent" : "Student" });
+        await setRole({ role: pendingRole });
+        router.push(pendingRole === "parent" ? "/parent/dashboard" : "/dashboard");
+      } catch (e) {
+        console.error(e);
+        setPendingRole(null);
       }
-      await ensure({ displayName: role === "parent" ? "Parent" : "Student" });
-      await setRole({ role });
-      router.push(role === "parent" ? "/parent/dashboard" : "/dashboard");
-    } finally {
-      setBusy(false);
+    })();
+  }, [isAuthenticated, pendingRole, ensure, setRole, router]);
+
+  const enter = (role: "parent" | "student") => {
+    setPendingRole(role);
+    if (!isAuthenticated) {
+      void signIn("anonymous");
     }
   };
 
@@ -41,26 +49,28 @@ export default function LoginPage() {
           Homeschool<span className="text-blue-400">Hero</span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Choose how you want to sign in.
+          {pendingRole
+            ? "Signing you in…"
+            : "Choose how you want to sign in."}
         </p>
 
         <div className="mt-6 space-y-3">
           <button
             type="button"
-            disabled={busy}
+            disabled={pendingRole !== null || isLoading}
             onClick={() => enter("parent")}
             className="flex w-full items-center gap-3 rounded-xl bg-blue-500 px-5 py-3 font-semibold text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] transition hover:bg-blue-400 disabled:opacity-60"
           >
-            {busy ? <Loader2 size={18} className="animate-spin" /> : <Shield size={18} />}
+            {pendingRole === "parent" ? <Loader2 size={18} className="animate-spin" /> : <Shield size={18} />}
             Enter as Parent
           </button>
           <button
             type="button"
-            disabled={busy}
+            disabled={pendingRole !== null || isLoading}
             onClick={() => enter("student")}
             className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10 disabled:opacity-60"
           >
-            <GraduationCap size={18} />
+            {pendingRole === "student" ? <Loader2 size={18} className="animate-spin" /> : <GraduationCap size={18} />}
             Enter as Student
           </button>
         </div>
