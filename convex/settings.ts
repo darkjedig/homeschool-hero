@@ -2,7 +2,7 @@ import { query, mutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { requireParent } from "./authHelpers";
 
-const DEFAULT_MODEL = "openai/gpt-4o-mini";
+const DEFAULT_MODEL = "openai/gpt-5.4-mini";
 
 function singleDoc() {
   // Single parent-scoped settings doc; identified by a fixed key.

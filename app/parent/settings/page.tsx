@@ -9,11 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 const MODELS = [
-  "openai/gpt-4o-mini",
-  "openai/gpt-4o",
-  "anthropic/claude-3.5-sonnet",
-  "google/gemini-flash-1.5",
-  "meta-llama/llama-3.3-70b-instruct",
+  "openai/gpt-5.4-mini",
+  "deepseek/deepseek-v4-flash",
+  "xiaomi/mimo-v2.5",
+  "deepseek/deepseek-v4-pro",
+  "nex-agi/nex-n2-pro:free",
+  "google/gemini-3.5-flash",
+  "anthropic/claude-sonnet-4.6",
 ];
 
 export default function ParentSettingsPage() {
