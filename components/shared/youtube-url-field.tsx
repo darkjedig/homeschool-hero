@@ -11,20 +11,25 @@ import {
 } from "@/lib/youtube";
 
 /**
- * YouTube URL input with a live thumbnail preview and a clear warning when the
- * value is a search URL (which cannot be played) rather than a real video URL.
+ * YouTube URL input with a live thumbnail preview, a clear warning when the
+ * value is a search link (not playable), and — when empty — a clickable
+ * suggestion to search YouTube using a query derived from the lesson.
  */
 export function YoutubeUrlField({
   value,
   onChange,
+  suggestion,
 }: {
   value: string;
   onChange: (v: string) => void;
+  /** A ready-made YouTube search URL (derived from lesson title/subject). */
+  suggestion?: string;
 }) {
   const videoId = getYouTubeId(value);
   const isSearch = isYouTubeSearchUrl(value);
   const searchQuery = youTubeSearchQuery(value);
   const thumb = videoId ? youTubeThumb(value) : null;
+  const suggestionQuery = suggestion ? youTubeSearchQuery(suggestion) : null;
 
   return (
     <div>
@@ -41,11 +46,7 @@ export function YoutubeUrlField({
         <div className="mt-2 flex items-center gap-3 rounded-lg border border-green-500/30 bg-green-500/10 p-2">
           {thumb && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={thumb}
-              alt="Video preview"
-              className="h-12 w-20 rounded object-cover"
-            />
+            <img src={thumb} alt="Video preview" className="h-12 w-20 rounded object-cover" />
           )}
           <div className="text-xs text-green-300">
             <p className="flex items-center gap-1 font-semibold">
@@ -70,14 +71,41 @@ export function YoutubeUrlField({
             rel="noreferrer"
             className="mt-2 inline-flex items-center gap-1 font-semibold text-orange-300 hover:underline"
           >
-            <Search size={12} /> Open the search
-            <ExternalLink size={11} />
+            <Search size={12} /> Open the search <ExternalLink size={11} />
           </a>
         </div>
       ) : value ? (
         <p className="mt-2 flex items-center gap-1 text-xs text-orange-300">
           <AlertTriangle size={14} /> Not a recognised YouTube video URL.
         </p>
+      ) : suggestion ? (
+        <div className="mt-2 rounded-lg border border-blue-500/30 bg-blue-500/10 p-3 text-xs text-blue-100">
+          <p className="flex items-center gap-1 font-semibold">
+            <Search size={13} /> Find a video for this lesson
+          </p>
+          <p className="mt-1">
+            Search YouTube for{" "}
+            <span className="font-semibold text-white">&ldquo;{suggestionQuery ?? "this topic"}&rdquo;</span>{" "}
+            and paste the real video URL above.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <a
+              href={suggestion}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 rounded-md bg-blue-500/25 px-2.5 py-1 font-semibold text-blue-100 hover:bg-blue-500/40"
+            >
+              <Search size={11} /> Open the search <ExternalLink size={11} />
+            </a>
+            <button
+              type="button"
+              onClick={() => onChange(suggestion)}
+              className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2.5 py-1 font-semibold text-white hover:bg-white/10"
+            >
+              Use this search
+            </button>
+          </div>
+        </div>
       ) : null}
     </div>
   );

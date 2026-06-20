@@ -23,6 +23,7 @@ import {
   Area,
 } from "recharts";
 import { subjectMeta, hexToRgb } from "@/lib/subjects";
+import Link from "next/link";
 
 // Shared Recharts tooltip — light text on dark glass so it's readable.
 const TOOLTIP_STYLE = {
@@ -64,11 +65,11 @@ export default function ParentDashboardPage() {
       </header>
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <Stat icon={BookOpen} color="#3b82f6" value={stats ? String(stats.counts.subjects) : "—"} label="Subjects" />
-        <Stat icon={CheckCircle2} color="#22c55e" value={stats ? String(stats.counts.publishedLessons) : "—"} label="Published lessons" />
-        <Stat icon={Brain} color="#a855f7" value={stats ? String(stats.counts.attempts) : "—"} label="Quiz attempts" />
-        <Stat icon={Trophy} color="#f97316" value={stats ? `${stats.avgScore}%` : "—"} label="Avg score" />
-        <Stat icon={Coins} color="#eab308" value={stats ? stats.totalPoints.toLocaleString() : "—"} label="Points earned" />
+        <Stat icon={BookOpen} color="#3b82f6" value={stats ? String(stats.counts.subjects) : "—"} label="Subjects" href="/parent/subjects" />
+        <Stat icon={CheckCircle2} color="#22c55e" value={stats ? String(stats.counts.publishedLessons) : "—"} label="Published lessons" href="/parent/lessons" />
+        <Stat icon={Brain} color="#a855f7" value={stats ? String(stats.counts.attempts) : "—"} label="Quiz attempts" href="/parent/quizzes" />
+        <Stat icon={Trophy} color="#f97316" value={stats ? `${stats.avgScore}%` : "—"} label="Avg score" href="/parent/quizzes" />
+        <Stat icon={Coins} color="#eab308" value={stats ? stats.totalPoints.toLocaleString() : "—"} label="Points earned" href="/parent/history" />
       </section>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
@@ -199,18 +200,17 @@ function Stat({
   color,
   value,
   label,
+  href,
 }: {
   icon: LucideIcon;
   color: string;
   value: string;
   label: string;
+  href?: string;
 }) {
   const rgb = hexToRgb(color);
-  return (
-    <div
-      className="relative overflow-hidden rounded-2xl border bg-gradient-to-b from-white/[0.07] to-transparent p-5 backdrop-blur-md"
-      style={{ borderColor: `${color}33`, boxShadow: `0 0 24px rgba(${rgb},0.14)` }}
-    >
+  const inner = (
+    <>
       <div
         className="mb-4 grid h-11 w-11 place-items-center rounded-xl"
         style={{ backgroundColor: `${color}22`, boxShadow: `0 0 18px ${color}55` }}
@@ -219,6 +219,22 @@ function Stat({
       </div>
       <p className="text-2xl font-bold text-white xl:text-3xl">{value}</p>
       <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
+    </>
+  );
+  const cls = `relative block overflow-hidden rounded-2xl border bg-gradient-to-b from-white/[0.07] to-transparent p-5 backdrop-blur-md transition hover:-translate-y-0.5 ${
+    href ? "cursor-pointer hover:brightness-110" : ""
+  }`;
+  const style = { borderColor: `${color}33`, boxShadow: `0 0 24px rgba(${rgb},0.14)` };
+  if (href) {
+    return (
+      <Link href={href} className={cls} style={style}>
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <div className={cls} style={style}>
+      {inner}
     </div>
   );
 }

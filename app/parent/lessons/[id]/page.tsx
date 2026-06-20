@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { YoutubeUrlField } from "@/components/shared/youtube-url-field";
+import { QuizEditor } from "@/components/parent/quiz-editor";
 
 export default function EditLessonPage() {
   const { id } = useParams<{ id: string }>();
@@ -98,7 +99,11 @@ export default function EditLessonPage() {
         </Field>
 
         <div className="md:col-span-2">
-          <YoutubeUrlField value={form.videoUrl} onChange={(v) => set({ videoUrl: v })} />
+          <YoutubeUrlField
+            value={form.videoUrl}
+            onChange={(v) => set({ videoUrl: v })}
+            suggestion={`https://www.youtube.com/results?search_query=${encodeURIComponent(lesson.title + " lesson for kids")}`}
+          />
         </div>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
@@ -145,6 +150,14 @@ export default function EditLessonPage() {
             Save changes
           </Button>
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+        <h2 className="mb-1 text-sm font-semibold text-white">Quiz questions</h2>
+        <p className="mb-4 text-xs text-muted-foreground">
+          View, edit, add and remove the questions students answer after this lesson.
+        </p>
+        <QuizEditor lessonId={lesson._id} />
       </section>
     </div>
   );
