@@ -15,6 +15,9 @@ type QuizRow = {
   subjectName: string;
   subjectColor: string;
   questionCount: number;
+  attemptsCount: number;
+  latestPercentage: number | null;
+  bestPercentage: number | null;
   createdAt: number;
 };
 
@@ -74,9 +77,18 @@ export default function QuizzesPage() {
                       <p className="truncate text-sm font-medium text-white">{q.lessonTitle}</p>
                       <p className="text-xs text-muted-foreground">
                         {q.questionCount} question{q.questionCount === 1 ? "" : "s"}
+                        {q.attemptsCount > 0 && (
+                          <span className="ml-2">· taken {q.attemptsCount}×</span>
+                        )}
                       </p>
                     </div>
-                    <Badge variant="secondary">edit</Badge>
+                    {q.bestPercentage !== null ? (
+                      <Badge className={q.bestPercentage >= 60 ? "bg-green-500/20 text-green-300" : "bg-orange-500/20 text-orange-300"}>
+                        Best: {q.bestPercentage}%
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary">Not taken</Badge>
+                    )}
                     <ChevronRight size={16} className="text-muted-foreground" />
                   </Link>
                 ))}

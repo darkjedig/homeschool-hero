@@ -117,6 +117,10 @@ export const listAll = query({
         .query("quizQuestions")
         .withIndex("by_quiz_and_order", (qq) => qq.eq("quizId", q._id))
         .take(50);
+      const attempts = await ctx.db
+        .query("quizAttempts")
+        .withIndex("by_quiz", (qa) => qa.eq("quizId", q._id))
+        .take(20);
       out.push({
         _id: q._id,
         title: q.title,
@@ -126,6 +130,13 @@ export const listAll = query({
         subjectColor: subject?.color ?? "#3b82f6",
         questionCount: questions.length,
         createdAt: q._creationTime,
+        attemptsCount: attempts.length,
+        latestPercentage: attempts.length > 0
+          ? attempts.sort((a, b) => b.completedAt - a.completedAt)[0].percentage
+          : null,
+        bestPercentage: attempts.length > 0
+          ? Math.max(...attempts.map((a) => a.percentage))
+          : null,
       });
     }
     return out.sort((a, b) =>
