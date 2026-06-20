@@ -209,6 +209,7 @@ export default defineSchema({
     .index("by_status", ["status"]),
 
   badges: defineTable({
+    key: v.optional(v.string()),
     title: v.string(),
     description: v.string(),
     icon: v.string(),
@@ -216,7 +217,9 @@ export default defineSchema({
     pointsBonus: v.number(),
     active: v.boolean(),
     createdAt: v.number(),
-  }).index("by_active", ["active"]),
+  })
+    .index("by_active", ["active"])
+    .index("by_key", ["key"]),
 
   studentBadges: defineTable({
     userId: v.id("users"),

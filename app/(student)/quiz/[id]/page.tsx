@@ -8,6 +8,10 @@ import { Check, X, Trophy, RotateCcw, LifeBuoy } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { GetHelpDrawer, type HelpItem } from "@/components/student/get-help-drawer";
+import { toast } from "sonner";
+import { celebrate } from "@/lib/confetti";
+
+type Badge = { key: string; title: string; icon: string; pointsBonus: number };
 
 type Q = Doc<"quizQuestions">;
 
@@ -25,6 +29,7 @@ export default function QuizPage() {
   const [result, setResult] = useState<{
     percentage: number;
     pointsEarned: number;
+    newBadges?: Badge[];
   } | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
 
@@ -133,6 +138,14 @@ export default function QuizPage() {
           answers: newAnswers as never,
         });
         setResult(res);
+        if (res.percentage >= 60) celebrate();
+        if (res.pointsEarned > 0)
+          toast.success(`+${res.pointsEarned} points!`, { description: `${res.percentage}% on this quiz` });
+        for (const b of res.newBadges ?? []) {
+          toast(`🏆 Badge unlocked: ${b.title}`, {
+            description: b.pointsBonus > 0 ? `+${b.pointsBonus} bonus points` : undefined,
+          });
+        }
       } catch {
         setResult({ percentage: 0, pointsEarned: 0 });
       }

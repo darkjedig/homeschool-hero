@@ -1,6 +1,10 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
+
+type AwardedBadge = { key: string; title: string; icon: string; pointsBonus: number };
 
 /** A quiz with its questions by quiz id (student-facing). */
 export const getWithQuestions = query({
@@ -46,7 +50,12 @@ export const submitAttempt = mutation({
       }),
     ),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{
+    attemptId: Id<"quizAttempts">;
+    percentage: number;
+    pointsEarned: number;
+    newBadges: AwardedBadge[];
+  }> => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Not authenticated");
 
@@ -83,6 +92,9 @@ export const submitAttempt = mutation({
       });
     }
 
-    return { attemptId, percentage, pointsEarned };
+    const newBadges = await ctx.runMutation(internal.badges.checkAndAward, {
+      userId,
+    });
+    return { attemptId, percentage, pointsEarned, newBadges };
   },
 });

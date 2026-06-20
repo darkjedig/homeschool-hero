@@ -90,10 +90,15 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 - [x] Verified: typecheck/lint 0 errors, Convex pushed, pages render
 - [ ] Live end-to-end test once a real OpenRouter key is added in Settings
 
-### Phase 8 — Premium UI & Gamification  ⏳
-- [ ] Framer Motion animations (stagger, confetti, level-up, rings)
-- [ ] Interactive learning objects (timelines, drag-drop, simulations)
-- [ ] Badges engine + dashboard verification against mockup checklist
+### Phase 8 — Premium UI & Gamification  ✅ COMPLETE
+- [x] Framer Motion: reusable StaggerGroup/StaggerItem (stagger 0.05s, fade+slide y:12→0) on dashboard; hover scale 1.02 on mission/subject cards
+- [x] Confetti (canvas-confetti) on quiz/Friday success (≥60%, reduced-motion aware)
+- [x] Toasts (sonner) for points + badge unlocks; Toaster in root layout
+- [x] Badges engine convex/badges.ts: 6 seeded badges, checkAndAward internal mutation wired into submitAttempt/submitFriday/videoProgress completion; bonus points; returns newly-awarded for toasts
+- [x] Dashboard Recent Achievements wired to real badges.mine
+- [x] Schema: badges key + by_key index
+- [x] Verified: typecheck/lint 0 errors, Convex pushed, dashboard renders
+- [ ] Interactive learning objects (timelines, drag-drop) deferred — future iteration
 
 ### Phase 9 — Security, Testing, Polish  ⏳
 - [ ] RBAC audit on every Convex function + route group

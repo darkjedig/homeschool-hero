@@ -17,7 +17,7 @@ export function SubjectTile({ slug, name, progress, href = "#" }: SubjectTilePro
   return (
     <Link
       href={href}
-      className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center transition hover:-translate-y-0.5"
+      className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center transition hover:-translate-y-0.5 hover:scale-[1.02]"
       style={{ boxShadow: `0 0 18px rgba(${rgb},0.10)` }}
     >
       <div

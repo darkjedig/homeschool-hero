@@ -167,6 +167,8 @@ export const generateCurrentWeek = mutation({
   },
 });
 
+type AwardedBadge = { key: string; title: string; icon: string; pointsBonus: number };
+
 /** Submit a Friday challenge attempt and award DOUBLE points. Auth required. */
 export const submitFriday = mutation({
   args: {
@@ -179,7 +181,16 @@ export const submitFriday = mutation({
       }),
     ),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{
+    percentage: number;
+    pointsEarned: number;
+    correct: number;
+    total: number;
+    newBadges: AwardedBadge[];
+  }> => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Not authenticated");
 
@@ -216,7 +227,10 @@ export const submitFriday = mutation({
       });
     }
 
-    return { percentage, pointsEarned, correct, total };
+    const newBadges = await ctx.runMutation(internal.badges.checkAndAward, {
+      userId,
+    });
+    return { percentage, pointsEarned, correct, total, newBadges };
   },
 });
 

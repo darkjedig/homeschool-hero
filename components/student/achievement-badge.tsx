@@ -1,7 +1,7 @@
-import type { LucideIcon } from "lucide-react";
+import type { ComponentType, CSSProperties } from "react";
 
 export type AchievementBadgeProps = {
-  icon: LucideIcon;
+  icon: ComponentType<{ size?: number; style?: CSSProperties }>;
   label: string;
   color?: string;
 };

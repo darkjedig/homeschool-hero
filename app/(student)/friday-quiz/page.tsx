@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { subjectMeta } from "@/lib/subjects";
+import { toast } from "sonner";
+import { celebrate } from "@/lib/confetti";
 import Link from "next/link";
 
 type Q = {
@@ -43,6 +45,7 @@ export default function FridayQuizPage() {
     pointsEarned: number;
     correct: number;
     total: number;
+    newBadges?: { key: string; title: string; icon: string; pointsBonus: number }[];
   } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -172,6 +175,14 @@ export default function FridayQuizPage() {
           })),
         });
         setResult(res);
+        if (res.percentage >= 60) celebrate();
+        if (res.pointsEarned > 0)
+          toast.success(`+${res.pointsEarned} points! (2×)`, { description: `${res.percentage}% on the Friday Challenge` });
+        for (const b of res.newBadges ?? []) {
+          toast(`🏆 Badge unlocked: ${b.title}`, {
+            description: b.pointsBonus > 0 ? `+${b.pointsBonus} bonus points` : undefined,
+          });
+        }
         setPhase("done");
       } catch {
         setResult({

@@ -13,6 +13,7 @@ import type * as aiCourseBuilder from "../aiCourseBuilder.js";
 import type * as aiDrafts from "../aiDrafts.js";
 import type * as auth from "../auth.js";
 import type * as authHelpers from "../authHelpers.js";
+import type * as badges from "../badges.js";
 import type * as courses from "../courses.js";
 import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   aiDrafts: typeof aiDrafts;
   auth: typeof auth;
   authHelpers: typeof authHelpers;
+  badges: typeof badges;
   courses: typeof courses;
   crons: typeof crons;
   dashboard: typeof dashboard;

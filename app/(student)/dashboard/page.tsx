@@ -13,6 +13,8 @@ import { AchievementBadge } from "@/components/student/achievement-badge";
 import { RewardShopStrip } from "@/components/student/reward-shop-strip";
 import { HintCard } from "@/components/student/hint-card";
 import { RecommendedReview } from "@/components/student/recommended-review";
+import { StaggerGroup, StaggerItem } from "@/components/shared/motion";
+import { DynamicIcon } from "@/components/shared/icon-picker";
 import {
   Coins,
   Flame,
@@ -46,18 +48,20 @@ const SUBJECT_PROGRESS: Record<string, number> = {
 
 export default function DashboardPage() {
   const subjects = useQuery(api.subjects.list);
+  const myBadges = useQuery(api.badges.mine);
   const firstFour = (subjects ?? []).slice(0, 4);
 
   return (
-    <>
+    <StaggerGroup className="space-y-6">
       <DashboardHeader name="Hudson" />
 
       {/* Top row — 4 stat cards */}
-      <section
-        aria-label="Stats"
-        className="grid grid-cols-2 gap-4 lg:grid-cols-4"
-      >
-        <StatCard
+      <StaggerItem>
+        <section
+          aria-label="Stats"
+          className="grid grid-cols-2 gap-4 lg:grid-cols-4"
+        >
+          <StatCard
           icon={Coins}
           iconColor="#eab308"
           value="2,450"
@@ -88,8 +92,10 @@ export default function DashboardPage() {
           progress={72}
         />
       </section>
+      </StaggerItem>
 
       {/* Middle row — missions | continue learning | friday challenge */}
+      <StaggerItem>
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-12">
         <div className="xl:col-span-4">
           <h2 className="mb-3 text-lg font-semibold text-white">
@@ -138,8 +144,10 @@ export default function DashboardPage() {
           <FridayChallengeCard />
         </div>
       </section>
+      </StaggerItem>
 
       {/* Bottom row — 4 widgets */}
+      <StaggerItem>
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
         <OverallProgressChart />
 
@@ -165,10 +173,22 @@ export default function DashboardPage() {
             Recent Achievements
           </h3>
           <div className="flex justify-between">
-            <AchievementBadge icon={Flame} label="Streak Master" color="#f97316" />
-            <AchievementBadge icon={FlaskConical} label="Science Star" color="#22c55e" />
-            <AchievementBadge icon={ListChecks} label="Quiz Whiz" color="#3b82f6" />
-            <AchievementBadge icon={Sunrise} label="Early Bird" color="#eab308" />
+            {(myBadges ?? []).slice(0, 4).map((b) => (
+              <AchievementBadge
+                key={b._id}
+                icon={(props) => <DynamicIcon name={b.icon} {...props} />}
+                label={b.title}
+                color="#eab308"
+              />
+            ))}
+            {(myBadges ?? []).length === 0 && (
+              <>
+                <AchievementBadge icon={Flame} label="Locked" color="#475569" />
+                <AchievementBadge icon={FlaskConical} label="Locked" color="#475569" />
+                <AchievementBadge icon={ListChecks} label="Locked" color="#475569" />
+                <AchievementBadge icon={Sunrise} label="Locked" color="#475569" />
+              </>
+            )}
           </div>
         </div>
 
@@ -190,21 +210,24 @@ export default function DashboardPage() {
           </a>
         </section>
       </section>
+      </StaggerItem>
 
       {/* Adaptive recommended review (auto-hides when nothing is weak) */}
       <RecommendedReview />
 
       {/* Footer widgets */}
+      <StaggerItem>
       <section className="flex flex-wrap gap-4">
         <RewardShopStrip />
         <HintCard />
       </section>
+      </StaggerItem>
 
       <div className="flex items-center gap-2 pt-2 text-xs text-muted-foreground">
         <Trophy size={14} className="text-yellow-400" />
         Placeholder values shown — live stats connect when the student account
         is active.
       </div>
-    </>
+    </StaggerGroup>
   );
 }

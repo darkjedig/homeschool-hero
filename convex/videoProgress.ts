@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
 
 /** Video progress for the current user + lesson (null if none / not authed). */
 export const getForLesson = query({
@@ -37,6 +38,8 @@ export const upsert = mutation({
       )
       .unique();
     const now = Date.now();
+    const justCompleted = args.completed && !(existing?.completed ?? false);
+    let progressId: string;
     if (existing) {
       await ctx.db.patch(existing._id, {
         secondsWatched: args.secondsWatched,
@@ -45,17 +48,22 @@ export const upsert = mutation({
         completed: existing.completed || args.completed,
         updatedAt: now,
       });
-      return existing._id;
+      progressId = existing._id;
+    } else {
+      progressId = await ctx.db.insert("videoProgress", {
+        userId,
+        lessonId: args.lessonId,
+        videoUrl: args.videoUrl,
+        secondsWatched: args.secondsWatched,
+        lastTimestamp: args.lastTimestamp,
+        percentageWatched: args.percentageWatched,
+        completed: args.completed,
+        updatedAt: now,
+      });
     }
-    return await ctx.db.insert("videoProgress", {
-      userId,
-      lessonId: args.lessonId,
-      videoUrl: args.videoUrl,
-      secondsWatched: args.secondsWatched,
-      lastTimestamp: args.lastTimestamp,
-      percentageWatched: args.percentageWatched,
-      completed: args.completed,
-      updatedAt: now,
-    });
+    if (justCompleted) {
+      await ctx.runMutation(internal.badges.checkAndAward, { userId });
+    }
+    return progressId;
   },
 });

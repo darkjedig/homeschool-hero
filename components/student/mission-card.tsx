@@ -26,7 +26,7 @@ export function MissionCard({
   return (
     <Link
       href={href}
-      className="block rounded-2xl border bg-gradient-to-b from-white/[0.06] to-transparent p-4 transition hover:-translate-y-0.5"
+      className="block rounded-2xl border bg-gradient-to-b from-white/[0.06] to-transparent p-4 transition hover:-translate-y-0.5 hover:scale-[1.02]"
       style={{
         borderColor: `${meta.color}4d`,
         boxShadow: `0 0 24px rgba(${rgb},0.15)`,
