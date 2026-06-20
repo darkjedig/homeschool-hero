@@ -14,6 +14,7 @@ import type * as aiDrafts from "../aiDrafts.js";
 import type * as auth from "../auth.js";
 import type * as authHelpers from "../authHelpers.js";
 import type * as badges from "../badges.js";
+import type * as calendar from "../calendar.js";
 import type * as courses from "../courses.js";
 import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
@@ -47,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   authHelpers: typeof authHelpers;
   badges: typeof badges;
+  calendar: typeof calendar;
   courses: typeof courses;
   crons: typeof crons;
   dashboard: typeof dashboard;

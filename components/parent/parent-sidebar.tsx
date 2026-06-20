@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Rocket,
   LayoutDashboard,
+  CalendarDays,
   FolderPlus,
   Library,
   BookCopy,
@@ -17,6 +18,7 @@ import {
 
 const NAV = [
   { label: "Dashboard", href: "/parent/dashboard", icon: LayoutDashboard },
+  { label: "Calendar", href: "/parent/calendar", icon: CalendarDays },
   { label: "Subjects", href: "/parent/subjects", icon: Library },
   { label: "New Course", href: "/parent/courses/new", icon: FolderPlus },
   { label: "AI Builder", href: "/parent/ai-builder", icon: Wand2 },

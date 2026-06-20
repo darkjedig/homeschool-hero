@@ -9,6 +9,7 @@ import {
   PlayCircle,
   ListChecks,
   CalendarDays,
+  CalendarCheck,
   Gift,
   Trophy,
   Settings,
@@ -18,6 +19,7 @@ import { Progress } from "@/components/ui/progress";
 
 const NAV = [
   { label: "Home", href: "/dashboard", icon: Home },
+  { label: "Calendar", href: "/calendar", icon: CalendarCheck },
   { label: "Subjects", href: "/subjects", icon: BookOpen },
   { label: "Lessons", href: "/lessons", icon: PlayCircle },
   { label: "Quizzes", href: "/quiz", icon: ListChecks },
