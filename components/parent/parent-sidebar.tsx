@@ -6,6 +6,7 @@ import {
   Rocket,
   LayoutDashboard,
   FolderPlus,
+  Library,
   BookCopy,
   Wand2,
   Gift,
@@ -15,6 +16,7 @@ import {
 
 const NAV = [
   { label: "Dashboard", href: "/parent/dashboard", icon: LayoutDashboard },
+  { label: "Subjects", href: "/parent/subjects", icon: Library },
   { label: "New Course", href: "/parent/courses/new", icon: FolderPlus },
   { label: "AI Builder", href: "/parent/ai-builder", icon: Wand2 },
   { label: "Lessons", href: "/parent/lessons", icon: BookCopy },

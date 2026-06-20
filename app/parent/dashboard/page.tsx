@@ -22,7 +22,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { subjectMeta } from "@/lib/subjects";
+import { subjectMeta, hexToRgb } from "@/lib/subjects";
 
 // Shared Recharts tooltip — light text on dark glass so it's readable.
 const TOOLTIP_STYLE = {
@@ -56,7 +56,7 @@ export default function ParentDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <header>
+      <header className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600/15 via-purple-600/10 to-transparent p-6 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.12)]">
         <h1 className="text-2xl font-bold text-white">Parent Dashboard</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Progress, content and engagement across all subjects.
@@ -72,7 +72,7 @@ export default function ParentDashboardPage() {
       </section>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <Panel title="Lessons published per subject" subtitle="Distribution of live lessons">
+        <Panel title="Lessons published per subject" subtitle="Distribution of live lessons" accent="#3b82f6">
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={lessonsBySubject} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
@@ -90,7 +90,7 @@ export default function ParentDashboardPage() {
           </div>
         </Panel>
 
-        <Panel title="Quiz scores over recent attempts" subtitle="Last 8 results (%)">
+        <Panel title="Quiz scores over recent attempts" subtitle="Last 8 results (%)" accent="#22c55e">
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={scoreOverTime} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
@@ -111,7 +111,7 @@ export default function ParentDashboardPage() {
         </Panel>
       </section>
 
-      <Panel title="Recent quiz attempts" subtitle="Latest activity in real time">
+      <Panel title="Recent quiz attempts" subtitle="Latest activity in real time" accent="#a855f7">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -165,17 +165,29 @@ export default function ParentDashboardPage() {
 function Panel({
   title,
   subtitle,
+  accent = "#3b82f6",
   children,
 }: {
   title: string;
   subtitle?: string;
+  accent?: string;
   children: React.ReactNode;
 }) {
+  const rgb = hexToRgb(accent);
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-      <div className="mb-5">
-        <h3 className="text-base font-semibold text-white">{title}</h3>
-        {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
+    <section
+      className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
+      style={{ boxShadow: `0 0 24px rgba(${rgb},0.08)` }}
+    >
+      <div className="mb-5 flex items-center gap-3">
+        <span
+          className="h-5 w-1 rounded-full"
+          style={{ backgroundColor: accent, boxShadow: `0 0 12px ${accent}` }}
+        />
+        <div>
+          <h3 className="text-base font-semibold text-white">{title}</h3>
+          {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
+        </div>
       </div>
       {children}
     </section>
@@ -193,11 +205,15 @@ function Stat({
   value: string;
   label: string;
 }) {
+  const rgb = hexToRgb(color);
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md">
+    <div
+      className="relative overflow-hidden rounded-2xl border bg-gradient-to-b from-white/[0.07] to-transparent p-5 backdrop-blur-md"
+      style={{ borderColor: `${color}33`, boxShadow: `0 0 24px rgba(${rgb},0.14)` }}
+    >
       <div
-        className="mb-4 grid h-10 w-10 place-items-center rounded-xl"
-        style={{ backgroundColor: `${color}22` }}
+        className="mb-4 grid h-11 w-11 place-items-center rounded-xl"
+        style={{ backgroundColor: `${color}22`, boxShadow: `0 0 18px ${color}55` }}
       >
         <Icon size={20} style={{ color }} />
       </div>
