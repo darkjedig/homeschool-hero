@@ -192,7 +192,6 @@ export const testConnection = action({
           messages: [
             { role: "user", content: "Reply with the single word: ok" },
           ],
-          max_tokens: 5,
         }),
       });
       if (!res.ok) {
