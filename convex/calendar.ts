@@ -280,6 +280,29 @@ export const getWeek = query({
   },
 });
 
+/** A full month of entries grouped by date (for month-grid view). */
+export const getMonth = query({
+  args: { year: v.number(), month: v.number() },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    const firstDay = new Date(Date.UTC(args.year, args.month, 1));
+    const lastDay = new Date(Date.UTC(args.year, args.month + 1, 0));
+    const dates: string[] = [];
+    for (let d = new Date(firstDay); d <= lastDay; d.setUTCDate(d.getUTCDate() + 1)) {
+      dates.push(toISO(d));
+    }
+    const days: Record<string, EntryView[]> = {};
+    for (const date of dates) {
+      const entries = await ctx.db
+        .query("calendarEntries")
+        .withIndex("by_date", (q) => q.eq("date", date))
+        .take(20);
+      days[date] = await enrich(ctx, entries, userId);
+    }
+    return { dates, days };
+  },
+});
+
 /** Assign a specific lesson to a calendar entry (parent). */
 export const assignLesson = mutation({
   args: { entryId: v.id("calendarEntries"), lessonId: v.optional(v.id("lessons")) },
