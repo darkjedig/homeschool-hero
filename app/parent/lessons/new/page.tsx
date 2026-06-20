@@ -8,6 +8,7 @@ import { Plus, Trash2, Loader2, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { YoutubeUrlField } from "@/components/shared/youtube-url-field";
 
 type Q = {
   questionText: string;
@@ -114,7 +115,9 @@ export default function NewLessonPage() {
             </select>
           </div>
           <Field label="Title"><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></Field>
-          <Field label="YouTube URL"><Input value={form.videoUrl} onChange={(e) => setForm({ ...form, videoUrl: e.target.value })} placeholder="https://youtube.com/watch?v=…" /></Field>
+          <Field label="YouTube URL" full>
+            <YoutubeUrlField value={form.videoUrl} onChange={(v) => setForm({ ...form, videoUrl: v })} />
+          </Field>
           <Field label="Description" full><Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field>
           <Field label="Lesson notes" full>
             <textarea rows={3} value={form.lessonNotes} onChange={(e) => setForm({ ...form, lessonNotes: e.target.value })} className="w-full rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white" />

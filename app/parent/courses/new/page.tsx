@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { SubjectFields, slugify } from "@/components/shared/subject-fields";
+import { YoutubeUrlField } from "@/components/shared/youtube-url-field";
 
 type Topic = { name: string; description: string; difficulty: "beginner" | "intermediate" | "advanced" };
 type Q = {
@@ -258,11 +259,10 @@ export default function NewCoursePage() {
                         onChange={(e) => updateLesson(setLessons, lessons, i, { title: e.target.value })}
                       />
                     </Field>
-                    <Field label="YouTube URL">
-                      <Input
+                    <Field label="YouTube URL" full>
+                      <YoutubeUrlField
                         value={l.videoUrl}
-                        onChange={(e) => updateLesson(setLessons, lessons, i, { videoUrl: e.target.value })}
-                        placeholder="https://youtube.com/watch?v=..."
+                        onChange={(v) => updateLesson(setLessons, lessons, i, { videoUrl: v })}
                       />
                     </Field>
                     <Field label="Description" full>

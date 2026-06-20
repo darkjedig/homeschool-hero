@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Doc } from "@/convex/_generated/dataModel";
+import { YoutubeUrlField } from "@/components/shared/youtube-url-field";
 import Link from "next/link";
 
 type Mode = "course" | "lesson";
@@ -323,7 +324,7 @@ function LessonReview({ draft, draftId }: { draft: Doc<"aiLessonDrafts"> | null 
             <Field label="Lesson notes" full>
               <textarea rows={4} value={edits.notes} onChange={(e) => setEdits({ ...edits, notes: e.target.value })} className="w-full rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white" />
             </Field>
-            <Field label="YouTube URL" full><Input value={edits.videoUrl} onChange={(e) => setEdits({ ...edits, videoUrl: e.target.value })} /></Field>
+            <Field label="YouTube URL" full><YoutubeUrlField value={edits.videoUrl} onChange={(v) => setEdits({ ...edits, videoUrl: v })} /></Field>
           </div>
 
           {draft.proposedQuizQuestions?.length ? (

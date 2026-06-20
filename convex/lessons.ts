@@ -143,3 +143,69 @@ export const setStatus = mutation({
     await ctx.db.patch(args.lessonId, { status: args.status, updatedAt: Date.now() });
   },
 });
+
+/** Edit a lesson's fields (parent-only). */
+export const update = mutation({
+  args: {
+    lessonId: v.id("lessons"),
+    title: v.string(),
+    description: v.string(),
+    lessonNotes: v.string(),
+    videoUrl: v.string(),
+    difficultyLevel: v.union(
+      v.literal("beginner"),
+      v.literal("intermediate"),
+      v.literal("advanced"),
+    ),
+    estimatedMinutes: v.number(),
+    pointsAwarded: v.number(),
+    status: v.union(v.literal("draft"), v.literal("published")),
+  },
+  handler: async (ctx, args) => {
+    await requireParent(ctx);
+    await ctx.db.patch(args.lessonId, {
+      title: args.title,
+      description: args.description,
+      lessonNotes: args.lessonNotes,
+      videoUrl: args.videoUrl,
+      difficultyLevel: args.difficultyLevel,
+      estimatedMinutes: args.estimatedMinutes,
+      pointsAwarded: args.pointsAwarded,
+      status: args.status,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+/** All lessons joined with their subject (parent manager grouping view). */
+export const listAllWithSubject = query({
+  args: {},
+  handler: async (ctx) => {
+    const lessons = await ctx.db.query("lessons").take(300);
+    const subjectIds = [...new Set(lessons.map((l) => l.subjectId))];
+    const subjects = await Promise.all(subjectIds.map((id) => ctx.db.get(id)));
+    const subjectById = new Map(subjects.map((s) => (s ? [s._id, s] : [null, null])));
+    return lessons
+      .map((l) => {
+        const subject = subjectById.get(l.subjectId);
+        return {
+          _id: l._id,
+          title: l.title,
+          status: l.status,
+          difficultyLevel: l.difficultyLevel,
+          pointsAwarded: l.pointsAwarded,
+          videoUrl: l.videoUrl,
+          subjectId: l.subjectId,
+          subjectName: subject?.name ?? "Unknown",
+          subjectSlug: subject?.slug ?? "",
+          subjectColor: subject?.color ?? "#3b82f6",
+          createdAt: l._creationTime,
+        };
+      })
+      .sort((a, b) =>
+        a.subjectName === b.subjectName
+          ? a.createdAt - b.createdAt
+          : a.subjectName.localeCompare(b.subjectName),
+      );
+  },
+});
