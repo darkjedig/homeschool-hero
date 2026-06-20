@@ -1,6 +1,6 @@
 ---
 name: HomeschoolHero Implementation Plan
-overview: "Build a permanently-live, cloud-backed gamified homeschool learning platform for a single 11-12 year-old student, using Next.js App Router + TypeScript + Tailwind + shadcn/ui on the frontend and Convex as the database/auth/storage/realtime backend. UI must follow .cursor/skills/design/SKILL.md (dark space theme, exact student dashboard mockup layout). The plan is organized in 9 build phases: foundation and Convex wiring first, then data model, student MVP, parent MVP, Friday quiz, adaptive learning, AI lesson builder, premium UI/gamification, and security/polish."
+overview: "Build a permanently-live, cloud-backed gamified homeschool learning platform for a single 11-12 year-old student, using Next.js App Router + TypeScript + Tailwind + shadcn/ui on the frontend and Convex as the database/auth/storage/realtime backend. UI must follow .cursor/skills/design/SKILL.md (dark space theme, exact student dashboard mockup layout). The plan is organized in 10 build phases: foundation and Convex wiring first, then data model, student MVP, parent MVP, Friday quiz, adaptive learning, AI lesson builder, premium UI/gamification, full-year curriculum + school calendar + quiz insights, and security/polish."
 todos:
   - id: phase1-foundation
     content: "Phase 1: Scaffold Next.js 16 + Tailwind, install deps, run `npx convex dev` against dev/ryan-gliozzo (oceanic-crane-853), wire ConvexProviderWithAuth in app/layout.tsx, add .env.local, add smoke query in convex/hello.ts, confirm live data render before proceeding. Seed tailwind.config.ts + globals.css with design tokens from .cursor/skills/design/SKILL.md. Initialise specs.md and .agent/memory.md."
@@ -26,8 +26,11 @@ todos:
   - id: phase8-ui-gamification
     content: "Phase 8: Extend @design skill patterns — Framer Motion animations (stagger, confetti, level-up, progress rings), interactive timelines/drag-drop/simulations, badges engine. Verify student dashboard against mockup checklist in design skill."
     status: pending
-  - id: phase9-security-polish
-    content: "Phase 9: Full RBAC audit on every Convex function + route group, Playwright smoke tests + Vitest unit tests, mobile polish, error boundaries, optimistic updates, final specs.md/README.md updates."
+  - id: phase9-curriculum-calendar
+    content: "Phase 9: Full-year hand-authored rich curriculum (structured lesson blocks + interactive elements + 5Q-from-text quizzes, delivered in termly tranches), auto school-year calendar (US Aug→June, Mon–Fri, holidays off, parent-editable, 'continue where you left off' retained), and parent quiz insights (per-quiz scores + attempt detail)."
+    status: pending
+  - id: phase10-security-polish
+    content: "Phase 10: Full RBAC audit on every Convex function + route group, Playwright smoke tests + Vitest unit tests, mobile polish, error boundaries, optimistic updates, final specs.md/README.md updates."
     status: pending
 isProject: false
 ---
@@ -324,7 +327,74 @@ Convex actions can run for **up to 10 minutes** — there is no Vercel-style tim
 
 ---
 
-## Phase 9 — Security, Testing, Polish
+## Phase 9 — Full Curriculum, Calendar & Quiz Insights
+
+**Design gate**: read `@design` skill before any UI; calendar and lesson pages use the same tokens (glass cards, subject colours, glow) and extend the design skill with calendar-specific guidance.
+
+This phase turns the app from a sample into a year-long, ready-to-use homeschool programme.
+
+### 9.1 Rich structured lessons (schema + renderer)
+
+- **Schema** — add `lessons.content`: an ordered array of typed content blocks (discriminated union):
+  - `heading` `{ text }`
+  - `text` `{ text }`
+  - `example` `{ text }` (worked example, distinct styling)
+  - `keyPoints` `{ items: string[] }`
+  - `video` `{ url, caption? }` (supplementary inline video; the main `videoUrl` remains the primary player)
+  - `interactive` `{ variant: "reveal" | "flashcards" | "ordering" | "timeline", data }`
+  - `lessonNotes` is kept as a short summary/fallback.
+- **Lesson page** renders `content` blocks via a `components/student/lesson-blocks.tsx` renderer.
+- **Interactive components** under `components/student/interactive/`: `reveal.tsx` (tap-to-reveal), `flashcards.tsx` (flip Q→A), `ordering.tsx` (drag-to-order via Framer Motion `Reorder`), `timeline.tsx` (clickable events for History). All use subject accent colours + glass styling.
+- **Quizzes are authored from the lesson text** (5 questions per lesson) so they test what was taught. Videos remain **supplementary and optional** (one-click search per lesson; parent pastes a vetted URL).
+
+### 9.2 Full-year, hand-authored curriculum (termly tranches)
+
+- **Pace (core-heavy default):** Maths & English ~daily; Science ~3×/wk; History ~2×/wk; AI & CS / Game Dev / Homemaking / Building ~1×/wk → **~260 lessons/year**.
+- **Authoring approach: hand-authored, NOT AI-bulk.** No "generate full year" button. Content authored via a typed helper + idempotent per-title seed script, run once per tranche.
+- **Delivered in 3 termly tranches** because hand-authoring ~260 *rich* lessons is large:
+  - **Tranche 1 — Term 1 (~12 weeks, all 8 subjects)** is the immediate deliverable: rich blocks + ≥1 interactive + 5-Q quiz each.
+  - Tranches 2 & 3 (Terms 2 & 3) follow the same pattern.
+- Each lesson = intro + 2–4 teaching blocks + worked example + key points + ≥1 interactive + 5-Q quiz.
+- The existing 39 thin seed lessons are enriched/replaced as their topics come up in each tranche.
+- **Authoring guide:** `docs/curriculum-authoring.md` documents block types, interactive payloads, and the 5-questions-from-text rule so future terms stay consistent.
+
+### 9.3 School-year calendar (auto, Mon–Fri, holidays off, parent-editable)
+
+- **Schema:**
+  - `schoolYear` (single doc): `{ name, startDate, endDate, weekdays: number[] (1–5), holidays: [{ name, start, end }], subjectRotation: [{ dayOfWeek, subjectIds[] }], createdAt, updatedAt }`.
+  - `calendarEntries`: `{ date ("yyyy-mm-dd"), slotOrder, subjectId, lessonId?, label?, weekIndex }` with `by_date` and `by_subject` indexes.
+- **`convex/calendar.ts`:**
+  - `generateYear` (parent): walks each school day Mon–Fri from start→end, skips weekends + holidays, and emits `calendarEntries` per the subject rotation, auto-assigning the next lesson per subject in topic/order. Idempotent (regenerates or fills gaps).
+  - `getToday()`, `getWeek(date)`, `getMonth(date)` (student): entries joined with completion status (videoProgress / quizAttempts).
+  - `moveEntry`, `swapEntries`, `clearEntry`, `assignLesson` (parent): edit the plan.
+- **Student `/calendar`:** month/week grid; each day shows its lessons as subject-coloured chips with completion ticks; today highlighted; click → lesson page.
+- **"Continue where you left off" stays** on the dashboard (next incomplete lesson, date-independent). Dashboard "Today's Missions" rewired to `calendar.getToday()`.
+- **Parent `/parent/calendar`:** view, regenerate year, and edit (swap days, move a lesson, add/remove).
+- **Default school year:** US-style Aug→June, Mon–Fri, with editable holidays (Labor Day, Thanksgiving break, winter break ~Dec 23–Jan 5, Presidents Day, spring break 1 week, Memorial Day).
+
+### 9.4 Quiz insights (parent)
+
+- `quizzes.listAllWithAttempts` (parent): each quiz joined with the student's latest & best attempt → shows **Not taken / score %** + question count.
+- Parent `/parent/quizzes`: each row shows status + score badge; click → quiz detail.
+- New `quizAttempts.getForQuiz` (parent) + `/parent/quizzes/[id]`: attempt(s) with **per-question breakdown** (student's answer vs correct + explanation), score, date.
+- Parent-dashboard recent-attempt rows clickable → attempt detail.
+
+### 9.5 Docs
+
+- Update this plan (Phase 9 + Curriculum section), `specs.md`, `.agent/memory.md`, the design skill (calendar styling), and add `docs/curriculum-authoring.md`.
+
+### Build order (gated)
+
+1. Schema (rich blocks + schoolYear + calendarEntries + attempt queries) → push.
+2. Lesson-block renderer + interactive components → render a sample rich lesson.
+3. Calendar backend + student calendar page + dashboard "Today" wiring + parent calendar.
+4. Parent quiz insights (list with scores + attempt detail).
+5. Author Term 1 curriculum tranche (rich lessons + 5Q) → seed → verify a full school day is doable end-to-end.
+6. Docs updates.
+
+---
+
+## Phase 10 — Security, Testing, Polish
 
 - **RBAC**: every Convex function asserts `ctx.auth.getUserIdentity()` + role; frontend route groups `(student)` / `(parent)` protected by `lib/auth-guard.ts`. Sensitive writes (lesson create, reward CRUD, export, AI) parent-only and re-checked server-side.
 - **Validation**: Convex `v.`* validators on all inputs + manual checks (e.g. can't redeem without sufficient balance).
@@ -335,9 +405,18 @@ Convex actions can run for **up to 10 minutes** — there is no Vercel-style tim
 
 ---
 
-## Curriculum Content (seeded in Phase 2 via a `seed.ts` one-off script)
+## Curriculum Content (hand-authored in Phase 9, termly tranches)
 
-Subjects seeded with starter units (each unit → topics → sample lessons flagged `draft` for parent to review):
+A full academic year (~260 lessons) across the 8 subjects. Each lesson is **rich and structured** — intro + teaching blocks + a worked example + key points + at least one interactive element (flashcards / tap-to-reveal / ordering / timeline) + a 5-question quiz authored from the lesson text. Videos are supplementary and optional (parent adds a vetted YouTube URL per lesson via one-click search).
+
+Pace (core-heavy default, US school year Aug→June, Mon–Fri, holidays off):
+- **Maths** (~daily): all units below, ~40–48 lessons/year.
+- **English** (~daily): all units below, ~40–48 lessons/year.
+- **Science** (~3×/wk): ~24–36 lessons/year.
+- **History** (~2×/wk): ~18–24 lessons/year.
+- **AI & CS, Game Dev, Homemaking, Building** (~1×/wk each): ~18–24 lessons/year each.
+
+Topic coverage per subject (existing + to be expanded into full lessons across the year):
 
 - **Maths**: Fractions, Ratios, Basic Algebra, Problem Solving, plus Decimals, Percentages, Geometry, Measurements, Negative Numbers, Statistics, Graphs, Word Problems, Mental Maths, Times-tables fluency, Area/Perimeter/Volume, Coordinates, Angles, Time & Money.
 - **English**: Grammar, Sentence Structure, Reading Comprehension, Vocabulary, Writing, plus Punctuation, Paragraphs, Persuasive Writing, Creative Writing, Summarising, Inference, Non-fiction, Story Structure, Editing, Spelling Patterns, Planning, Tone, Comparing Texts, Explanations.

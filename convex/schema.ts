@@ -60,6 +60,35 @@ export default defineSchema({
     slug: v.string(),
     description: v.string(),
     lessonNotes: v.string(),
+    content: v.optional(
+      v.array(
+        v.object({
+          type: v.union(
+            v.literal("heading"),
+            v.literal("text"),
+            v.literal("example"),
+            v.literal("keyPoints"),
+            v.literal("video"),
+            v.literal("interactive"),
+          ),
+          text: v.optional(v.string()),
+          items: v.optional(v.array(v.string())),
+          url: v.optional(v.string()),
+          caption: v.optional(v.string()),
+          variant: v.optional(
+            v.union(
+              v.literal("reveal"),
+              v.literal("flashcards"),
+              v.literal("ordering"),
+              v.literal("timeline"),
+            ),
+          ),
+          // Generic interactive payload as {key,value} pairs (works for
+          // reveal, flashcards, timeline; ordering uses key = correct order).
+          data: v.optional(v.array(v.object({ key: v.string(), value: v.string() }))),
+        }),
+      ),
+    ),
     videoUrl: v.string(),
     videoProvider: v.literal("youtube"),
     difficultyLevel: v.union(
@@ -340,6 +369,37 @@ export default defineSchema({
   })
     .index("by_status", ["status"])
     .index("by_requester", ["requestedBy"]),
+
+  // School-year definition (single doc). The calendar generator walks the
+  // weekdays between start/end, skipping weekends + holidays, assigning
+  // lessons per the rotation.
+  schoolYear: defineTable({
+    name: v.string(),
+    startDate: v.string(), // yyyy-mm-dd
+    endDate: v.string(),
+    weekdays: v.array(v.number()), // 0 Sun .. 6 Sat
+    holidays: v.array(
+      v.object({ name: v.string(), start: v.string(), end: v.string() }),
+    ),
+    rotation: v.array(
+      v.object({ dayOfWeek: v.number(), subjectIds: v.array(v.id("subjects")) }),
+    ),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }),
+
+  // A planned lesson on a school day (generated, parent-editable).
+  calendarEntries: defineTable({
+    date: v.string(), // yyyy-mm-dd
+    slotOrder: v.number(),
+    subjectId: v.id("subjects"),
+    lessonId: v.optional(v.id("lessons")),
+    label: v.optional(v.string()),
+    weekIndex: v.number(),
+  })
+    .index("by_date", ["date"])
+    .index("by_subject", ["subjectId"])
+    .index("by_date_and_slot", ["date", "slotOrder"]),
 
   // Single parent-scoped settings doc. openRouterKey is write-only from the
   // client's perspective (queries return keyIsSet only); the raw key is read

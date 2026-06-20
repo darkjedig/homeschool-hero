@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, Star, ListChecks, Video, Lightbulb, ChevronDown } from "lucide-react";
 import { isYouTubeVideoUrl } from "@/lib/youtube";
+import { LessonBlocks } from "@/components/student/lesson-blocks";
 
 export default function LessonPage() {
   const { id } = useParams<{ id: string }>();
@@ -53,17 +54,21 @@ export default function LessonPage() {
         </div>
       )}
 
-      {/* Text lesson */}
-      {lesson.lessonNotes && (
-        <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Lesson</h2>
+      {/* Structured lesson content (blocks) — falls back to lessonNotes */}
+      <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Lesson</h2>
+        {lesson.content && lesson.content.length > 0 ? (
+          <LessonBlocks blocks={lesson.content} lessonId={lesson._id} />
+        ) : lesson.lessonNotes ? (
           <div className="space-y-3 text-sm leading-relaxed text-slate-200">
             {lesson.lessonNotes.split(/\n{2,}/).map((para, i) => (
               <p key={i} className="whitespace-pre-line">{para}</p>
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <p className="text-sm text-muted-foreground">No lesson content yet.</p>
+        )}
+      </section>
 
       {/* Interactive warm-up: tap to reveal (uses the first quiz question) */}
       {warmup && <WarmUp question={warmup.questionText} answer={warmup.correctAnswer} explanation={warmup.explanation} />}
