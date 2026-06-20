@@ -119,7 +119,7 @@ export default function NewCoursePage() {
       </header>
 
       {/* Subject */}
-      <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
+      <section className="relative z-20 rounded-2xl border border-white/10 bg-white/5 p-5">
         <h2 className="mb-3 text-sm font-semibold text-white">Subject</h2>
         <SubjectFields value={subject} onChange={(v) => setSubject(v)} />
       </section>

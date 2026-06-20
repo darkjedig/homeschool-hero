@@ -80,7 +80,7 @@ export default function ParentSubjectsPage() {
       </header>
 
       {editor && (
-        <section className="rounded-2xl border border-blue-500/30 bg-blue-500/[0.06] p-5 backdrop-blur-md">
+        <section className="relative z-20 rounded-2xl border border-blue-500/30 bg-blue-500/[0.06] p-5 backdrop-blur-md">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-white">
               {editor.mode === "new" ? "New subject" : "Edit subject"}
