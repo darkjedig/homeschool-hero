@@ -27,6 +27,7 @@ import type * as points from "../points.js";
 import type * as quizzes from "../quizzes.js";
 import type * as rewards from "../rewards.js";
 import type * as seed from "../seed.js";
+import type * as seedLessons from "../seedLessons.js";
 import type * as settings from "../settings.js";
 import type * as subjects from "../subjects.js";
 import type * as topics from "../topics.js";
@@ -59,6 +60,7 @@ declare const fullApi: ApiFromModules<{
   quizzes: typeof quizzes;
   rewards: typeof rewards;
   seed: typeof seed;
+  seedLessons: typeof seedLessons;
   settings: typeof settings;
   subjects: typeof subjects;
   topics: typeof topics;

@@ -70,7 +70,7 @@ export default defineSchema({
     estimatedMinutes: v.number(),
     pointsAwarded: v.number(),
     status: v.union(v.literal("draft"), v.literal("published")),
-    createdBy: v.id("users"),
+    createdBy: v.optional(v.id("users")),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
