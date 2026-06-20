@@ -66,11 +66,18 @@ export default function AiBuilderPage() {
         </div>
       )}
 
+      <p className="text-sm text-muted-foreground">
+        Choose a mode: build a <span className="text-white">brand-new course</span> (a
+        new subject with its own topics and lessons), or generate{" "}
+        <span className="text-white">a single lesson</span> to drop into an existing
+        subject. Either way, you review and approve before the student sees anything.
+      </p>
+
       {/* Mode + prompt */}
       <section className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-        <div className="flex gap-2">
-          <ModeButton active={mode === "course"} onClick={() => setMode("course")} icon={Layers} label="Full course" />
-          <ModeButton active={mode === "lesson"} onClick={() => setMode("lesson")} icon={BookOpen} label="Single lesson" />
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <ModeButton active={mode === "course"} onClick={() => setMode("course")} icon={Layers} label="New course" desc="Creates a brand-new subject with topics + lessons." />
+          <ModeButton active={mode === "lesson"} onClick={() => setMode("lesson")} icon={BookOpen} label="Lesson into existing subject" desc="Adds one lesson + quiz to a subject you choose." />
         </div>
 
         <div>
@@ -113,24 +120,30 @@ function ModeButton({
   onClick,
   icon: Icon,
   label,
+  desc,
 }: {
   active: boolean;
   onClick: () => void;
   icon: typeof Layers;
   label: string;
+  desc: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={
-        "flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition " +
+        "flex items-start gap-3 rounded-xl border p-4 text-left transition " +
         (active
-          ? "border-purple-500/50 bg-purple-500/20 text-purple-200 shadow-[0_0_16px_rgba(168,85,247,0.25)]"
+          ? "border-purple-500/50 bg-purple-500/20 text-white shadow-[0_0_16px_rgba(168,85,247,0.25)]"
           : "border-white/10 bg-white/5 text-muted-foreground hover:text-white")
       }
     >
-      <Icon size={16} /> {label}
+      <Icon size={18} className="mt-0.5 shrink-0" />
+      <span>
+        <span className="block text-sm font-semibold">{label}</span>
+        <span className="block text-xs opacity-80">{desc}</span>
+      </span>
     </button>
   );
 }

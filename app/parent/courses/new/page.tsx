@@ -8,6 +8,7 @@ import { Plus, Trash2, Loader2, CheckCircle2, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { SubjectFields, slugify } from "@/components/shared/subject-fields";
 
 type Topic = { name: string; description: string; difficulty: "beginner" | "intermediate" | "advanced" };
 type Q = {
@@ -120,41 +121,7 @@ export default function NewCoursePage() {
       {/* Subject */}
       <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
         <h2 className="mb-3 text-sm font-semibold text-white">Subject</h2>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <Field label="Name">
-            <Input
-              value={subject.name}
-              onChange={(e) =>
-                setSubject({ ...subject, name: e.target.value, slug: slugify(e.target.value) })
-              }
-              placeholder="e.g. Game Development"
-            />
-          </Field>
-          <Field label="Slug">
-            <Input
-              value={subject.slug}
-              onChange={(e) => setSubject({ ...subject, slug: slugify(e.target.value) })}
-            />
-          </Field>
-          <Field label="Description" full>
-            <Input
-              value={subject.description}
-              onChange={(e) => setSubject({ ...subject, description: e.target.value })}
-            />
-          </Field>
-          <Field label="Accent colour">
-            <Input
-              value={subject.color}
-              onChange={(e) => setSubject({ ...subject, color: e.target.value })}
-            />
-          </Field>
-          <Field label="Icon (Lucide name)">
-            <Input
-              value={subject.icon}
-              onChange={(e) => setSubject({ ...subject, icon: e.target.value })}
-            />
-          </Field>
-        </div>
+        <SubjectFields value={subject} onChange={(v) => setSubject(v)} />
       </section>
 
       {/* Topics */}
