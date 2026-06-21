@@ -1,0 +1,964 @@
+import type { SubjectCurriculum } from "./types";
+
+export const building: SubjectCurriculum = {
+  slug: "building-and-construction",
+  lessons: [
+    // ===================== BLUEPRINTS (4) =====================
+    {
+      topic: "Blueprints",
+      title: "What Is a Blueprint?",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "A blueprint is a detailed measured drawing that shows exactly how something should be built.",
+      blocks: [
+        { type: "heading", text: "The Builder's Map" },
+        {
+          type: "text",
+          text: "A blueprint is a detailed drawing that shows how something should be built. It has views from different angles and exact measurements so a builder can make exactly what the designer planned, even without meeting them.\n\nBlueprints used to be printed with white lines on blue paper (hence the name). Today they're usually white-on-black digital files, but the idea is the same: a precise plan anyone trained can read and follow.",
+        },
+        {
+          type: "example",
+          text: "A house blueprint shows the floor layout (where walls, doors, windows go), with measurements like 'wall length 4.2 m'. The builder follows it exactly.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "A blueprint shows how to build something.",
+            "It has views from different angles.",
+            "Exact measurements are included.",
+            "Anyone trained can read and follow it.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What is a blueprint?" },
+            { key: "option_0", value: "A detailed measured drawing showing how to build something" },
+            { key: "option_1", value: "A type of paint" },
+            { key: "option_2", value: "A photograph" },
+            { key: "option_3", value: "A guess" },
+            { key: "answer", value: "A detailed measured drawing showing how to build something" },
+            { key: "explanation", value: "Precise plan for builders." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A blueprint shows…", options: ["how to build, with measurements", "only colours", "a photo", "the price only"], answer: "how to build, with measurements", explain: "Precise plan." },
+        { q: "Blueprints were originally printed as…", options: ["white lines on blue paper", "red on green", "photos", "blank pages"], answer: "white lines on blue paper", explain: "Hence the name." },
+        { q: "A blueprint includes…", options: ["views from different angles", "a recipe", "a song", "the weather"], answer: "views from different angles", explain: "Front, side, top, etc." },
+        { q: "A builder uses a blueprint to…", options: ["build exactly what was designed", "guess the design", "change everything", "paint"], answer: "build exactly what was designed", explain: "Follow the plan." },
+        { q: "Blueprints have exact…", options: ["measurements", "colours only", "stories", "recipes"], answer: "measurements", explain: "So sizes are right." },
+      ],
+    },
+    {
+      topic: "Blueprints",
+      title: "Views & Symbols",
+      difficulty: "intermediate",
+      minutes: 14,
+      points: 90,
+      summary: "Blueprints use multiple views (plan, elevation) and standard symbols for doors, windows, electrics — like a code.",
+      blocks: [
+        { type: "heading", text: "Seeing From Every Side" },
+        {
+          type: "text",
+          text: "A single drawing can't show a 3D object fully, so blueprints use several VIEWS. A PLAN view looks down from above (the floor layout). An ELEVATION looks straight on at a side (front of the house). Each view shows what you'd see from that angle.\n\nBlueprints also use SYMBOLS — a secret code. An arc means a door (and which way it swings); parallel lines mean a window; circles with letters mean electrical outlets. Learning the common symbols lets you 'read' any plan.",
+        },
+        {
+          type: "example",
+          text: "On a floor plan: a gap in a wall with an arc = a door swinging into the room. Two thin parallel lines in a wall = a window. A circle with 'W' = a water tap.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Plan view = from above (floor layout).",
+            "Elevation = straight-on side view.",
+            "Symbols stand for features (door, window).",
+            "Learning symbols lets you read plans.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "flashcards",
+          data: [
+            { key: "Plan view", value: "Looks down from above (floor layout)" },
+            { key: "Elevation", value: "Straight-on side view" },
+            { key: "Arc symbol", value: "Door (shows swing direction)" },
+            { key: "Parallel lines in a wall", value: "Window" },
+            { key: "Circle with a letter", value: "Outlet/tap (electrical/plumbing)" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A PLAN view looks…", options: ["down from above", "from the side", "from below", "at the back"], answer: "down from above", explain: "Floor layout." },
+        { q: "An ELEVATION view looks…", options: ["straight on at a side", "from above", "from below", "diagonally"], answer: "straight on at a side", explain: "Front/side of building." },
+        { q: "An arc on a plan usually means a…", options: ["door (with swing)", "window", "tree", "table"], answer: "door (with swing)", explain: "Shows which way it opens." },
+        { q: "Parallel lines in a wall mean a…", options: ["window", "door", "tap", "step"], answer: "window", explain: "Glass opening." },
+        { q: "Blueprint symbols are like…", options: ["a secret code for features", "decoration", "mistakes", "signatures"], answer: "a secret code for features", explain: "Stand for real things." },
+      ],
+    },
+    {
+      topic: "Blueprints",
+      title: "Measurements on Plans",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Blueprint measurements show exact sizes using a scale, so the drawing fits on paper but stays accurate.",
+      blocks: [
+        { type: "heading", text: "Numbers Tell the Size" },
+        {
+          type: "text",
+          text: "Blueprints are covered in numbers — each shows the real-world size of a part: wall length, window height, room width. These are the exact measurements the builder follows. Numbers may be in millimetres, centimetres or metres (or inches/feet in the US).\n\nBecause a drawing can't be full-size, it uses a SCALE (like 1:50) so the plan fits on paper. The builder reads the written measurements or multiplies the drawing by the scale to get real sizes.",
+        },
+        {
+          type: "example",
+          text: "A wall marked '4200 mm' is 4.2 metres long in real life. At 1:50 scale, that wall would be 84 mm long on the paper (4200 ÷ 50).",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Numbers show real-world sizes.",
+            "Units: mm, cm, m (or in/ft).",
+            "Plans use a scale to fit on paper.",
+            "Builders follow the written measurements.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "A wall is marked '3000 mm'. How long is it?" },
+            { key: "option_0", value: "3 metres" },
+            { key: "option_1", value: "300 metres" },
+            { key: "option_2", value: "30 cm" },
+            { key: "option_3", value: "3 mm" },
+            { key: "answer", value: "3 metres" },
+            { key: "explanation", value: "1000 mm = 1 m." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Numbers on a plan show…", options: ["real-world sizes", "colours", "prices", "ages"], answer: "real-world sizes", explain: "Exact lengths/heights." },
+        { q: "1500 mm is how many metres?", options: ["1.5 m", "15 m", "0.15 m", "150 m"], answer: "1.5 m", explain: "1000 mm = 1 m." },
+        { q: "Why do plans use a scale?", options: ["To fit on paper", "To trick builders", "To add colour", "No reason"], answer: "To fit on paper", explain: "Real sizes are too big." },
+        { q: "Common metric units on plans:", options: ["mm, cm, m", "litres, volts", "hours, minutes", "grams"], answer: "mm, cm, m", explain: "Length units." },
+        { q: "The builder follows the…", options: ["written measurements", "drawing size only", "colours", "title"], answer: "written measurements", explain: "Exact sizes." },
+      ],
+    },
+    {
+      topic: "Blueprints",
+      title: "Reading a Floor Plan",
+      difficulty: "intermediate",
+      minutes: 14,
+      points: 90,
+      summary: "A floor plan shows room layout, walls, doors and windows from above, with dimensions and symbols.",
+      blocks: [
+        { type: "heading", text: "The Bird's-Eye View" },
+        {
+          type: "text",
+          text: "A floor plan is the most common blueprint — a bird's-eye view of one level of a building, as if you sliced the walls horizontally and looked down. It shows rooms, their sizes, where walls go, and the positions of doors and windows.\n\nTo read one: find the entrance, then walk through the rooms in your mind. Note room sizes, door swings (which way they open), windows (light/views), and how rooms connect. The plan tells you how the building 'flows'.",
+        },
+        {
+          type: "example",
+          text: "Reading a house plan: front door → hallway → living room on the left, kitchen at the back, bedroom upstairs. Door arcs show you walk into each room; windows line the outside walls.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Floor plan = bird's-eye view of one level.",
+            "Shows rooms, walls, doors, windows.",
+            "Door arcs show which way they open.",
+            "Trace the 'flow' from room to room.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "A floor plan shows a building from…" },
+            { key: "option_0", value: "above (bird's-eye view)" },
+            { key: "option_1", value: "below" },
+            { key: "option_2", value: "the side only" },
+            { key: "option_3", value: "the inside of a wall" },
+            { key: "answer", value: "above (bird's-eye view)" },
+            { key: "explanation", value: "Looking down at the layout." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A floor plan is a view from…", options: ["above", "below", "the side", "inside a pipe"], answer: "above", explain: "Bird's-eye." },
+        { q: "Door arcs on a plan show…", options: ["which way the door swings", "the door's colour", "the door's price", "the door's weight"], answer: "which way the door swings", explain: "Open direction." },
+        { q: "To read a floor plan, start at the…", options: ["entrance", "roof", "garden", "title"], answer: "entrance", explain: "Then walk through in your mind." },
+        { q: "Windows on a floor plan are usually on…", options: ["outside walls", "the floor", "the ceiling only", "the doors"], answer: "outside walls", explain: "Light and view." },
+        { q: "A floor plan tells you how a building…", options: ["flows (room to room)", "smells", "sounds", "was painted"], answer: "flows (room to room)", explain: "Layout logic." },
+      ],
+    },
+
+    // ===================== SCALE (4) =====================
+    {
+      topic: "Scale",
+      title: "What Is Scale?",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Scale shrinks real sizes by the same ratio so a drawing fits on paper but keeps correct proportions.",
+      blocks: [
+        { type: "heading", text: "Shrinking Fairly" },
+        {
+          type: "text",
+          text: "Scale means shrinking real sizes by the same amount so a drawing fits on paper but keeps the right proportions. On a 1:50 drawing, 1 cm on the page stands for 50 cm in real life. Every part is shrunk by the same ratio, so nothing is stretched or squashed.\n\nScale lets builders check whether things will fit — a door, a sofa, a window — before anything is built. Maps use scale too (1 cm = 1 km), so a whole country fits on a page.",
+        },
+        {
+          type: "example",
+          text: "On a 1:100 floor plan, a real 4 m wall is drawn 4 cm long (400 cm ÷ 100). Everything is 100 times smaller, but proportions are perfect.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Scale shrinks sizes by one ratio.",
+            "1:50 means 1 on paper = 50 real.",
+            "Proportions stay correct.",
+            "Used in plans and maps.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What does scale do?" },
+            { key: "option_0", value: "Shrinks real sizes by the same ratio" },
+            { key: "option_1", value: "Makes things bigger" },
+            { key: "option_2", value: "Adds colour" },
+            { key: "option_3", value: "Changes the shape" },
+            { key: "answer", value: "Shrinks real sizes by the same ratio" },
+            { key: "explanation", value: "Same ratio everywhere." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Scale keeps the…", options: ["correct proportions", "real size", "colour", "price"], answer: "correct proportions", explain: "Nothing stretches." },
+        { q: "1:50 means 1 on paper = …", options: ["50 real", "1 real", "500 real", "0.5 real"], answer: "50 real", explain: "Same units." },
+        { q: "Why use scale?", options: ["To fit big things on paper", "To make things bigger", "To add colour", "No reason"], answer: "To fit big things on paper", explain: "Buildings, maps." },
+        { q: "A 1:100 plan: a real 3 m wall is drawn…", options: ["3 cm", "30 cm", "3 m", "0.3 mm"], answer: "3 cm", explain: "300 cm ÷ 100." },
+        { q: "Maps also use scale (e.g. 1 cm = 1 …)", options: ["km", "cm", "mm", "gram"], answer: "km", explain: "Country on a page." },
+      ],
+    },
+    {
+      topic: "Scale",
+      title: "Scale Ratios (1:50 etc.)",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "A scale ratio like 1:50 tells you how many times smaller the drawing is than real life.",
+      blocks: [
+        { type: "heading", text: "Reading the Ratio" },
+        {
+          type: "text",
+          text: "A scale ratio is written as two numbers separated by a colon, like 1:50. It means the real thing is that many times bigger: 1:50 = 50× bigger in real life; 1:100 = 100× bigger. The first number is the drawing; the second is real life.\n\nTo convert drawing to real: multiply by the second number. A 6 cm line at 1:50 is 6 × 50 = 300 cm = 3 m real. To convert real to drawing: divide. A 2 m door at 1:50 is 200 cm ÷ 50 = 4 cm on paper.",
+        },
+        {
+          type: "example",
+          text: "At 1:20 (a detail drawing), a real 1 m window is drawn 100 cm ÷ 20 = 5 cm. At 1:100 (a site plan), the same window is 100 ÷ 100 = 1 cm.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "1:N means real is N× bigger.",
+            "Drawing → real: multiply by N.",
+            "Real → drawing: divide by N.",
+            "Bigger N = smaller drawing.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "At 1:50, a 4 cm line on the drawing is how long in real life?" },
+            { key: "option_0", value: "200 cm (2 m)" },
+            { key: "option_1", value: "4 cm" },
+            { key: "option_2", value: "50 cm" },
+            { key: "option_3", value: "20 cm" },
+            { key: "answer", value: "200 cm (2 m)" },
+            { key: "explanation", value: "4 × 50 = 200 cm." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "1:50 means real is ___ times bigger.", options: ["50", "5", "500", "1"], answer: "50", explain: "Second number." },
+        { q: "At 1:50, drawing 2 cm → real?", options: ["100 cm (1 m)", "2 cm", "50 cm", "25 cm"], answer: "100 cm (1 m)", explain: "2 × 50." },
+        { q: "At 1:100, real 5 m → drawing?", options: ["5 cm", "50 cm", "5 m", "500 cm"], answer: "5 cm", explain: "500 cm ÷ 100." },
+        { q: "To convert real → drawing, you…", options: ["divide by N", "multiply by N", "add N", "subtract N"], answer: "divide by N", explain: "Shrink to fit." },
+        { q: "Bigger N (e.g. 1:200) means…", options: ["a smaller drawing", "a bigger drawing", "no change", "real life size"], answer: "a smaller drawing", explain: "More shrink." },
+      ],
+    },
+    {
+      topic: "Scale",
+      title: "Scaling Up & Down",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "To scale a drawing, multiply (or divide) every measurement by the same number so proportions stay correct.",
+      blocks: [
+        { type: "heading", text: "Same Ratio, Every Part" },
+        {
+          type: "text",
+          text: "Scaling a drawing up or down means changing every measurement by the same ratio. Double a plan: multiply every length by 2. Halve it: divide every length by 2. The key rule: every part changes by the same ratio, so the proportions stay true.\n\nIf you scale only some parts and not others, the drawing becomes distorted — doors too small, rooms too big. Always scale the whole thing at once, or use the scale ratio to read individual measurements.",
+        },
+        {
+          type: "example",
+          text: "A model car at 1:25: every real measurement ÷ 25. A 4 m car becomes 16 cm; its 2 m width becomes 8 cm. Same ratio everywhere → looks right.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Scaling = change every part by the same ratio.",
+            "Multiply to scale up, divide to scale down.",
+            "Same ratio keeps proportions true.",
+            "Partial scaling distorts the drawing.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "To scale a drawing up by 2, you…" },
+            { key: "option_0", value: "multiply every length by 2" },
+            { key: "option_1", value: "divide every length by 2" },
+            { key: "option_2", value: "only double the width" },
+            { key: "option_3", value: "add 2 to each length" },
+            { key: "answer", value: "multiply every length by 2" },
+            { key: "explanation", value: "Same ratio keeps proportions." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "To scale up, you…", options: ["multiply every length", "divide every length", "add a number", "only change width"], answer: "multiply every length", explain: "By the same ratio." },
+        { q: "To scale down, you…", options: ["divide every length", "multiply", "add", "subtract"], answer: "divide every length", explain: "Same ratio." },
+        { q: "If you scale only some parts…", options: ["the drawing distorts", "it's fine", "it's faster", "it's required"], answer: "the drawing distorts", explain: "Proportions break." },
+        { q: "A 4 m car at 1:25 model is…", options: ["16 cm", "4 cm", "1 m", "25 cm"], answer: "16 cm", explain: "400 ÷ 25." },
+        { q: "Scaling keeps the…", options: ["proportions correct", "colours bright", "price low", "paper small"], answer: "proportions correct", explain: "Same ratio everywhere." },
+      ],
+    },
+    {
+      topic: "Scale",
+      title: "Scale in the Real World",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Scale is used in maps, models, Lego instructions and architects' plans — anywhere big things must fit small.",
+      blocks: [
+        { type: "heading", text: "Scale Everywhere" },
+        {
+          type: "text",
+          text: "Scale isn't just for builders. Maps use scale (1 cm = 1 km) so a whole country fits on a page. Model trains and planes use scale (1:72, 1:87). Lego and model kits use scale so pieces look right together. Architects use several scales at once: 1:100 for the site, 1:50 for floor plans, 1:20 for a detail.\n\nUnderstanding scale lets you switch between the small drawing and the big real thing — and build, navigate or model accurately.",
+        },
+        {
+          type: "example",
+          text: "Google Maps at 1 cm = 200 m: two towns 5 cm apart on screen are really 1 km apart. Zoom in (smaller scale) for more detail; zoom out for the big picture.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Maps, models, plans all use scale.",
+            "Architects use several scales at once.",
+            "Scale links the drawing to the real thing.",
+            "Zoom changes scale on digital maps.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Where is scale used?" },
+            { key: "option_0", value: "Maps, models, plans and kits" },
+            { key: "option_1", value: "Only in cooking" },
+            { key: "option_2", value: "Only in music" },
+            { key: "option_3", value: "Nowhere" },
+            { key: "answer", value: "Maps, models, plans and kits" },
+            { key: "explanation", value: "Anywhere big things fit small." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Maps use scale so…", options: ["a country fits on a page", "maps are colourful", "maps are heavy", "no reason"], answer: "a country fits on a page", explain: "Big → small." },
+        { q: "Model kits use scale so…", options: ["pieces look right together", "they cost more", "they're heavy", "they break easily"], answer: "pieces look right together", explain: "Consistent ratio." },
+        { q: "An architect's site plan might be…", options: ["1:100", "1:1", "10:1", "1:0"], answer: "1:100", explain: "Whole site on a page." },
+        { q: "Two towns 5 cm apart on a 1 cm = 1 km map are really…", options: ["5 km", "1 km", "500 m", "50 km"], answer: "5 km", explain: "5 × 1 km." },
+        { q: "On digital maps, zooming in…", options: ["shows more detail (smaller scale)", "deletes detail", "does nothing", "turns off scale"], answer: "shows more detail (smaller scale)", explain: "Closer view." },
+      ],
+    },
+
+    // ===================== MEASURING (4) =====================
+    {
+      topic: "Measuring",
+      title: "Tools for Measuring",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "Different jobs need different tools: tape for long distances, ruler for short, square for right angles, level for flat.",
+      blocks: [
+        { type: "heading", text: "The Right Tool" },
+        {
+          type: "text",
+          text: "Builders choose the right measuring tool for each job. A tape measure handles long distances (walls, rooms). A ruler or straight-edge measures short lengths precisely. A combination square checks right angles and marks straight lines. A spirit level checks whether something is horizontal (level) or vertical (plumb).\n\nSpecialist tools go further: a caliper measures tiny distances (like a bolt's thickness); a laser measure bounces light to find long distances instantly. Using the right tool makes work faster and more accurate.",
+        },
+        {
+          type: "example",
+          text: "Hanging a shelf: tape measure for the wall length, spirit level to make sure it's flat, combination square to mark a neat right-angle line for the bracket.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Tape measure = long distances.",
+            "Ruler = short lengths.",
+            "Square = right angles + straight lines.",
+            "Spirit level = horizontal/vertical.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "flashcards",
+          data: [
+            { key: "Tape measure", value: "Long distances (walls, rooms)" },
+            { key: "Ruler / straight-edge", value: "Short lengths, straight lines" },
+            { key: "Combination square", value: "Right angles and marking" },
+            { key: "Spirit level", value: "Horizontal (level) / vertical (plumb)" },
+            { key: "Caliper", value: "Tiny precise distances" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Best tool for a long wall?", options: ["Tape measure", "Ruler", "Caliper", "Square"], answer: "Tape measure", explain: "Long distances." },
+        { q: "A spirit level checks…", options: ["horizontal/vertical", "colour", "price", "weight"], answer: "horizontal/vertical", explain: "Level and plumb." },
+        { q: "A combination square is for…", options: ["right angles + straight lines", "long distances", "weight", "time"], answer: "right angles + straight lines", explain: "Marking 90°." },
+        { q: "A tiny precise distance (bolt thickness) needs a…", options: ["caliper", "tape measure", "spirit level", "ruler only"], answer: "caliper", explain: "Fine precision." },
+        { q: "Using the right tool makes work…", options: ["faster and more accurate", "slower", "impossible", "more expensive always"], answer: "faster and more accurate", explain: "Right job, right tool." },
+      ],
+    },
+    {
+      topic: "Measuring",
+      title: "Measuring Length Accurately",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "Measure straight, keep the tape level, read at eye level, and 'measure twice, cut once'.",
+      blocks: [
+        { type: "heading", text: "Get It Right" },
+        {
+          type: "text",
+          text: "Accurate measuring avoids costly mistakes. Hold the tape straight and taut along the line you're measuring — a sagging or angled tape reads long. Read the mark at eye level to avoid 'parallax' (where the reading shifts when viewed from the side).\n\nThe builder's golden rule is 'measure twice, cut once'. Double-check every measurement before cutting, because you can't undo a cut. Mark clearly with a sharp pencil, and measure from a fixed reference point.",
+        },
+        {
+          type: "example",
+          text: "Measuring a shelf: hook the tape on one end, pull it straight across, read the number at eye level (say 60 cm). Measure again to confirm. THEN cut.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Hold the tape straight and taut.",
+            "Read at eye level (avoid parallax).",
+            "'Measure twice, cut once.'",
+            "Mark clearly with a sharp pencil.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "'Measure twice, cut once' reminds you to…" },
+            { key: "option_0", value: "check measurements before cutting" },
+            { key: "option_1", value: "cut twice" },
+            { key: "option_2", value: "never cut" },
+            { key: "option_3", value: "rush" },
+            { key: "answer", value: "check measurements before cutting" },
+            { key: "explanation", value: "You can't undo a cut." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "'Measure twice, cut once' means…", options: ["double-check before cutting", "cut two pieces", "skip measuring", "measure once"], answer: "double-check before cutting", explain: "Avoid mistakes." },
+        { q: "Read a tape at…", options: ["eye level", "from the side", "from above", "any angle"], answer: "eye level", explain: "Avoids parallax error." },
+        { q: "Hold the tape…", options: ["straight and taut", "loose and saggy", "curved", "backwards"], answer: "straight and taut", explain: "Accurate reading." },
+        { q: "Reading a tape at an angle causes a…", options: ["parallax error", "better result", "louder sound", "free tape"], answer: "parallax error", explain: "Side view shifts the mark." },
+        { q: "Mark cuts with a…", options: ["sharp pencil", "finger", "thick brush", "guess"], answer: "sharp pencil", explain: "Clear, fine mark." },
+      ],
+    },
+    {
+      topic: "Measuring",
+      title: "Angles & Levels",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "A right angle is 90°; use a square to mark them and a spirit level to check horizontal and vertical.",
+      blocks: [
+        { type: "heading", text: "Straight, Square and True" },
+        {
+          type: "text",
+          text: "An angle is the corner where two lines meet. A right angle is 90° — the square corner of a box. Builders use a square to mark and check right angles so walls, frames and shelves sit correctly.\n\nA spirit level has a small bubble in a tube. When the bubble sits between the marks, the surface is level (horizontal) or plumb (vertical). Level shelves don't roll things off; plumb walls don't lean.",
+        },
+        {
+          type: "example",
+          text: "Building a door frame: use a square so each corner is a perfect 90°, then a level so the sides are perfectly vertical (plumb). A wonky door swings open on its own!",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Right angle = 90°.",
+            "A square marks/checks right angles.",
+            "A spirit level checks horizontal (level).",
+            "Plumb = perfectly vertical.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "A right angle is how many degrees?" },
+            { key: "option_0", value: "90°" },
+            { key: "option_1", value: "45°" },
+            { key: "option_2", value: "180°" },
+            { key: "option_3", value: "360°" },
+            { key: "answer", value: "90°" },
+            { key: "explanation", value: "A square corner." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A right angle is…", options: ["90°", "45°", "180°", "60°"], answer: "90°", explain: "Square corner." },
+        { q: "A square checks…", options: ["right angles", "long distances", "colour", "weight"], answer: "right angles", explain: "90° corners." },
+        { q: "A spirit level checks…", options: ["horizontal/vertical", "distance", "colour", "price"], answer: "horizontal/vertical", explain: "Bubble in the middle." },
+        { q: "'Plumb' means…", options: ["perfectly vertical", "horizontal", "45°", "any angle"], answer: "perfectly vertical", explain: "Like a hanging string." },
+        { q: "When the bubble is between the marks, the surface is…", options: ["level", "tilted", "wet", "broken"], answer: "level", explain: "Horizontal." },
+      ],
+    },
+    {
+      topic: "Measuring",
+      title: "Measure Twice, Cut Once",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "The builder's golden rule: double-check every measurement before cutting, because a cut cannot be undone.",
+      blocks: [
+        { type: "heading", text: "The Golden Rule" },
+        {
+          type: "text",
+          text: "'Measure twice, cut once' is the most important rule in building. A cut is permanent — once wood or metal is cut too short, you can't stick it back. So measure, then measure again, and only then cut.\n\nMistakes cost money and time. A piece cut 5 mm too short is wasted; you must buy new material and start over. The two minutes spent double-checking save hours and money. Mark clearly, cut on the waste side of the line.",
+        },
+        {
+          type: "example",
+          text: "Cutting a shelf to fit a 60 cm alcove: measure 60 cm, mark it, measure again to confirm 60 cm. Cut just outside the line so the shelf fits snugly without being too small.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Measure twice, cut once.",
+            "A cut cannot be undone.",
+            "Double-checking saves money/time.",
+            "Cut on the waste side of the line.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Why 'measure twice, cut once'?" },
+            { key: "option_0", value: "A cut cannot be undone — check first" },
+            { key: "option_1", value: "It's faster to cut twice" },
+            { key: "option_2", value: "You must use two rulers" },
+            { key: "option_3", value: "No reason" },
+            { key: "answer", value: "A cut cannot be undone — check first" },
+            { key: "explanation", value: "Avoid wasted material." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "'Measure twice, cut once' because…", options: ["a cut can't be undone", "it's a law", "tools cost money", "wood is heavy"], answer: "a cut can't be undone", explain: "Check first." },
+        { q: "A piece cut too short is…", options: ["wasted", "fine", "better", "stronger"], answer: "wasted", explain: "Buy new + restart." },
+        { q: "Cut on the ___ side of the line.", options: ["waste", "keep", "left", "right"], answer: "waste", explain: "Keeps the good piece full size." },
+        { q: "Double-checking takes…", options: ["two minutes, saves hours", "hours, saves nothing", "no time", "a week"], answer: "two minutes, saves hours", explain: "Cheap insurance." },
+        { q: "Best marking tool for a cut line?", options: ["Sharp pencil", "Thick marker", "Finger", "Guess"], answer: "Sharp pencil", explain: "Fine, clear line." },
+      ],
+    },
+
+    // ===================== CONSTRUCTION BASICS (4) =====================
+    {
+      topic: "Construction Basics",
+      title: "Foundations",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "Foundations are the strong base that carries a building's weight into the ground — get this right or everything fails.",
+      blocks: [
+        { type: "heading", text: "Start at the Bottom" },
+        {
+          type: "text",
+          text: "Every building starts with foundations — the strong base that carries its weight safely into the ground. A weak foundation leads to cracks, leaning and even collapse over time. Builders dig down past the soft topsoil to firm ground, then pour concrete (often with steel 'rebar' inside for strength).\n\nFoundations are made wider than the walls above so the weight spreads out. They must go below the frost line (where groundwater freezes) so ice doesn't heave them. Get the base right and the rest of the build is far easier.",
+        },
+        {
+          type: "example",
+          text: "House foundations: trenches dug to firm ground, filled with concrete, wider than the walls. The walls are then built on top — solid and stable for decades.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Foundations carry weight into the ground.",
+            "Made wider than the walls above.",
+            "Dug to firm ground, below frost line.",
+            "Often reinforced with steel rebar.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Why are foundations wider than the walls?" },
+            { key: "option_0", value: "To spread the weight" },
+            { key: "option_1", value: "To look pretty" },
+            { key: "option_2", value: "To save concrete" },
+            { key: "option_3", value: "By mistake" },
+            { key: "answer", value: "To spread the weight" },
+            { key: "explanation", value: "A wider base spreads the load." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Foundations carry a building's…", options: ["weight into the ground", "colour", "name", "windows"], answer: "weight into the ground", explain: "Solid base." },
+        { q: "A weak foundation leads to…", options: ["cracks and leaning", "a perfect building", "lower cost", "nothing"], answer: "cracks and leaning", explain: "Structural problems." },
+        { q: "Foundations are wider than walls to…", options: ["spread the weight", "use more concrete", "look pretty", "by mistake"], answer: "spread the weight", explain: "Load spread." },
+        { q: "Builders dig to…", options: ["firm ground", "the topsoil", "any soil", "the surface"], answer: "firm ground", explain: "Stable base." },
+        { q: "Steel bars inside concrete are called…", options: ["rebar", "rebar wood", "glass", "plastic"], answer: "rebar", explain: "Reinforcement." },
+      ],
+    },
+    {
+      topic: "Construction Basics",
+      title: "Walls & Frames",
+      difficulty: "beginner",
+      minutes: 14,
+      points: 80,
+      summary: "Walls can be load-bearing (hold up the building) or partition (divide rooms). Frames carry the structure.",
+      blocks: [
+        { type: "heading", text: "What Walls Do" },
+        {
+          type: "text",
+          text: "Walls do two jobs. LOAD-BEARING walls carry the weight of the building — roof, upper floors, everything above — down to the foundations. Knock one out without care and the building can collapse. PARTITION walls just divide rooms; they carry no weight and can usually be removed.\n\nIn timber-frame building, a skeleton of vertical 'studs' and horizontal 'plates' carries the load, with panels between for walls. Bricks and blocks carry load through their mass. Always identify load-bearing walls before changing anything.",
+        },
+        {
+          type: "example",
+          text: "Timber frame: sole plate on the floor, vertical studs every 40–60 cm, double top plate — the frame carries the roof. Plywood or plasterboard covers it; insulation fills the gaps.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Load-bearing walls carry the building's weight.",
+            "Partition walls just divide rooms.",
+            "Frames (studs/plates) carry the structure.",
+            "Identify load-bearing walls before changes.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "ordering",
+          data: [
+            { key: "1", value: "Sole plate fixed to the floor" },
+            { key: "2", value: "Vertical studs spaced evenly" },
+            { key: "3", value: "Top plate (often doubled) carries the roof load" },
+            { key: "4", value: "Cover with panels + add insulation" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Load-bearing walls…", options: ["carry the building's weight", "just divide rooms", "are decorative", "hold water"], answer: "carry the building's weight", explain: "Structural." },
+        { q: "Partition walls…", options: ["just divide rooms", "carry the roof", "are always brick", "are foundations"], answer: "just divide rooms", explain: "Non-structural." },
+        { q: "Vertical posts in a timber wall are called…", options: ["studs", "plates", "joists", "rafters"], answer: "studs", explain: "Carry the load." },
+        { q: "Before removing a wall, you must…", options: ["check if it's load-bearing", "just knock it down", "paint it", "ignore it"], answer: "check if it's load-bearing", explain: "Safety critical." },
+        { q: "Insulation in walls is for…", options: ["warmth/sound", "structure", "colour", "weight"], answer: "warmth/sound", explain: "Comfort." },
+      ],
+    },
+    {
+      topic: "Construction Basics",
+      title: "Roofs",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "Roofs shed rain and snow: a frame of rafters holds up a covering (tiles, slates, sheets) laid on a slope.",
+      blocks: [
+        { type: "heading", text: "Keeping the Weather Out" },
+        {
+          type: "text",
+          text: "A roof keeps rain, snow and sun out. Its frame — sloping beams called rafters, held by a horizontal ridge — carries the covering. The slope lets water run off; flat roofs need careful waterproofing because water pools.\n\nRoof coverings include tiles, slates and corrugated sheets, overlapping so water runs down without leaking. Under the covering, a waterproof membrane and battens hold everything in place. A well-built roof lasts decades.",
+        },
+        {
+          type: "example",
+          text: "A pitched (sloped) house roof: ridge board along the top, rafters sloping down to the walls, tiles overlapping from the bottom up so each row covers the join below.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Roofs shed rain/snow via a slope.",
+            "Rafters + ridge form the frame.",
+            "Coverings: tiles, slates, sheets.",
+            "Overlapping layers stop leaks.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Why are most roofs sloped (pitched)?" },
+            { key: "option_0", value: "So rain and snow run off" },
+            { key: "option_1", value: "To look tall" },
+            { key: "option_2", value: "To save material" },
+            { key: "option_3", value: "No reason" },
+            { key: "answer", value: "So rain and snow run off" },
+            { key: "explanation", value: "Slope sheds water." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A roof's main job is…", options: ["keep weather out", "look pretty", "hold furniture", "make the house tall"], answer: "keep weather out", explain: "Rain, snow, sun." },
+        { q: "Sloped roof beams are called…", options: ["rafters", "studs", "joists", "tiles"], answer: "rafters", explain: "Form the slope." },
+        { q: "Why slope a roof?", options: ["Water/snow run off", "To save tiles", "No reason", "It's cheaper"], answer: "Water/snow run off", explain: "Sheds weather." },
+        { q: "Roof tiles are laid…", options: ["overlapping, bottom to top", "in one sheet", "randomly", "upside down"], answer: "overlapping, bottom to top", explain: "Each row covers joins below." },
+        { q: "Flat roofs need careful…", options: ["waterproofing (water pools)", "paint", "tiles", "rafters"], answer: "waterproofing (water pools)", explain: "No slope to drain." },
+      ],
+    },
+    {
+      topic: "Construction Basics",
+      title: "Materials: Wood, Brick, Concrete",
+      difficulty: "beginner",
+      minutes: 14,
+      points: 80,
+      summary: "Each material has strengths: wood is light and easy, brick is durable, concrete is strong in compression.",
+      blocks: [
+        { type: "heading", text: "Choosing Materials" },
+        {
+          type: "text",
+          text: "Builders choose materials by strength, cost, weather and look. WOOD is light, easy to cut and nail, and strong for its weight — the frame of most houses. BRICK is durable, fire-resistant and needs little upkeep — great for outer walls. CONCRETE is incredibly strong when squeezed (compression) and forms foundations, floors and walls; steel rebar adds strength against pulling (tension).\n\nOther materials: steel for big frames, glass for windows, insulation for warmth. Each has a job it does best.",
+        },
+        {
+          type: "example",
+          text: "Typical house: concrete foundations, timber frame, brick outer wall, tiles on the roof, glass windows, foam insulation in the walls.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Wood: light, easy to work, strong.",
+            "Brick: durable, fire-resistant, low upkeep.",
+            "Concrete: strong in compression.",
+            "Steel rebar adds tension strength.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "flashcards",
+          data: [
+            { key: "Wood", value: "Light, easy to cut/nail, strong for its weight" },
+            { key: "Brick", value: "Durable, fire-resistant, low upkeep" },
+            { key: "Concrete", value: "Very strong in compression (squeezed)" },
+            { key: "Steel rebar", value: "Adds strength against pulling (tension)" },
+            { key: "Glass", value: "Lets light in (windows)" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Wood is popular because it's…", options: ["light and easy to work", "fireproof", "transparent", "very heavy"], answer: "light and easy to work", explain: "Cut, nail, screw." },
+        { q: "Brick is great for…", options: ["durable outer walls", "windows", "wires", "insulation"], answer: "durable outer walls", explain: "Fire + weather resistant." },
+        { q: "Concrete is strongest when…", options: ["squeezed (compression)", "pulled", "bent", "twisted"], answer: "squeezed (compression)", explain: "Great under load." },
+        { q: "Steel rebar in concrete adds…", options: ["tension strength", "colour", "weight only", "sound"], answer: "tension strength", explain: "Against pulling." },
+        { q: "Which material for big modern frames?", options: ["Steel", "Paper", "Glass", "Foam"], answer: "Steel", explain: "Strong + light." },
+      ],
+    },
+
+    // ===================== HAND-TOOL MECHANICS (4) =====================
+    {
+      topic: "Hand-Tool Mechanics",
+      title: "Hammers & Nails",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "A hammer drives nails; hold the nail near the head, strike square, and choose the right nail for the job.",
+      blocks: [
+        { type: "heading", text: "The Classic Tool" },
+        {
+          type: "text",
+          text: "A hammer drives nails into wood. Hold the nail upright near its head with thumb and finger, tap it gently to start, then remove your fingers and strike firmly. Hit the nail square (flat) so it goes in straight and doesn't bend.\n\nNails come in sizes for different jobs — short thin ones for small trim, long thick ones for framing. The 'claw' end of a claw hammer pulls out bent or old nails. Always strike cleanly and mind where your fingers are.",
+        },
+        {
+          type: "example",
+          text: "Hanging a picture: hold the small nail near the head, tap twice to start in the wall, then two firm strikes to drive it in, leaving enough sticking out to hang the wire.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Hold the nail near its head to start.",
+            "Tap gently first, then strike firmly.",
+            "Hit square so it goes in straight.",
+            "The claw pulls out bent/old nails.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "When starting a nail, hold it…" },
+            { key: "option_0", value: "near the head, tap gently first" },
+            { key: "option_1", value: "at the bottom, hit hard" },
+            { key: "option_2", value: "with pliers always" },
+            { key: "option_3", value: "in your teeth" },
+            { key: "answer", value: "near the head, tap gently first" },
+            { key: "explanation", value: "Then strike firmly once started." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "To start a nail, you should…", options: ["hold near the head, tap gently", "hit hard at once", "use pliers only", "wet it"], answer: "hold near the head, tap gently", explain: "Then strike firmly." },
+        { q: "Hit the nail ___ so it goes in straight.", options: ["square (flat)", "sideways", "at an angle", "softly"], answer: "square (flat)", explain: "Avoids bending." },
+        { q: "The claw of a hammer is for…", options: ["pulling out nails", "driving nails", "cutting wood", "measuring"], answer: "pulling out nails", explain: "Pry out bent/old nails." },
+        { q: "Choose nails by…", options: ["size for the job", "colour", "smell", "shape only"], answer: "size for the job", explain: "Short thin vs long thick." },
+        { q: "A bent nail should be…", options: ["pulled out and replaced", "left in", "hit harder", "glued"], answer: "pulled out and replaced", explain: "Won't hold well bent." },
+      ],
+    },
+    {
+      topic: "Hand-Tool Mechanics",
+      title: "Screwdrivers & Screws",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "Screws hold tighter than nails and can be undone. Match the screwdriver tip to the screw head.",
+      blocks: [
+        { type: "heading", text: "Turn, Don't Pound" },
+        {
+          type: "text",
+          text: "Screws hold materials together by gripping the wood as they turn in. They're stronger than nails and — a big advantage — can be unscrewed and removed cleanly. A screwdriver turns the screw; match the tip to the screw head: 'slot' (one line), 'Phillips' (cross), or 'Pozidriv'.\n\nTo use: make a small pilot hole first (so the wood doesn't split), push the screw in straight, and turn clockwise to tighten, anti-clockwise to loosen. Power drills with screw bits make this fast.",
+        },
+        {
+          type: "example",
+          text: "Fixing a hinge: drill a thin pilot hole, put the screw in, turn the Phillips screwdriver clockwise until the head sits flush. To remove, turn anti-clockwise.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Screws hold tighter than nails.",
+            "Screws can be removed (unlike nails).",
+            "Match the driver tip to the screw head.",
+            "Clockwise tightens, anti-clockwise loosens.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Which way do you turn a screw to TIGHTEN it?" },
+            { key: "option_0", value: "Clockwise (righty-tighty)" },
+            { key: "option_1", value: "Anti-clockwise (lefty-loosey)" },
+            { key: "option_2", value: "Push, don't turn" },
+            { key: "option_3", value: "Either way" },
+            { key: "answer", value: "Clockwise (righty-tighty)" },
+            { key: "explanation", value: "Clockwise = tighten." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "To tighten a screw, turn…", options: ["clockwise", "anti-clockwise", "push", "pull"], answer: "clockwise", explain: "Righty-tighty." },
+        { q: "An advantage of screws over nails:", options: ["they can be removed", "they're cheaper", "they need no tools", "they're softer"], answer: "they can be removed", explain: "Unscrew cleanly." },
+        { q: "Match the screwdriver tip to…", options: ["the screw head", "the wood colour", "the wall", "the box"], answer: "the screw head", explain: "Slot, Phillips, Pozidriv." },
+        { q: "A pilot hole before screwing prevents…", options: ["the wood splitting", "rust", "colour loss", "noise"], answer: "the wood splitting", explain: "Pre-drilled guide hole." },
+        { q: "A Phillips screw head looks like a…", options: ["cross (+)", "single line", "star", "circle"], answer: "cross (+)", explain: "Cross-shaped recess." },
+      ],
+    },
+    {
+      topic: "Hand-Tool Mechanics",
+      title: "Saws & Cutting",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "A saw cuts wood with sharp teeth; let the saw do the work, cut on the waste side of your line.",
+      blocks: [
+        { type: "heading", text: "Slice, Don't Force" },
+        {
+          type: "text",
+          text: "A saw cuts by dragging sharp teeth through the material. Different saws suit different jobs: a handsaw for wood, a hacksaw for metal, a tenon saw for fine joints. Hold the workpiece firm (in a vice or clamp), mark the cut line clearly, and start with a small notch using a few short pulls.\n\nLet the saw do the work — don't push hard, which jams the blade. Cut on the WASTE side of the line so the good piece keeps its full size. Support the offcut at the end so it doesn't tear off.",
+        },
+        {
+          type: "example",
+          text: "Cutting a plank: clamp it, mark 60 cm, start a notch with short strokes on the line, then long steady strokes. Cut just outside the line. Sand the edge smooth.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Match the saw to the material.",
+            "Clamp the workpiece firmly.",
+            "Start with short strokes to notch.",
+            "Cut on the waste side of the line.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "When sawing, you should…" },
+            { key: "option_0", value: "let the saw do the work — don't force it" },
+            { key: "option_1", value: "push as hard as you can" },
+            { key: "option_2", value: "saw without marking" },
+            { key: "option_3", value: "hold the wood loosely" },
+            { key: "answer", value: "let the saw do the work — don't force it" },
+            { key: "explanation", value: "Forcing jams and bends the blade." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "When sawing, you should…", options: ["let the saw do the work", "push very hard", "saw without clamping", "go as fast as possible"], answer: "let the saw do the work", explain: "Don't force the blade." },
+        { q: "Use a hacksaw for…", options: ["metal", "wood only", "bread", "glass"], answer: "metal", explain: "Fine teeth." },
+        { q: "Before cutting, you should…", options: ["mark a clear line + clamp the work", "just start sawing", "wet the wood", "remove the clamp"], answer: "mark a clear line + clamp the work", explain: "Accuracy + safety." },
+        { q: "Cut on the ___ side of the line.", options: ["waste", "keep", "left", "right"], answer: "waste", explain: "Keep the good piece full size." },
+        { q: "Start a cut with…", options: ["short strokes to make a notch", "one huge push", "no marking", "a hammer"], answer: "short strokes to make a notch", explain: "Then long steady strokes." },
+      ],
+    },
+    {
+      topic: "Hand-Tool Mechanics",
+      title: "Measuring & Marking Tools",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "Accurate work needs marking tools: pencil for lines, square for right angles, marking gauge for parallel lines.",
+      blocks: [
+        { type: "heading", text: "Mark Before You Cut" },
+        {
+          type: "text",
+          text: "Good building starts with clear marks. A sharp pencil draws fine cut lines. A combination square marks perfect right angles and checks 90° corners. A marking gauge scores a line parallel to an edge — vital for neat joints. A spirit level marks horizontal and vertical lines.\n\nThe rule: measure and mark carefully, THEN cut. Vague marks lead to wrong cuts and wasted material. Keep pencils sharp, square edges true, and always mark from a fixed reference edge.",
+        },
+        {
+          type: "example",
+          text: "Marking a shelf cut: measure 60 cm from one end, square a line straight across the plank with a combination square, mark with a sharp pencil. Then cut along the line.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Sharp pencil for fine cut lines.",
+            "Combination square for right angles.",
+            "Marking gauge for parallel lines.",
+            "Measure + mark before cutting.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "ordering",
+          data: [
+            { key: "1", value: "Measure the length needed" },
+            { key: "2", value: "Mark with a sharp pencil" },
+            { key: "3", value: "Square a straight line across with a combination square" },
+            { key: "4", value: "Cut along the marked line" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Best pencil for marking cuts?", options: ["Sharp pencil", "Thick marker", "Crayon", "Pen"], answer: "Sharp pencil", explain: "Fine clear line." },
+        { q: "A combination square marks…", options: ["right angles (90°)", "circles", "long distances", "weight"], answer: "right angles (90°)", explain: "Square across." },
+        { q: "A marking gauge scores lines…", options: ["parallel to an edge", "in circles", "freehand", "with paint"], answer: "parallel to an edge", explain: "Consistent distance." },
+        { q: "The rule is to measure and mark…", options: ["before cutting", "after cutting", "instead of cutting", "never"], answer: "before cutting", explain: "Then cut along the mark." },
+        { q: "Always mark from a…", options: ["fixed reference edge", "guess", "moving point", "finger"], answer: "fixed reference edge", explain: "Consistency." },
+      ],
+    },
+  ],
+};

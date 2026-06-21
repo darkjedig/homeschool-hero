@@ -1,0 +1,964 @@
+import type { SubjectCurriculum } from "./types";
+
+export const gamedev: SubjectCurriculum = {
+  slug: "game-development",
+  lessons: [
+    // ===================== GAME LOOPS (4) =====================
+    {
+      topic: "Game Loops",
+      title: "What Is a Game Loop?",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Every game runs a loop that repeats many times a second, reading input, updating the world and drawing the picture.",
+      blocks: [
+        { type: "heading", text: "The Heartbeat of a Game" },
+        {
+          type: "text",
+          text: "Every game runs a loop that repeats many times a second — often 60 times per second (60 fps). Each time round, the game does its job: read the player's input, update the game world (move characters, check collisions, count score), and draw the picture on screen.\n\nThis loop is why games feel live — the screen is constantly refreshing in response to what you do. Without it, a game would show one frozen picture and never change.",
+        },
+        {
+          type: "example",
+          text: "One frame at 60 fps takes about 16 milliseconds. In that tiny window the game reads your button press, moves your character, checks if it hit an enemy, and draws the new scene.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "A game loop repeats many times a second.",
+            "Each loop = one 'frame'.",
+            "Steps: input → update → draw.",
+            "60 fps = 60 frames per second.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What does a game loop do each frame?" },
+            { key: "option_0", value: "Read input, update world, draw" },
+            { key: "option_1", value: "Only draw once" },
+            { key: "option_2", value: "Print the code" },
+            { key: "option_3", value: "Turn off the computer" },
+            { key: "answer", value: "Read input, update world, draw" },
+            { key: "explanation", value: "Three steps, every frame." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A game loop repeats…", options: ["many times a second", "once ever", "once an hour", "never"], answer: "many times a second", explain: "Usually 60 fps." },
+        { q: "60 fps means…", options: ["60 frames per second", "60 feet per second", "60 files per scene", "60 bits per second"], answer: "60 frames per second", explain: "Smooth motion." },
+        { q: "Without a game loop, a game would…", options: ["show one frozen picture", "run faster", "have better graphics", "never load"], answer: "show one frozen picture", explain: "Nothing updates." },
+        { q: "Which is NOT a step of the loop?", options: ["Compile the code", "Read input", "Update world", "Draw"], answer: "Compile the code", explain: "Compiling happens before play." },
+        { q: "Why do games feel 'live'?", options: ["The loop refreshes constantly", "They use paper", "They have no code", "They freeze often"], answer: "The loop refreshes constantly", explain: "Constant updates." },
+      ],
+    },
+    {
+      topic: "Game Loops",
+      title: "Input, Update, Draw",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "Each frame has three jobs: read input, update the game's state, and draw the result.",
+      blocks: [
+        { type: "heading", text: "Three Jobs Every Frame" },
+        {
+          type: "text",
+          text: "Each pass through the game loop does three jobs in order. First, INPUT: read what the player pressed (keys, taps, mouse). Second, UPDATE: change the game world — move the player, move enemies, check collisions, update the score, run AI. Third, DRAW: paint the new picture on screen.\n\nOrder matters. If you draw before you update, the screen shows the old positions. Update the maths first, then draw the result.",
+        },
+        {
+          type: "example",
+          text: "Player presses 'right': INPUT reads it, UPDATE adds to the player's x, DRAW paints the player in the new spot. One smooth step right.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "INPUT: read the player's controls.",
+            "UPDATE: change the world's state.",
+            "DRAW: paint the new picture.",
+            "Always update before you draw.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "ordering",
+          data: [
+            { key: "1", value: "Input: read the player's controls" },
+            { key: "2", value: "Update: change the game world" },
+            { key: "3", value: "Draw: paint the new picture" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Which comes first in a frame?", options: ["Input", "Update", "Draw", "They're random"], answer: "Input", explain: "Read controls first." },
+        { q: "Moving the player happens in the…", options: ["Update step", "Input step only", "Draw step", "Never"], answer: "Update step", explain: "State changes here." },
+        { q: "Why update before draw?", options: ["So the screen shows the new positions", "To use more memory", "It's the law", "No reason"], answer: "So the screen shows the new positions", explain: "Logic first, visuals after." },
+        { q: "Painting the picture is the…", options: ["Draw step", "Input step", "Update step", "Compile step"], answer: "Draw step", explain: "Rendering." },
+        { q: "Reading a key press is the…", options: ["Input step", "Draw step", "Update step", "Pause step"], answer: "Input step", explain: "Controls read first." },
+      ],
+    },
+    {
+      topic: "Game Loops",
+      title: "Frames & Framerate",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "Framerate (fps) is how many frames run per second; higher fps means smoother motion.",
+      blocks: [
+        { type: "heading", text: "Smoothness = Speed" },
+        {
+          type: "text",
+          text: "Framerate (fps) is how many frames a game draws each second. 30 fps is okay, 60 fps is smooth, 120+ fps is buttery. Higher fps means more updates, so motion looks smoother and the game reacts faster.\n\nIf a game can't keep up, the framerate drops and the game looks juddery ('lag'). To stay smooth, each frame's work (input + update + draw) must finish in time — under ~16 ms for 60 fps.",
+        },
+        {
+          type: "example",
+          text: "At 60 fps each frame gets 1/60 s ≈ 16 ms. At 30 fps each frame gets ~33 ms, so motion updates half as often — less smooth.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "fps = frames per second.",
+            "60 fps is smooth; 30 is okay.",
+            "Higher fps = smoother + more responsive.",
+            "Each frame must finish in time.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "A higher framerate means…" },
+            { key: "option_0", value: "smoother motion" },
+            { key: "option_1", value: "choppier motion" },
+            { key: "option_2", value: "no difference" },
+            { key: "option_3", value: "a lower score" },
+            { key: "answer", value: "smoother motion" },
+            { key: "explanation", value: "More frames = more updates." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "60 fps means…", options: ["60 frames each second", "60 files per scene", "60 bits per second", "60 fails"], answer: "60 frames each second", explain: "Smooth motion." },
+        { q: "Higher fps gives…", options: ["smoother play", "choppier play", "no difference", "a lower score"], answer: "smoother play", explain: "More updates per second." },
+        { q: "Dropped framerate causes…", options: ["lag/judder", "faster play", "better graphics", "higher score"], answer: "lag/judder", explain: "Updates arrive late." },
+        { q: "At 60 fps, each frame has about…", options: ["16 ms", "1 s", "60 s", "1 ms"], answer: "16 ms", explain: "1/60 second." },
+        { q: "To stay smooth, each frame's work must…", options: ["finish in time", "take forever", "be skipped", "crash"], answer: "finish in time", explain: "Under the frame budget." },
+      ],
+    },
+    {
+      topic: "Game Loops",
+      title: "Making Games Feel Smooth",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "Keep each frame fast, use delta time, and separate update logic from drawing.",
+      blocks: [
+        { type: "heading", text: "Tricks for Buttery Play" },
+        {
+          type: "text",
+          text: "Smooth games keep each frame fast: simple graphics, efficient code, and not too much work per update. A key trick is 'delta time' — measure how long the last frame took and move objects based on real elapsed time, so the game runs at the same speed on slow and fast computers.\n\nAnother trick: keep the update (logic) and draw (visuals) separate. Logic uses maths; drawing uses pictures. This keeps code tidy and helps the game run consistently.",
+        },
+        {
+          type: "example",
+          text: "Without delta time, a player on a 120 fps PC moves twice as fast as on 60 fps. With delta time, both move the same speed — fair for everyone.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Keep each frame's work small.",
+            "Use delta time for consistent speed.",
+            "Separate update logic from drawing.",
+            "Efficient code avoids lag.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Why use 'delta time'?" },
+            { key: "option_0", value: "So the game runs at the same speed on any computer" },
+            { key: "option_1", value: "To make the game faster on slow PCs" },
+            { key: "option_2", value: "To add colour" },
+            { key: "option_3", value: "To save disk space" },
+            { key: "answer", value: "So the game runs at the same speed on any computer" },
+            { key: "explanation", value: "Movement based on real elapsed time." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Delta time makes a game…", options: ["run at the same speed on any computer", "faster on slow PCs", "more colourful", "smaller in size"], answer: "run at the same speed on any computer", explain: "Time-based movement." },
+        { q: "To avoid lag, keep each frame…", options: ["fast and light", "huge and slow", "frozen", "blank"], answer: "fast and light", explain: "Stay within budget." },
+        { q: "It's good practice to separate…", options: ["update logic from drawing", "code from the computer", "player from keyboard", "score from game"], answer: "update logic from drawing", explain: "Logic vs visuals." },
+        { q: "Without delta time, faster PCs make the player…", options: ["move too fast", "move too slow", "crash", "invisible"], answer: "move too fast", explain: "More frames = more movement." },
+        { q: "Efficient code helps the game…", options: ["avoid lag", "crash more", "use more battery", "look worse"], answer: "avoid lag", explain: "Less work per frame." },
+      ],
+    },
+
+    // ===================== COORDINATES (4) =====================
+    {
+      topic: "Coordinates",
+      title: "The X-Y Plane",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "In a 2D game, every position is given by two numbers: x (across) and y (up/down).",
+      blocks: [
+        { type: "heading", text: "Where Things Are" },
+        {
+          type: "text",
+          text: "In a 2D game, every object has a position given by two numbers: x (across, left-right) and y (up-down or down-up depending on the system). Together (x, y) pinpoints a spot, like a map grid reference.\n\nThe point (0, 0) is usually one corner of the screen — the 'origin'. Moving right increases x; moving up (or in some systems, down) changes y. Every sprite, enemy and button lives at an (x, y) coordinate.",
+        },
+        {
+          type: "example",
+          text: "A player at (100, 200) is 100 pixels across and 200 pixels up/down from the origin. Move right → x grows to 110, 120…",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Position = (x, y).",
+            "x = across; y = up/down.",
+            "(0,0) is the origin corner.",
+            "Every object has an (x, y).",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "In a 2D game, a position needs how many numbers?" },
+            { key: "option_0", value: "Two (x and y)" },
+            { key: "option_1", value: "One" },
+            { key: "option_2", value: "Four" },
+            { key: "option_3", value: "Ten" },
+            { key: "answer", value: "Two (x and y)" },
+            { key: "explanation", value: "Across and up/down." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "How many numbers in a 2D position?", options: ["Two (x and y)", "One", "Four", "Ten"], answer: "Two (x and y)", explain: "Across and up/down." },
+        { q: "x usually measures…", options: ["across (left-right)", "colour", "size", "speed"], answer: "across (left-right)", explain: "Horizontal." },
+        { q: "The point (0,0) is the…", options: ["origin", "centre always", "bottom right always", "player"], answer: "origin", explain: "Usually a corner." },
+        { q: "Moving right changes…", options: ["x", "y", "colour", "name"], answer: "x", explain: "Horizontal axis." },
+        { q: "A player at (50, 80) is…", options: ["50 across, 80 up/down", "50 up, 80 across", "130 total", "40 apart"], answer: "50 across, 80 up/down", explain: "(x, y) order." },
+      ],
+    },
+    {
+      topic: "Coordinates",
+      title: "Screen Coordinates",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "On a screen, (0,0) is often the top-left corner, with y growing downward — the opposite of maths graphs.",
+      blocks: [
+        { type: "heading", text: "Top-Left Origins" },
+        {
+          type: "text",
+          text: "Many game systems put (0,0) at the TOP-LEFT of the screen, with x growing right and y growing DOWN. This is the opposite of maths graphs, where y grows up. It comes from how screens scan (top to bottom).\n\nSo in screen coordinates, a player 'jumping up' actually has their y DECREASE. Knowing your engine's coordinate system prevents nasty bugs.",
+        },
+        {
+          type: "example",
+          text: "Screen 1920×1080: (0,0) top-left, (1919, 0) top-right, (0, 1079) bottom-left, (1919, 1079) bottom-right.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Screen (0,0) is often top-left.",
+            "x grows right; y grows DOWN.",
+            "Opposite of maths graphs.",
+            "Jumping up = y decreases.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "On many screens, where is (0,0)?" },
+            { key: "option_0", value: "Top-left corner" },
+            { key: "option_1", value: "Centre" },
+            { key: "option_2", value: "Bottom-right" },
+            { key: "option_3", value: "Nowhere" },
+            { key: "answer", value: "Top-left corner" },
+            { key: "explanation", value: "And y grows downward." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "On many screens, y grows…", options: ["downward", "upward", "left", "sideways"], answer: "downward", explain: "Top-left origin." },
+        { q: "Screen (0,0) is usually…", options: ["top-left", "centre", "bottom-right", "random"], answer: "top-left", explain: "Scan order." },
+        { q: "In screen coords, jumping UP means y…", options: ["decreases", "increases", "doubles", "stays"], answer: "decreases", explain: "Up = smaller y." },
+        { q: "Screen coordinates differ from maths graphs in that…", options: ["y points down, not up", "x is vertical", "there's no y", "there's no x"], answer: "y points down, not up", explain: "Flipped vertical." },
+        { q: "Knowing your engine's coordinate system…", options: ["prevents bugs", "wastes time", "adds colour", "is impossible"], answer: "prevents bugs", explain: "Up/down bugs are common." },
+      ],
+    },
+    {
+      topic: "Coordinates",
+      title: "Moving with X and Y",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "To move an object, add or subtract from its x and y each frame; the amount is the speed.",
+      blocks: [
+        { type: "heading", text: "Walking the Grid" },
+        {
+          type: "text",
+          text: "To move an object, change its x or y a little bit each frame in the update step. If the right arrow is pressed, add a small number to x — the object slides smoothly across. To fall, add to (or subtract from) y each frame for gravity.\n\nThe amount you add each frame is the speed. Bigger speed means faster movement. Negative numbers reverse direction.",
+        },
+        {
+          type: "example",
+          text: "Player x = 100, speed = 5. Each frame: x = x + 5 → 105, 110, 115… Smooth rightward slide.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Move by changing x or y each frame.",
+            "Right arrow → add to x.",
+            "Amount added = speed.",
+            "Negative numbers reverse.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "To move a character to the RIGHT, you change…" },
+            { key: "option_0", value: "x (increase it)" },
+            { key: "option_1", value: "y" },
+            { key: "option_2", value: "its colour" },
+            { key: "option_3", value: "its name" },
+            { key: "answer", value: "x (increase it)" },
+            { key: "explanation", value: "x is the horizontal axis." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Move right → change…", options: ["x", "y", "colour", "name"], answer: "x", explain: "Horizontal." },
+        { q: "The amount added each frame is the…", options: ["speed", "colour", "name", "score"], answer: "speed", explain: "Bigger = faster." },
+        { q: "Player x = 100, speed 5. Next frame x = ?", options: ["105", "100", "95", "500"], answer: "105", explain: "100 + 5." },
+        { q: "To move left, you make x…", options: ["smaller (subtract)", "bigger", "stay", "colourful"], answer: "smaller (subtract)", explain: "Negative direction." },
+        { q: "Smooth movement happens when…", options: ["you change position a little each frame", "you jump once", "you freeze", "you skip frames"], answer: "you change position a little each frame", explain: "Tiny steps look smooth." },
+      ],
+    },
+    {
+      topic: "Coordinates",
+      title: "Distance & Direction",
+      difficulty: "beginner",
+      minutes: 14,
+      points: 80,
+      summary: "Use coordinates to measure distance between objects and point one toward another.",
+      blocks: [
+        { type: "heading", text: "How Far Apart?" },
+        {
+          type: "text",
+          text: "Coordinates let you measure the distance between two objects — useful for collision, 'is the enemy near?' and homing missiles. The simplest distance is on one axis: |x1 − x2|. For true 2D distance, use the Pythagorean formula: distance = √((Δx)² + (Δy)²).\n\nYou can also find the direction from A to B using (Δx, Δy) and move A toward B. This is how enemies chase players.",
+        },
+        {
+          type: "example",
+          text: "Player at (100, 100), coin at (130, 140). Δx = 30, Δy = 40. Distance = √(30² + 40²) = √2500 = 50 pixels.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Δx = x1 − x2; Δy = y1 − y2.",
+            "2D distance = √(Δx² + Δy²).",
+            "Direction = (Δx, Δy).",
+            "Used for collisions + chasing.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Player (100,100), coin (130,140). Δx = 30, Δy = 40. Distance?" },
+            { key: "option_0", value: "50" },
+            { key: "option_1", value: "70" },
+            { key: "option_2", value: "10" },
+            { key: "option_3", value: "1200" },
+            { key: "answer", value: "50" },
+            { key: "explanation", value: "√(30² + 40²) = √2500 = 50." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Δx is found by…", options: ["x1 − x2", "x + y", "x × y", "x / y"], answer: "x1 − x2", explain: "Difference in x." },
+        { q: "2D distance uses the…", options: ["Pythagorean formula", "alphabet", "colour wheel", "random number"], answer: "Pythagorean formula", explain: "√(Δx² + Δy²)." },
+        { q: "Player (100,100), coin (130,140). Distance?", options: ["50", "70", "10", "100"], answer: "50", explain: "√(900+1600)=50." },
+        { q: "To make an enemy chase the player, use…", options: ["direction (Δx, Δy)", "a random number", "the colour", "the score"], answer: "direction (Δx, Δy)", explain: "Point and move toward." },
+        { q: "On one axis, distance is…", options: ["|x1 − x2|", "x + y", "x × 2", "0"], answer: "|x1 − x2|", explain: "Absolute difference." },
+      ],
+    },
+
+    // ===================== GAME LOGIC (4) =====================
+    {
+      topic: "Game Logic",
+      title: "If-Statements in Games",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "If-statements check the game's state and fire rules: IF player touches coin THEN add score.",
+      blocks: [
+        { type: "heading", text: "Rules With If" },
+        {
+          type: "text",
+          text: "Game logic is built from if-statements: IF something is true, THEN do something. 'IF the player touches a coin, THEN add 1 to score.' 'IF health reaches 0, THEN end the game.'\n\nBy stacking many simple if-statements, you create rich behaviour — enemies that chase, doors that open with keys, levels that finish. Every rule in a game is some kind of if-statement under the hood.",
+        },
+        {
+          type: "example",
+          text: "if (coinTouched) { score = score + 1; playSound('ding'); removeCoin(); } One rule, several effects.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "If-statements = 'if X then Y'.",
+            "They check the game's state.",
+            "Stacking them creates rich behaviour.",
+            "Every rule is an if-statement.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "An if-statement in a game is used to…?" },
+            { key: "option_0", value: "Make decisions based on rules" },
+            { key: "option_1", value: "Draw pictures" },
+            { key: "option_2", value: "Store the score only" },
+            { key: "option_3", value: "Play music" },
+            { key: "answer", value: "Make decisions based on rules" },
+            { key: "explanation", value: "It checks state and acts." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "If-statements in games are used to…", options: ["make decisions based on rules", "draw pictures", "store only the score", "play music"], answer: "make decisions based on rules", explain: "Check + act." },
+        { q: "Complex behaviour comes from…", options: ["many simple rules combined", "one giant rule", "no rules", "random guessing"], answer: "many simple rules combined", explain: "Stack if-statements." },
+        { q: "'IF health = 0 THEN end game' is a/an…", options: ["if-statement", "image", "song", "error"], answer: "if-statement", explain: "Rule with condition." },
+        { q: "When the player touches a coin, the rule should…", options: ["add to the score", "remove the player", "end the game", "do nothing"], answer: "add to the score", explain: "Classic coin rule." },
+        { q: "If-statements check the game's…", options: ["state", "colour", "price", "name"], answer: "state", explain: "Health, score, position." },
+      ],
+    },
+    {
+      topic: "Game Logic",
+      title: "Game State",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Game state is all the data that changes — score, health, positions, level — stored in variables.",
+      blocks: [
+        { type: "heading", text: "What the Game Knows" },
+        {
+          type: "text",
+          text: "Game state is all the information that can change as the game runs: the score, the player's health and position, which enemies are alive, the current level, items collected, time left. The update step changes this state; the draw step shows it.\n\nStoring state in well-named variables keeps a game organised: score, health, lives, level, playerX, playerY. Each frame the loop reads and updates these.",
+        },
+        {
+          type: "example",
+          text: "State = { score: 120, health: 3, level: 2, playerX: 250, playerY: 400 }. The loop updates these; the screen shows the result.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "State = all data that changes.",
+            "Score, health, positions, level, items.",
+            "Update changes state; draw shows it.",
+            "Store state in clear variables.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "flashcards",
+          data: [
+            { key: "score = 0", value: "Player's points (state)" },
+            { key: "health = 3", value: "Player's lives (state)" },
+            { key: "level = 1", value: "Current level (state)" },
+            { key: "playerX, playerY", value: "Player's position (state)" },
+            { key: "coins = []", value: "List of remaining coins (state)" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Game state is…", options: ["all data that changes", "only the score", "the title screen", "the music"], answer: "all data that changes", explain: "Health, score, positions…" },
+        { q: "Which is part of game state?", options: ["Player's health", "The computer's colour", "The screen's brand", "The room's temperature"], answer: "Player's health", explain: "It changes during play." },
+        { q: "The update step's job is to…", options: ["change the state", "draw the picture", "print the code", "turn off the PC"], answer: "change the state", explain: "Logic updates values." },
+        { q: "State should be stored in…", options: ["clear variables", "random places", "the cloud only", "your head"], answer: "clear variables", explain: "Named clearly." },
+        { q: "Which changes during the game (state)?", options: ["Score", "The game's title", "The creator's name", "The release date"], answer: "Score", explain: "Updates as you play." },
+      ],
+    },
+    {
+      topic: "Game Logic",
+      title: "Collision Detection",
+      difficulty: "intermediate",
+      minutes: 14,
+      points: 90,
+      summary: "Collision detection checks if two objects overlap (often using bounding boxes) so the game can react.",
+      blocks: [
+        { type: "heading", text: "When Things Touch" },
+        {
+          type: "text",
+          text: "Collision detection checks whether two objects are touching — a player and a coin, a bullet and an enemy, a character and a wall. The common method is 'bounding boxes': treat each object as a rectangle and check if the rectangles overlap.\n\nTwo rectangles overlap when their x-ranges AND y-ranges both overlap. When a collision is found, the game reacts: collect the coin, damage the enemy, stop the player.",
+        },
+        {
+          type: "example",
+          text: "Player box (x:100, w:30) and coin box (x:120, w:10) overlap on x (120 is inside 100–130). If y also overlaps → collision!",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Collision = are two objects touching?",
+            "Often uses bounding boxes.",
+            "Overlap on x AND y = collision.",
+            "Game then reacts (score, damage, stop).",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Two bounding boxes collide when…" },
+            { key: "option_0", value: "their x-ranges AND y-ranges both overlap" },
+            { key: "option_1", value: "they are the same colour" },
+            { key: "option_2", value: "they have the same name" },
+            { key: "option_3", value: "they never overlap" },
+            { key: "answer", value: "their x-ranges AND y-ranges both overlap" },
+            { key: "explanation", value: "Both axes must overlap." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Collision detection checks…", options: ["if two objects touch", "the colour of objects", "the price", "the name"], answer: "if two objects touch", explain: "Overlap test." },
+        { q: "Bounding boxes treat objects as…", options: ["rectangles", "circles always", "triangles", "points"], answer: "rectangles", explain: "Simple + fast." },
+        { q: "Two boxes overlap when…", options: ["x AND y ranges overlap", "only x overlaps", "they're the same colour", "they're far apart"], answer: "x AND y ranges overlap", explain: "Both axes." },
+        { q: "When a player-coin collision is found, the game usually…", options: ["collects the coin + adds score", "ends the game", "freezes", "does nothing"], answer: "collects the coin + adds score", explain: "React to the touch." },
+        { q: "Why use bounding boxes?", options: ["Simple and fast", "They look pretty", "Required by law", "They're invisible"], answer: "Simple and fast", explain: "Easy maths." },
+      ],
+    },
+    {
+      topic: "Game Logic",
+      title: "Keeping Score",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Score is game state — increment it on events and display it during the draw step.",
+      blocks: [
+        { type: "heading", text: "Points Make Games Fun" },
+        {
+          type: "text",
+          text: "A score is a number stored in game state that rewards the player. When good things happen — collect a coin, defeat an enemy, finish a level — an if-statement adds points to the score. The draw step then shows the score on screen.\n\nKeeping score simple: start at 0, add when rewards happen, save the high score so players try to beat it. Score gives games purpose.",
+        },
+        {
+          type: "example",
+          text: "if (coinCollected) { score = score + 10; } Then draw: text('Score: ' + score, 10, 10).",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Score is stored in game state.",
+            "Add points on rewards (if-statements).",
+            "Draw the score each frame.",
+            "Save high scores to beat them.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "When should the score increase?" },
+            { key: "option_0", value: "When a reward event happens (e.g. coin collected)" },
+            { key: "option_1", value: "Every frame, always" },
+            { key: "option_2", value: "Never" },
+            { key: "option_3", value: "Only at game over" },
+            { key: "answer", value: "When a reward event happens (e.g. coin collected)" },
+            { key: "explanation", value: "Add points on rewards." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Score is stored as…", options: ["game state", "an image", "a song", "a level"], answer: "game state", explain: "A number that changes." },
+        { q: "Score usually starts at…", options: ["0", "100", "1000", "any number"], answer: "0", explain: "Build up from zero." },
+        { q: "The score is shown by the…", options: ["draw step", "input step", "compile step", "menu only"], answer: "draw step", explain: "Rendered each frame." },
+        { q: "High scores let players…", options: ["try to beat them", "skip the game", "change the rules", "turn off sound"], answer: "try to beat them", explain: "Replay value." },
+        { q: "Add points when…", options: ["a reward event happens", "the game starts", "the player dies", "never"], answer: "a reward event happens", explain: "Coins, enemies, levels." },
+      ],
+    },
+
+    // ===================== CODING (4) =====================
+    {
+      topic: "Coding",
+      title: "Variables",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "A variable is a labelled box that stores a value (number, text, true/false) the program can read and change.",
+      blocks: [
+        { type: "heading", text: "Boxes for Data" },
+        {
+          type: "text",
+          text: "A variable is a labelled box that stores a value the program can remember and change. You might have score = 0 that rises when you collect a coin, or playerName = 'Hudson'. Variables can hold numbers, text, or true/false.\n\nEach variable has a name you choose. Good names (score, lives, playerX) make code readable. Bad names (x, stuff) make code confusing. Programs read and update variables to track everything that happens.",
+        },
+        {
+          type: "example",
+          text: "lives = 3. When hit: lives = lives − 1 → 2. Game checks: if lives = 0 → game over.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "A variable stores a value.",
+            "Has a name you choose.",
+            "Can hold number, text or true/false.",
+            "Good names make code clear.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "A variable is best described as…" },
+            { key: "option_0", value: "a labelled box that stores a value" },
+            { key: "option_1", value: "a type of screen" },
+            { key: "option_2", value: "a kind of bug" },
+            { key: "option_3", value: "a sound effect" },
+            { key: "answer", value: "a labelled box that stores a value" },
+            { key: "explanation", value: "Programs read and change it." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A variable is…", options: ["a labelled box that stores a value", "a screen", "a bug", "a sound"], answer: "a labelled box that stores a value", explain: "Stored data." },
+        { q: "Which can a variable store?", options: ["Number, text, true/false", "Only text", "Only colours", "Nothing"], answer: "Number, text, true/false", explain: "Many types." },
+        { q: "Good variable names are…", options: ["clear (score, lives)", "single letters always", "very long", "in Latin"], answer: "clear (score, lives)", explain: "Readable code." },
+        { q: "lives = 3, then lives = lives − 1. Now lives = ?", options: ["2", "3", "4", "1"], answer: "2", explain: "3 − 1 = 2." },
+        { q: "Variables let a program…", options: ["remember and change values", "draw only", "play only sound", "do nothing"], answer: "remember and change values", explain: "State storage." },
+      ],
+    },
+    {
+      topic: "Coding",
+      title: "Loops in Code",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Loops repeat code — 'for' loops count a set number of times; 'while' loops run until a condition is false.",
+      blocks: [
+        { type: "heading", text: "Do It Again" },
+        {
+          type: "text",
+          text: "A loop repeats a block of code. A 'for' loop counts a set number of times: 'for 10 times, draw a star'. A 'while' loop repeats while something is true: 'while health > 0, keep playing'. Loops save you writing the same line over and over.\n\nLoops power everything from drawing rows of tiles to spawning enemies. Be careful a 'while' loop's condition eventually becomes false, or it loops forever ('infinite loop') and freezes the game.",
+        },
+        {
+          type: "example",
+          text: "for i in 1..5: print(i) → prints 1, 2, 3, 4, 5. One loop, five outputs.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Loops repeat code.",
+            "'for' loops count a set number.",
+            "'while' loops run until a condition ends.",
+            "Beware infinite loops.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "ordering",
+          data: [
+            { key: "1", value: "Loop starts (e.g. for i = 1 to 5)" },
+            { key: "2", value: "Run the block of code once" },
+            { key: "3", value: "Move to next step (i = 2, 3…)" },
+            { key: "4", value: "Stop when the count/condition ends" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A 'for' loop is best for…", options: ["repeating a set number of times", "running forever", "drawing one thing", "storing data"], answer: "repeating a set number of times", explain: "Counted loop." },
+        { q: "A 'while' loop runs until…", options: ["its condition becomes false", "the computer dies", "you press stop", "never"], answer: "its condition becomes false", explain: "Condition-gated." },
+        { q: "An infinite loop happens when…", options: ["the end condition never arrives", "there's no loop", "code is short", "you use a variable"], answer: "the end condition never arrives", explain: "It freezes the game." },
+        { q: "for i in 1..3 prints…", options: ["1, 2, 3", "0, 1, 2", "1 only", "3, 2, 1"], answer: "1, 2, 3", explain: "Three iterations." },
+        { q: "Loops save you…", options: ["writing the same code over and over", "memory", "time always", "nothing"], answer: "writing the same code over and over", explain: "Repeat concisely." },
+      ],
+    },
+    {
+      topic: "Coding",
+      title: "Functions",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "A function is a named block of code you can run again by calling its name — reusable and tidy.",
+      blocks: [
+        { type: "heading", text: "Name and Reuse" },
+        {
+          type: "text",
+          text: "A function is a named block of code you can run again by calling its name. Instead of writing 'draw star' code many times, you write it once as a function called drawStar() and call drawStar() whenever you want a star.\n\nFunctions can take inputs (parameters) and return results. 'add(2, 3) returns 5'. Functions keep code tidy, reusable and easy to fix — change the function once, and everywhere that uses it updates.",
+        },
+        {
+          type: "example",
+          text: "function jump() { playerY = playerY + 10; playSound('jump'); } Call jump() whenever the player presses space.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "A function is a named, reusable block.",
+            "Call it by name to run it.",
+            "Can take inputs (parameters).",
+            "Can return a result.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Why use functions?" },
+            { key: "option_0", value: "To reuse code and keep it tidy" },
+            { key: "option_1", value: "To make code longer" },
+            { key: "option_2", value: "To add bugs" },
+            { key: "option_3", value: "To slow the game" },
+            { key: "answer", value: "To reuse code and keep it tidy" },
+            { key: "explanation", value: "Define once, call many times." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A function is…", options: ["a named, reusable block of code", "a screen", "a bug", "a song"], answer: "a named, reusable block of code", explain: "Call by name." },
+        { q: "Functions help you…", options: ["reuse code", "add bugs", "make code messy", "slow things down"], answer: "reuse code", explain: "Define once." },
+        { q: "Inputs to a function are called…", options: ["parameters", "outputs", "bugs", "loops"], answer: "parameters", explain: "Passed in." },
+        { q: "Change a function once → …", options: ["all calls to it update", "nothing changes", "the game crashes", "you must rewrite everything"], answer: "all calls to it update", explain: "Single source." },
+        { q: "function add(a,b) return a+b. add(2,3) = ?", options: ["5", "23", "6", "error"], answer: "5", explain: "2 + 3." },
+      ],
+    },
+    {
+      topic: "Coding",
+      title: "Events & Input",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Events let code react to things happening — a key press, a click, a collision — by calling a handler.",
+      blocks: [
+        { type: "heading", text: "Reacting to the World" },
+        {
+          type: "text",
+          text: "An event is something that happens — a key press, a mouse click, a tap, a collision, a timer finishing. Code can listen for events and run a 'handler' function when they occur, so the game reacts instantly.\n\nThis is how controls work: 'on spacebar pressed → jump()'. The game loop checks for events each frame and calls the right handler. Events keep input responsive and code organised.",
+        },
+        {
+          type: "example",
+          text: "onKeyPress('space') → jump(). onCoinCollected → score += 10; playSound('ding'). Events fire handlers.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Events = things that happen.",
+            "Handlers respond to events.",
+            "Keys, clicks, taps, collisions are events.",
+            "The loop checks events each frame.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What is an 'event handler'?" },
+            { key: "option_0", value: "Code that runs when an event happens" },
+            { key: "option_1", value: "A type of bug" },
+            { key: "option_2", value: "A screen saver" },
+            { key: "option_3", value: "A kind of font" },
+            { key: "answer", value: "Code that runs when an event happens" },
+            { key: "explanation", value: "It reacts to events." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "An event is…", options: ["something that happens (key press, click)", "a type of bug", "a screen saver", "a font"], answer: "something that happens (key press, click)", explain: "Triggers code." },
+        { q: "Code that responds to an event is a…", options: ["handler", "loop", "variable", "colour"], answer: "handler", explain: "Runs on the event." },
+        { q: "Which is an event?", options: ["Key press", "A variable name", "A loop counter", "A function name"], answer: "Key press", explain: "Happens in real time." },
+        { q: "on spacebar → jump() is an example of…", options: ["an event handler", "a variable", "a loop", "a bug"], answer: "an event handler", explain: "Reacts to input." },
+        { q: "Events are checked…", options: ["each frame by the loop", "once a year", "never", "only at startup"], answer: "each frame by the loop", explain: "Keeps input responsive." },
+      ],
+    },
+
+    // ===================== CHARACTER MOVEMENT (4) =====================
+    {
+      topic: "Character Movement",
+      title: "Position & Velocity",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Position is where you are; velocity is how fast you move each frame. Add velocity to position to move.",
+      blocks: [
+        { type: "heading", text: "Where + How Fast" },
+        {
+          type: "text",
+          text: "Position is where an object is (x, y). Velocity is how fast it moves each frame (vx, vy). Each frame, the update step adds velocity to position: x = x + vx, y = y + vy. This is how smooth motion works.\n\nVelocity can be positive (right/down) or negative (left/up). To stop, set velocity to 0. To speed up, increase velocity. This 'position + velocity' model powers nearly every game's movement.",
+        },
+        {
+          type: "example",
+          text: "Player x=100, vx=4. Each frame: x = 100+4=104, 108, 112… Steady rightward motion. Set vx=0 to stop.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Position = (x, y).",
+            "Velocity = (vx, vy) per frame.",
+            "Each frame: position += velocity.",
+            "Velocity 0 = stopped.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Each frame, to move you…" },
+            { key: "option_0", value: "add velocity to position" },
+            { key: "option_1", value: "subtract position from velocity" },
+            { key: "option_2", value: "multiply by colour" },
+            { key: "option_3", value: "do nothing" },
+            { key: "answer", value: "add velocity to position" },
+            { key: "explanation", value: "x += vx; y += vy." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Velocity measures…", options: ["how fast you move each frame", "where you are", "your colour", "your size"], answer: "how fast you move each frame", explain: "Speed + direction." },
+        { q: "Each frame, position…", options: ["adds velocity", "adds colour", "stays fixed", "doubles"], answer: "adds velocity", explain: "x += vx." },
+        { q: "To stop, set velocity to…", options: ["0", "100", "−1", "any number"], answer: "0", explain: "No movement." },
+        { q: "x=100, vx=5. After one frame x = ?", options: ["105", "100", "95", "500"], answer: "105", explain: "100 + 5." },
+        { q: "Negative vx moves you…", options: ["left (or up if vy)", "right", "faster right", "nowhere"], answer: "left (or up if vy)", explain: "Negative direction." },
+      ],
+    },
+    {
+      topic: "Character Movement",
+      title: "Smooth Movement",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Smooth movement changes velocity gradually (acceleration) rather than snapping to top speed instantly.",
+      blocks: [
+        { type: "heading", text: "Don't Snap — Slide" },
+        {
+          type: "text",
+          text: "If a character instantly hits top speed when you press a key, movement feels robotic. Smooth movement uses ACCELERATION: velocity changes gradually each frame, so the character eases into top speed and eases to a stop.\n\nAcceleration is how much velocity changes per frame. Press right → vx increases a bit each frame until max speed. Release → friction reduces vx gradually. This feels natural, like a real runner.",
+        },
+        {
+          type: "example",
+          text: "Press right: vx += 0.5 each frame (acceleration) up to max 6. Release: vx *= 0.9 (friction) until near 0. Smooth start and stop.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Smooth = gradual velocity change.",
+            "Acceleration = velocity change per frame.",
+            "Friction eases to a stop.",
+            "Feels natural, not robotic.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Smooth movement uses…to change velocity." },
+            { key: "option_0", value: "acceleration (gradual change)" },
+            { key: "option_1", value: "instant top speed" },
+            { key: "option_2", value: "random jumps" },
+            { key: "option_3", value: "freezing" },
+            { key: "answer", value: "acceleration (gradual change)" },
+            { key: "explanation", value: "Ease into and out of motion." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Acceleration is…", options: ["how velocity changes per frame", "your position", "your colour", "your score"], answer: "how velocity changes per frame", explain: "Rate of velocity change." },
+        { q: "Instant top speed feels…", options: ["robotic", "natural", "slow", "impossible"], answer: "robotic", explain: "No easing." },
+        { q: "Friction does what when you stop?", options: ["eases velocity toward 0", "raises velocity", "freezes the screen", "adds points"], answer: "eases velocity toward 0", explain: "Gradual stop." },
+        { q: "Smooth movement eases…", options: ["into and out of motion", "instantly", "randomly", "never"], answer: "into and out of motion", explain: "Acceleration + friction." },
+        { q: "Press right: vx += 0.5 each frame. This is…", options: ["acceleration", "position", "collision", "drawing"], answer: "acceleration", explain: "Velocity changes over time." },
+      ],
+    },
+    {
+      topic: "Character Movement",
+      title: "Gravity & Jumping",
+      difficulty: "intermediate",
+      minutes: 14,
+      points: 90,
+      summary: "Gravity adds downward velocity each frame; jumping gives a one-time upward velocity burst.",
+      blocks: [
+        { type: "heading", text: "Up You Go, Down You Fall" },
+        {
+          type: "text",
+          text: "Gravity is constant downward acceleration: each frame, add a small amount to the character's vertical velocity (vy) so they fall faster and faster. Jumping is a one-time upward burst: when the player presses jump (and is on the ground), set vy to a strong negative value.\n\nThe result: the character shoots up, slows as gravity bites, then falls back down — a perfect arc. Set vy = 0 only when standing on solid ground so the player can't double-jump (unless you want that!).",
+        },
+        {
+          type: "example",
+          text: "Each frame: vy += 0.4 (gravity). On jump press (if on ground): vy = −8. Character rises, slows, falls — an arc.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Gravity = constant downward acceleration.",
+            "Jump = one-time upward velocity burst.",
+            "Only jump when on ground.",
+            "Creates a natural arc.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "How does gravity work each frame?" },
+            { key: "option_0", value: "Adds downward velocity (vy increases)" },
+            { key: "option_1", value: "Removes all velocity" },
+            { key: "option_2", value: "Adds upward velocity" },
+            { key: "option_3", value: "Freezes the player" },
+            { key: "answer", value: "Adds downward velocity (vy increases)" },
+            { key: "explanation", value: "Constant downward acceleration." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Gravity each frame…", options: ["adds downward velocity", "removes velocity", "freezes", "adds colour"], answer: "adds downward velocity", explain: "Faster fall over time." },
+        { q: "A jump is usually…", options: ["a one-time upward velocity burst", "constant upward force", "removing gravity", "a teleport"], answer: "a one-time upward velocity burst", explain: "Set vy once." },
+        { q: "To prevent double-jumping, only allow jump when…", options: ["on the ground", "in the air", "always", "never"], answer: "on the ground", explain: "Check grounded state." },
+        { q: "Jump + gravity creates a…", options: ["natural arc", "straight line up", "teleport", "freeze"], answer: "natural arc", explain: "Rise, slow, fall." },
+        { q: "Standing on ground, vy should be…", options: ["0", "increasing", "very large", "negative"], answer: "0", explain: "No falling through floor." },
+      ],
+    },
+    {
+      topic: "Character Movement",
+      title: "Animation Basics",
+      difficulty: "intermediate",
+      minutes: 14,
+      points: 90,
+      summary: "Animation shows slightly different pictures (frames) in quick succession so movement looks alive.",
+      blocks: [
+        { type: "heading", text: "Many Frames, One Illusion" },
+        {
+          type: "text",
+          text: "Game animation works like a flipbook: show slightly different pictures (called 'frames' or 'cells') one after another, fast, and the brain blends them into smooth motion. A walk cycle might cycle through 4–8 poses.\n\nThe game picks which frame to show based on state: 'idle' frame when still, 'walk' frames cycling when moving, 'jump' frame in the air. Swapping frames at the right speed (e.g. 10 fps for walking) brings characters to life.",
+        },
+        {
+          type: "example",
+          text: "Walk cycle: frames A, B, C, D loop while the player moves. Each 100 ms, advance to the next frame. Stop moving → show idle frame.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Animation = frames shown fast.",
+            "Walk cycle loops while moving.",
+            "Pick frame based on state.",
+            "Frame speed affects feel.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "ordering",
+          data: [
+            { key: "1", value: "Draw the key frames (idle, walk 1, walk 2…)" },
+            { key: "2", value: "Pick the frame based on the character's state" },
+            { key: "3", value: "Cycle frames at the right speed while moving" },
+            { key: "4", value: "Show idle frame when still" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Game animation works like a…", options: ["flipbook", "photograph", "single picture", "song"], answer: "flipbook", explain: "Frames shown fast." },
+        { q: "Which frame shows when the character is still?", options: ["Idle frame", "Jump frame", "Walk frame", "Random"], answer: "Idle frame", explain: "Resting pose." },
+        { q: "Walk cycle frames are…", options: ["looped while moving", "shown once ever", "never used", "only in menus"], answer: "looped while moving", explain: "Cycle A,B,C,D…" },
+        { q: "The chosen frame depends on…", options: ["the character's state", "the colour of the room", "the computer brand", "nothing"], answer: "the character's state", explain: "Idle/walk/jump." },
+        { q: "Frame speed affects…", options: ["the feel of animation", "the score", "the colour", "the name"], answer: "the feel of animation", explain: "Too fast/slow looks off." },
+      ],
+    },
+  ],
+};
