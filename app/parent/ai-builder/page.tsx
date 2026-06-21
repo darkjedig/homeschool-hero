@@ -242,6 +242,10 @@ function CourseReview({ draft, draftId }: { draft: Doc<"aiCourseDrafts"> | null 
                   <li key={i} className="rounded-lg border border-white/5 bg-black/20 px-3 py-2">
                     <p className="font-medium text-white">{l.title} <span className="text-xs text-muted-foreground">· {l.quizQuestions.length} questions · {l.pointsAwarded}pts</span></p>
                     <p className="mt-1 text-xs text-muted-foreground">{l.notes}</p>
+                    <p className="mt-1 text-[11px] text-blue-300">
+                      {l.content?.length ?? 0} content blocks
+                      {l.content?.some((b) => b.type === "interactive") ? " · includes interactive" : ""}
+                    </p>
                     <p className="mt-1 truncate text-[11px] text-blue-400">{l.videoUrl}</p>
                   </li>
                 ))}
@@ -273,6 +277,7 @@ function CourseReview({ draft, draftId }: { draft: Doc<"aiCourseDrafts"> | null 
 // ----------------- lesson review -----------------
 function LessonReview({ draft, draftId }: { draft: Doc<"aiLessonDrafts"> | null | undefined; draftId: string | null }) {
   const approve = useMutation(api.aiDrafts.approveLessonDraft);
+  const createTopic = useMutation(api.topics.create);
   const subjects = useQuery(api.subjects.list);
   const [subjectId, setSubjectId] = useState("");
   const topics = useQuery(
@@ -280,6 +285,14 @@ function LessonReview({ draft, draftId }: { draft: Doc<"aiLessonDrafts"> | null 
     subjectId ? { subjectId: subjectId as never } : "skip",
   );
   const [topicId, setTopicId] = useState("");
+  // "new" topic mode lets the parent create a topic inline (handles subjects
+  // that don't have any topics yet, like a freshly created one).
+  const [newTopic, setNewTopic] = useState<{ name: string; description: string; difficulty: "beginner" | "intermediate" | "advanced" }>({
+    name: "",
+    description: "",
+    difficulty: draft?.difficultyLevel ?? "beginner",
+  });
+  const [creatingTopic, setCreatingTopic] = useState(false);
   const [edits, setEdits] = useState<{ title: string; notes: string; videoUrl: string } | null>(null);
   const router = useRouter();
 
@@ -297,6 +310,40 @@ function LessonReview({ draft, draftId }: { draft: Doc<"aiLessonDrafts"> | null 
 
   if (!draft || !draftId) return null;
 
+  const topicSelectValue = creatingTopic ? "__new__" : topicId;
+  const canApprove =
+    !!subjectId &&
+    !!edits &&
+    (creatingTopic ? newTopic.name.trim().length > 0 : !!topicId);
+
+  const approveLesson = async () => {
+    if (!edits || !subjectId) return;
+    let resolvedTopicId = topicId;
+    if (creatingTopic) {
+      if (!newTopic.name.trim()) return;
+      resolvedTopicId = await createTopic({
+        subjectId: subjectId as never,
+        name: newTopic.name.trim(),
+        description: newTopic.description.trim() || newTopic.name.trim(),
+        difficultyLevel: newTopic.difficulty,
+      });
+    }
+    if (!resolvedTopicId) return;
+    await approve({
+      draftId: draftId as never,
+      subjectId: subjectId as never,
+      topicId: resolvedTopicId as never,
+      title: edits.title,
+      notes: edits.notes,
+      videoUrl: edits.videoUrl,
+      content: draft.proposedContent ?? [],
+      difficultyLevel: draft.difficultyLevel,
+      pointsAwarded: 100,
+      quizQuestions: draft.proposedQuizQuestions ?? [],
+    });
+    router.push("/parent/dashboard");
+  };
+
   return (
     <section className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
       <div className="flex items-center justify-between">
@@ -309,23 +356,78 @@ function LessonReview({ draft, draftId }: { draft: Doc<"aiLessonDrafts"> | null 
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <Field label="Place in subject">
-              <select value={subjectId} onChange={(e) => { setSubjectId(e.target.value); setTopicId(""); }} className="w-full rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white">
+              <select value={subjectId} onChange={(e) => { setSubjectId(e.target.value); setTopicId(""); setCreatingTopic(false); }} className="w-full rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white">
                 <option value="">Choose subject…</option>
                 {(subjects ?? []).map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
               </select>
             </Field>
             <Field label="Topic">
-              <select value={topicId} onChange={(e) => setTopicId(e.target.value)} className="w-full rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white" disabled={!topics}>
+              <select
+                value={topicSelectValue}
+                onChange={(e) => {
+                  if (e.target.value === "__new__") {
+                    setCreatingTopic(true);
+                    setTopicId("");
+                  } else {
+                    setCreatingTopic(false);
+                    setTopicId(e.target.value);
+                  }
+                }}
+                className="w-full rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white"
+              >
                 <option value="">Choose topic…</option>
+                <option value="__new__">+ Create new topic…</option>
                 {(topics ?? []).map((t) => <option key={t._id} value={t._id}>{t.name}</option>)}
               </select>
             </Field>
+
+            {creatingTopic && (
+              <>
+                <Field label="New topic name">
+                  <Input
+                    value={newTopic.name}
+                    onChange={(e) => setNewTopic({ ...newTopic, name: e.target.value })}
+                    placeholder="e.g. Maps and Globes"
+                  />
+                </Field>
+                <Field label="New topic difficulty">
+                  <select
+                    value={newTopic.difficulty}
+                    onChange={(e) => setNewTopic({ ...newTopic, difficulty: e.target.value as "beginner" | "intermediate" | "advanced" })}
+                    className="w-full rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white"
+                  >
+                    <option value="beginner">beginner</option>
+                    <option value="intermediate">intermediate</option>
+                    <option value="advanced">advanced</option>
+                  </select>
+                </Field>
+                <Field label="New topic description (optional)" full>
+                  <Input
+                    value={newTopic.description}
+                    onChange={(e) => setNewTopic({ ...newTopic, description: e.target.value })}
+                    placeholder="One-line topic summary"
+                  />
+                </Field>
+              </>
+            )}
+
             <Field label="Title" full><Input value={edits.title} onChange={(e) => setEdits({ ...edits, title: e.target.value })} /></Field>
             <Field label="Lesson notes" full>
               <textarea rows={4} value={edits.notes} onChange={(e) => setEdits({ ...edits, notes: e.target.value })} className="w-full rounded-md border border-white/10 bg-card px-3 py-2 text-sm text-white" />
             </Field>
             <Field label="YouTube URL" full><YoutubeUrlField value={edits.videoUrl} onChange={(v) => setEdits({ ...edits, videoUrl: v })} /></Field>
           </div>
+
+          {draft.proposedContent && draft.proposedContent.length > 0 ? (
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
+                Lesson content ({draft.proposedContent.length} blocks)
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Includes {draft.proposedContent.filter((b) => b.type === "interactive").length} interactive element(s). These blocks will be published with the lesson.
+              </p>
+            </div>
+          ) : null}
 
           {draft.proposedQuizQuestions?.length ? (
             <div>
@@ -342,22 +444,8 @@ function LessonReview({ draft, draftId }: { draft: Doc<"aiLessonDrafts"> | null 
           ) : null}
 
           <Button
-            onClick={async () => {
-              if (!subjectId || !topicId) return;
-              await approve({
-                draftId: draftId as never,
-                subjectId: subjectId as never,
-                topicId: topicId as never,
-                title: edits.title,
-                notes: edits.notes,
-                videoUrl: edits.videoUrl,
-                difficultyLevel: draft.difficultyLevel,
-                pointsAwarded: 100,
-                quizQuestions: draft.proposedQuizQuestions ?? [],
-              });
-              router.push("/parent/dashboard");
-            }}
-            disabled={!subjectId || !topicId}
+            onClick={approveLesson}
+            disabled={!canApprove}
             className="bg-green-600 text-white hover:bg-green-500"
           >
             <CheckCircle2 size={16} /> Approve &amp; publish lesson

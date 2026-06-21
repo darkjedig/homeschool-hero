@@ -115,7 +115,7 @@ export default function ParentSubjectsPage() {
             >
               <div className="mb-3 flex items-center gap-3">
                 <div className="grid h-11 w-11 place-items-center rounded-xl" style={{ backgroundColor: `${accent}22` }}>
-                  <SubjectIcon slug={s.slug} size={22} />
+                  <SubjectIcon slug={s.slug} iconName={s.icon} color={s.color} size={22} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-white">{s.name}</p>

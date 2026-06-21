@@ -3,6 +3,38 @@ import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 
 /**
+ * Reusable content-block validator. Used for `lessons.content` and for the AI
+ * draft tables so generated lessons can carry rich blocks + interactives.
+ */
+export const contentBlock = v.object({
+  type: v.union(
+    v.literal("heading"),
+    v.literal("text"),
+    v.literal("example"),
+    v.literal("keyPoints"),
+    v.literal("video"),
+    v.literal("interactive"),
+  ),
+  text: v.optional(v.string()),
+  items: v.optional(v.array(v.string())),
+  url: v.optional(v.string()),
+  caption: v.optional(v.string()),
+  variant: v.optional(
+    v.union(
+      v.literal("reveal"),
+      v.literal("flashcards"),
+      v.literal("ordering"),
+      v.literal("timeline"),
+    ),
+  ),
+  // Generic interactive payload as {key,value} pairs (works for reveal/MCQ,
+  // flashcards, timeline; ordering uses key = correct order).
+  data: v.optional(v.array(v.object({ key: v.string(), value: v.string() }))),
+});
+
+export const contentBlocks = v.array(contentBlock);
+
+/**
  * HomeschoolHero schema.
  *
  * Auth accounts live in `authTables` (from @convex-dev/auth). Application
@@ -60,35 +92,7 @@ export default defineSchema({
     slug: v.string(),
     description: v.string(),
     lessonNotes: v.string(),
-    content: v.optional(
-      v.array(
-        v.object({
-          type: v.union(
-            v.literal("heading"),
-            v.literal("text"),
-            v.literal("example"),
-            v.literal("keyPoints"),
-            v.literal("video"),
-            v.literal("interactive"),
-          ),
-          text: v.optional(v.string()),
-          items: v.optional(v.array(v.string())),
-          url: v.optional(v.string()),
-          caption: v.optional(v.string()),
-          variant: v.optional(
-            v.union(
-              v.literal("reveal"),
-              v.literal("flashcards"),
-              v.literal("ordering"),
-              v.literal("timeline"),
-            ),
-          ),
-          // Generic interactive payload as {key,value} pairs (works for
-          // reveal, flashcards, timeline; ordering uses key = correct order).
-          data: v.optional(v.array(v.object({ key: v.string(), value: v.string() }))),
-        }),
-      ),
-    ),
+    content: v.optional(contentBlocks),
     videoUrl: v.string(),
     videoProvider: v.literal("youtube"),
     difficultyLevel: v.union(
@@ -268,6 +272,7 @@ export default defineSchema({
     proposedTitle: v.optional(v.string()),
     proposedNotes: v.optional(v.string()),
     proposedVideoUrl: v.optional(v.string()),
+    proposedContent: v.optional(contentBlocks),
     proposedQuizQuestions: v.optional(
       v.array(
         v.object({
@@ -333,6 +338,7 @@ export default defineSchema({
           topicIndex: v.number(),
           title: v.string(),
           notes: v.string(),
+          content: v.optional(contentBlocks),
           videoUrl: v.string(),
           difficultyLevel: v.union(
             v.literal("beginner"),

@@ -47,7 +47,7 @@ export default function SubjectPage() {
             className="grid h-12 w-12 place-items-center rounded-2xl"
             style={{ backgroundColor: `${accent}22` }}
           >
-            <SubjectIcon slug={subject.slug} size={26} />
+            <SubjectIcon slug={subject.slug} iconName={subject.icon} color={subject.color} size={26} />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">{subject.name}</h1>

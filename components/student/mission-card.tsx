@@ -10,6 +10,8 @@ export type MissionCardProps = {
   progress: number;
   points: number;
   href?: string;
+  iconName?: string;
+  color?: string;
 };
 
 /** A "Today's Mission" subject card with subject-coloured glow. */
@@ -20,24 +22,27 @@ export function MissionCard({
   progress,
   points,
   href = "#",
+  iconName,
+  color,
 }: MissionCardProps) {
   const meta = subjectMeta(subjectSlug);
-  const rgb = hexToRgb(meta.color);
+  const accent = color || meta.color;
+  const rgb = hexToRgb(accent);
   return (
     <Link
       href={href}
       className="block rounded-2xl border bg-gradient-to-b from-white/[0.06] to-transparent p-4 transition hover:-translate-y-0.5 hover:scale-[1.02]"
       style={{
-        borderColor: `${meta.color}4d`,
+        borderColor: `${accent}4d`,
         boxShadow: `0 0 24px rgba(${rgb},0.15)`,
       }}
     >
       <div className="mb-3 flex items-center gap-2">
         <div
           className="grid h-9 w-9 place-items-center rounded-lg"
-          style={{ backgroundColor: `${meta.color}22` }}
+          style={{ backgroundColor: `${accent}22` }}
         >
-          <SubjectIcon slug={subjectSlug} size={18} />
+          <SubjectIcon slug={subjectSlug} iconName={iconName} color={accent} size={18} />
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-white">{title}</p>

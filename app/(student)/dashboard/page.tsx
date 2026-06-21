@@ -111,6 +111,8 @@ export default function DashboardPage() {
                 progress={[68, 52, 74, 48][i] ?? 50}
                 points={[120, 100, 150, 130][i] ?? 100}
                 href={`/subjects/${s.slug}`}
+                iconName={s.icon}
+                color={s.color}
               />
             ))}
             {firstFour.length === 0 &&
@@ -163,6 +165,8 @@ export default function DashboardPage() {
                 name={s.name}
                 progress={SUBJECT_PROGRESS[s.slug] ?? 40}
                 href={`/subjects/${s.slug}`}
+                iconName={s.icon}
+                color={s.color}
               />
             ))}
           </div>

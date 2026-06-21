@@ -1,6 +1,7 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireParent } from "./authHelpers";
+import { contentBlocks } from "./schema";
 import type { Id } from "./_generated/dataModel";
 
 const DIFF = v.union(
@@ -82,6 +83,7 @@ export const saveCourseResult = internalMutation({
           topicIndex: v.number(),
           title: v.string(),
           notes: v.string(),
+          content: v.optional(contentBlocks),
           videoUrl: v.string(),
           difficultyLevel: DIFF,
           pointsAwarded: v.number(),
@@ -132,6 +134,7 @@ export const approveCourseDraft = mutation({
         topicIndex: v.number(),
         title: v.string(),
         notes: v.string(),
+        content: v.optional(contentBlocks),
         videoUrl: v.string(),
         difficultyLevel: DIFF,
         pointsAwarded: v.number(),
@@ -191,6 +194,7 @@ export const approveCourseDraft = mutation({
         slug: `${args.slug}-${topicIds.indexOf(topicId)}-${now.toString(36)}`.toLowerCase(),
         description: lesson.notes.slice(0, 140),
         lessonNotes: lesson.notes,
+        content: lesson.content,
         videoUrl: lesson.videoUrl,
         videoProvider: "youtube",
         difficultyLevel: lesson.difficultyLevel,
@@ -300,6 +304,7 @@ export const saveLessonResult = internalMutation({
     errorMessage: v.optional(v.string()),
     title: v.optional(v.string()),
     notes: v.optional(v.string()),
+    content: v.optional(contentBlocks),
     videoUrl: v.optional(v.string()),
     quizQuestions: v.optional(v.array(quizQuestion)),
   },
@@ -319,6 +324,7 @@ export const saveLessonResult = internalMutation({
       model: args.model,
       proposedTitle: args.title,
       proposedNotes: args.notes,
+      proposedContent: args.content,
       proposedVideoUrl: args.videoUrl,
       proposedQuizQuestions: args.quizQuestions,
       updatedAt: now,
@@ -334,6 +340,7 @@ export const approveLessonDraft = mutation({
     topicId: v.id("topics"),
     title: v.string(),
     notes: v.string(),
+    content: v.optional(contentBlocks),
     videoUrl: v.string(),
     difficultyLevel: DIFF,
     pointsAwarded: v.number(),
@@ -350,6 +357,7 @@ export const approveLessonDraft = mutation({
       slug,
       description: args.notes.slice(0, 140),
       lessonNotes: args.notes,
+      content: args.content,
       videoUrl: args.videoUrl,
       videoProvider: "youtube",
       difficultyLevel: args.difficultyLevel,
