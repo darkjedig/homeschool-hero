@@ -54,5 +54,13 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - **GitHub**: repo `darkjedig/homeschool-hero` created (public). Fine-grained PAT now has Contents:Write. Push works via `git push "https://x-access-token:<PAT>@github.com/darkjedig/homeschool-hero.git" main:main`.
 
 ## Next Steps (Phase 9 remainder + Phase 10)
-- Phase 9 remaining: author Term 1 rich curriculum (~12 weeks, all 8 subjects, content blocks + interactives + 5Q per lesson). Enrich existing 39 lessons to rich blocks. Docs (curriculum-authoring.md, design skill calendar guidance).
-- Phase 10 (was Phase 9): Full RBAC audit on every Convex function + route group, Playwright smoke tests + Vitest unit tests, mobile polish, error boundaries, optimistic updates, final README.
+
+### Critical curriculum structure (user feedback)
+- **Each TOPIC = a multi-lesson unit** (like a real school unit). E.g., "World War I" = 5-8 lessons (causes, outbreak, trench warfare, key battles, home front, aftermath). "Fractions" = 5-6 lessons (intro, equivalent, add/subtract, fractions of amounts, compare/order). NOT one lesson per topic.
+- **All interactives are multiple-choice** (anti-cheat). Reveal = MCQ with options + select + feedback. No tap-to-reveal. Warm-up on lesson page uses MCQ from quiz question's options. Flashcards kept (study tool). Ordering + timeline kept (genuinely interactive).
+- **Each lesson = comprehensive classroom lesson**: heading + 2-4 teaching paragraphs + worked example + key points + ≥1 interactive (MCQ/flashcards/ordering/timeline) + video (optional, parent adds) + 5-question quiz from the text.
+- **Calendar pacing**: auto-assigned lessons advance through topic→lesson order. Multi-lesson topics mean the calendar spans a TOPIC over multiple days/weeks (not one lesson per day on disconnected topics).
+
+### Remaining work
+- Phase 9: expand each topic to multi-lesson units (4-8 lessons per topic). Enrich all lessons with rich blocks + interactives + 5Q. Author new lessons. `docs/curriculum-authoring.md`.
+- Phase 10 (was Phase 9): Full RBAC audit, Playwright + Vitest, mobile polish, error boundaries, README.

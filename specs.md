@@ -122,9 +122,13 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 **Step 4 — Full-year hand-authored curriculum** ⏳
 - [x] 39 text lessons + 78 quiz questions seeded (Phase 2 catch-up via `seedLessons.ts`)
 - [x] Subject manager (CRUD subjects), lesson editor (rich text + inline quiz editing + YouTube search helper)
-- [ ] Enrich existing lessons with rich `content` blocks + interactives + expand to 5 questions each
-- [ ] Author new lessons for Term 1 (~12 weeks, all 8 subjects) — the big remaining content effort
+- [x] 8 lessons enriched with rich content blocks + interactives + 5Q (batch 1)
+- [x] All reveal/warm-up interactives changed to **multiple-choice** (anti-cheat — student must select, no tap-to-reveal)
+- [ ] **CRITICAL**: Expand each TOPIC to a multi-lesson unit (4-8 lessons per topic, like a real school unit). Currently each topic has only 1 lesson. E.g., "WWI" → causes, outbreak, trenches, battles, aftermath (5-8 lessons). "Fractions" → intro, equivalent, add/subtract, of amounts, compare (5-6 lessons).
+- [ ] Enrich ALL lessons with rich `content` blocks + interactives + 5 questions each
+- [ ] Author new lessons to fill multi-lesson units across all 8 subjects
 - [ ] `docs/curriculum-authoring.md` guide
+- [ ] Each lesson = comprehensive classroom lesson: heading + 2-4 teaching paragraphs + worked example + key points + ≥1 MCQ interactive + optional video + 5-question quiz
 
 **Step 5 — Docs** ⏳
 - [ ] Design skill: calendar page styling guidance

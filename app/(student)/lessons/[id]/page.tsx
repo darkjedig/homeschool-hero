@@ -8,7 +8,7 @@ import Link from "next/link";
 import { YouTubePlayer } from "@/components/student/youtube-player";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Star, ListChecks, Video, Lightbulb, ChevronDown } from "lucide-react";
+import { Clock, Star, ListChecks, Video, Lightbulb, Check, X } from "lucide-react";
 import { isYouTubeVideoUrl } from "@/lib/youtube";
 import { LessonBlocks } from "@/components/student/lesson-blocks";
 
@@ -70,8 +70,15 @@ export default function LessonPage() {
         )}
       </section>
 
-      {/* Interactive warm-up: tap to reveal (uses the first quiz question) */}
-      {warmup && <WarmUp question={warmup.questionText} answer={warmup.correctAnswer} explanation={warmup.explanation} />}
+      {/* Interactive warm-up: multiple-choice quick check (uses the first quiz question) */}
+      {warmup && (
+        <WarmUp
+          question={warmup.questionText}
+          options={warmup.options}
+          answer={warmup.correctAnswer}
+          explanation={warmup.explanation}
+        />
+      )}
 
       {/* Quiz CTA */}
       {quiz && quiz.questions.length > 0 ? (
@@ -93,26 +100,55 @@ export default function LessonPage() {
   );
 }
 
-function WarmUp({ question, answer, explanation }: { question: string; answer: string; explanation: string }) {
-  const [open, setOpen] = useState(false);
+function WarmUp({
+  question,
+  options,
+  answer,
+  explanation,
+}: {
+  question: string;
+  options: string[];
+  answer: string;
+  explanation: string;
+}) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const revealed = selected !== null;
   return (
     <section className="rounded-2xl border border-yellow-400/25 bg-yellow-400/[0.06] p-5">
       <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-white">
         <Lightbulb size={16} className="text-yellow-300" /> Quick warm-up
       </h2>
-      <p className="text-sm text-slate-200">{question}</p>
-      <p className="mt-1 text-xs text-muted-foreground">Think of your answer, then reveal.</p>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="mt-3 flex items-center gap-1 rounded-lg bg-yellow-400/15 px-3 py-1.5 text-xs font-semibold text-yellow-200 hover:bg-yellow-400/25"
-      >
-        {open ? "Hide" : "Reveal answer"}
-        <ChevronDown size={14} className={open ? "rotate-180 transition" : "transition"} />
-      </button>
-      {open && (
+      <p className="mb-3 text-sm text-slate-200">{question}</p>
+      <div className="space-y-2">
+        {options.map((opt) => {
+          const isCorrect = opt === answer;
+          const isSelected = opt === selected;
+          let cls = "border-white/10 bg-white/5 text-white hover:border-yellow-400/40";
+          if (revealed) {
+            if (isCorrect) cls = "border-green-500/50 bg-green-500/15 text-white";
+            else if (isSelected) cls = "border-red-500/50 bg-red-500/15 text-white";
+            else cls = "border-white/10 bg-white/5 text-muted-foreground";
+          }
+          return (
+            <button
+              key={opt}
+              type="button"
+              disabled={revealed}
+              onClick={() => setSelected(opt)}
+              className={"flex w-full items-center gap-2 rounded-xl border px-4 py-2.5 text-left text-sm transition " + cls}
+            >
+              {revealed && isCorrect && <Check size={15} className="text-green-400" />}
+              {revealed && isSelected && !isCorrect && <X size={15} className="text-red-400" />}
+              <span>{opt}</span>
+            </button>
+          );
+        })}
+      </div>
+      {revealed && (
         <div className="mt-3 rounded-lg border border-white/10 bg-black/30 p-3 text-sm">
-          <p className="text-white"><span className="font-semibold">Answer:</span> {answer}</p>
+          <p className={selected === answer ? "text-green-400" : "text-orange-300"}>
+            {selected === answer ? "Correct! " : "Not quite. "}
+          </p>
           <p className="mt-1 text-muted-foreground">{explanation}</p>
         </div>
       )}
