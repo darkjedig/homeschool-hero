@@ -100,7 +100,38 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 - [x] Verified: typecheck/lint 0 errors, Convex pushed, dashboard renders
 - [ ] Interactive learning objects (timelines, drag-drop) deferred — future iteration
 
-### Phase 9 — Security, Testing, Polish  ⏳
+### Phase 9 — Full Curriculum, Calendar & Quiz Insights  🔧 IN PROGRESS
+**Step 1 — Rich structured lesson content (schema + renderer)** ✅
+- [x] `lessons.content` typed block array (heading/text/example/keyPoints/video/interactive) added to schema
+- [x] `LessonBlocks` renderer renders content blocks in order; lesson page falls back to `lessonNotes`
+- [x] Interactive components: `reveal` (tap-to-reveal), `flashcards` (flip), `ordering` (drag-to-order, deterministic seeded shuffle), `timeline` (clickable) — all styled per design tokens
+
+**Step 2 — School-year calendar** ✅
+- [x] `schoolYear` + `calendarEntries` tables in schema
+- [x] `convex/calendar.ts`: `seedDefaultYear` (US Aug→June, holidays, core-heavy rotation), `generateYear` (walks school days, auto-assigns next lesson per subject), `getToday`/`getWeek`/`getMonth` (with completion status), `assignLesson`/`clearEntry` (parent edit)
+- [x] Student `/calendar` — full **month grid** with subject-coloured lesson chips, today highlighted, holiday names, completion ticks, prev/next month nav
+- [x] Parent `/parent/calendar` — same month grid + regenerate button
+- [x] School year seeded + calendar generated: **677 entries across 41 weeks** (full year Mon–Fri, holidays off)
+- [x] Calendar in student + parent sidebars
+
+**Step 3 — Quiz insights (parent)** ✅
+- [x] `quizzes.listAll` returns `attemptsCount` + `bestPercentage` + `latestPercentage` per quiz
+- [x] Parent `/parent/quizzes` shows "Best: X%" or "Not taken" badge + attempt count per quiz
+- [ ] Attempt detail page `/parent/quizzes/[id]` (per-question breakdown)
+
+**Step 4 — Full-year hand-authored curriculum** ⏳
+- [x] 39 text lessons + 78 quiz questions seeded (Phase 2 catch-up via `seedLessons.ts`)
+- [x] Subject manager (CRUD subjects), lesson editor (rich text + inline quiz editing + YouTube search helper)
+- [ ] Enrich existing lessons with rich `content` blocks + interactives + expand to 5 questions each
+- [ ] Author new lessons for Term 1 (~12 weeks, all 8 subjects) — the big remaining content effort
+- [ ] `docs/curriculum-authoring.md` guide
+
+**Step 5 — Docs** ⏳
+- [ ] Design skill: calendar page styling guidance
+- [ ] `docs/curriculum-authoring.md`
+- [ ] Update README
+
+### Phase 10 — Security, Testing, Polish  ⏳
 - [ ] RBAC audit on every Convex function + route group
 - [ ] Playwright smoke + Vitest unit tests
 - [ ] Mobile polish, error boundaries, optimistic updates

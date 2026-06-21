@@ -20,9 +20,19 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - Source of truth: `.cursor/skills/design/SKILL.md`. Applied in `app/globals.css` (`:root` permanent dark theme) + `tailwind.config.ts` (reference).
 - Tailwind v4: tokens live in CSS `@theme`. Note: design skill's `text-primary`/`text-secondary` map to shadcn `text-foreground` (#fff) / `text-muted-foreground` (#94a3b8) to avoid clobbering shadcn component tokens. Subject + accent utilities available (`bg-maths`, `text-accent-purple`, etc.).
 
-## Recent Progress — Phases 1–7 COMPLETE
-- Phases 1–6: foundation, schema, student portal, parent console, Friday Challenge, adaptive learning (see prior entries).
-- Phase 7: AI lesson builder (OpenRouter BYOK). `convex/settings.ts` (getAiConfig returns keyIsSet only; saveAiConfig; getAiConfigInternal internalQuery raw key parent-only). `convex/aiDrafts.ts` (create/list/get course+lesson drafts, internal saveCourseResult/saveLessonResult, approveCourseDraft/approveLessonDraft transactional publish). `convex/aiCourseBuilder.ts` actions (generate course|lesson via OpenRouter json_object + strict schema; testConnection). Schema evolved: draft tables status generating/pending/approved/rejected/failed, optional proposed fields, errorMessage, by_requester index. Parent Settings page (BYOK key write-only, model picker, test) + AI Builder page (mode toggle, prompt, live draft subscription, editable review, approve). Student queries unchanged (filter published). Blog Part 6 written. Typecheck+lint clean; Convex pushed.
+## Recent Progress — Phases 1–8 COMPLETE, Phase 9 IN PROGRESS
+- Phases 1–6: foundation, schema, student portal, parent console, Friday Challenge, adaptive learning.
+- Phase 7: AI lesson builder (OpenRouter BYOK). Settings, AI Builder, draft lifecycle, transactional approve.
+- Phase 8: Framer Motion staggered reveals + confetti + sonner toasts + badges engine (`convex/badges.ts`: 6 seeded badges, `checkAndAward` wired into quiz submissions + lesson completion). Dashboard achievements wired to real `badges.mine`. Hover scale on cards.
+- Phase 9 (in progress): Rich structured lessons + school-year calendar + quiz insights.
+  - Schema: `lessons.content` (typed block array: heading/text/example/keyPoints/video/interactive), `schoolYear` + `calendarEntries` tables.
+  - Lesson block renderer + 4 interactive components (reveal, flashcards, ordering w/ seeded shuffle, timeline). Lesson page renders `content` blocks, falls back to `lessonNotes`.
+  - Calendar: `convex/calendar.ts` (seedDefaultYear US Aug→June, generateYear 677 entries / 41 weeks, getToday/getWeek/getMonth with completion status, assignLesson/clearEntry). Student + parent month-grid calendar pages with holiday names. Full year auto-planned (core-heavy rotation).
+  - Quiz insights: `quizzes.listAll` now returns attemptsCount + bestPercentage + latestPercentage per quiz. Parent quizzes page shows score badges.
+  - Subject manager + lesson editor (rich content + inline quiz editor + YouTube search helper) shipped post-Phase 8.
+  - 39 text lessons + 78 quiz questions seeded (Phase 2 catch-up via `seedLessons.ts`).
+  - Term 1 rich curriculum authoring (content blocks + interactives + 5Q) = remaining work.
+- Blog Parts 1–7 written (`blog/` dir).
 
 ## Next.js routing note
 - Route groups `(name)` do NOT create URL segments. Student routes use `(student)` → top-level URLs (`/dashboard`); parent routes MUST use a real `parent` segment (`app/parent/**` → `/parent/...`) to avoid colliding with same-named student routes.
@@ -40,8 +50,9 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - Created `specs.md` (9-phase checklist).
 
 ## Known Issues / Blockers
-- **Convex MCP disabled** in `~/.config/opencode/opencode.json` (auth bug: v2 token "Not Authorized" loop even with valid login + override). Verify Convex via CLI instead: `npx convex run <fn>` and `npx convex dev --once` (convex auto-loads `.env.local`; do NOT `source` it in zsh — the `|` in the deploy key breaks sourcing). Cloud `oceanic-crane-853` is fully working via CLI + deploy key + the running Next.js app.
-- **GitHub repo creation blocked**: fine-grained PAT returns 403 for `POST /user/repos`. Repo `darkjedig/HomeschoolHero` not created; user must create manually or supply a classic PAT with `repo` scope.
+- **Convex MCP disabled** in `~/.config/opencode/opencode.json` (auth bug with v2 tokens). Verify Convex via CLI: `npx convex run <fn>` / `npx convex dev --once`. Convex auto-loads `.env.local`.
+- **GitHub**: repo `darkjedig/homeschool-hero` created (public). Fine-grained PAT now has Contents:Write. Push works via `git push "https://x-access-token:<PAT>@github.com/darkjedig/homeschool-hero.git" main:main`.
 
-## Next Steps (Phase 8)
-- Polish & gamification: Framer Motion throughout (staggered reveals, confetti on quiz wins, level-up/badge-unlock toasts, progress rings), interactive learning objects (clickable History timelines, drag-drop), badges engine (`convex/badges.ts` — scheduled check after attempts/lesson completion awards studentBadges + bonus points). Verify dashboard vs mockup checklist. Then Phase 9 RBAC audit + Playwright/Vitest + mobile polish + README.
+## Next Steps (Phase 9 remainder + Phase 10)
+- Phase 9 remaining: author Term 1 rich curriculum (~12 weeks, all 8 subjects, content blocks + interactives + 5Q per lesson). Enrich existing 39 lessons to rich blocks. Docs (curriculum-authoring.md, design skill calendar guidance).
+- Phase 10 (was Phase 9): Full RBAC audit on every Convex function + route group, Playwright smoke tests + Vitest unit tests, mobile polish, error boundaries, optimistic updates, final README.
