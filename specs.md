@@ -124,15 +124,26 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 - [x] Subject manager (CRUD subjects), lesson editor (rich text + inline quiz editing + YouTube search helper)
 - [x] 8 lessons enriched with rich content blocks + interactives + 5Q (batch 1)
 - [x] All reveal/warm-up interactives changed to **multiple-choice** (anti-cheat — student must select, no tap-to-reveal)
-- [ ] **CRITICAL**: Expand each TOPIC to a multi-lesson unit (4-8 lessons per topic, like a real school unit). Currently each topic has only 1 lesson. E.g., "WWI" → causes, outbreak, trenches, battles, aftermath (5-8 lessons). "Fractions" → intro, equivalent, add/subtract, of amounts, compare (5-6 lessons).
-- [ ] Enrich ALL lessons with rich `content` blocks + interactives + 5 questions each
-- [ ] Author new lessons to fill multi-lesson units across all 8 subjects
+- [x] Expand each TOPIC to a multi-lesson unit (≈216 rich lessons seeded across 8 subjects; see `docs/curriculum-plan.md`)
+- [x] Author new lessons to fill multi-lesson units across all 8 subjects (first ~2 school months fully filled; remaining year logged for future build-out)
+- [ ] Continue authoring toward ~260 lessons/year so the full Aug→June calendar fills with real content (see remaining list in `docs/curriculum-plan.md`)
 - [ ] `docs/curriculum-authoring.md` guide
 - [ ] Each lesson = comprehensive classroom lesson: heading + 2-4 teaching paragraphs + worked example + key points + ≥1 MCQ interactive + optional video + 5-question quiz
 
+**Step 6 — Interactive Activity System** ✅
+- [x] Schema: `contentBlock.variant` extended with `codeSandbox · mathArena · match · fillBlank · simulation`; `lessons.kind` (`lesson`/`activity`) added
+- [x] Authoring builders in `convex/curriculum/types.ts`: `code()`, `arena()`, `match()`, `cloze()`, `sim()` (+ optional `topics` per subject curriculum)
+- [x] `seedRichCurriculum` auto-creates declared/referenced topics (appended in order) and passes `kind`
+- [x] 5 new interactive components (`code-sandbox` sandboxed-iframe JS/HTML lab w/ console + canvas, `math-arena` generative game, `match-game`, `fill-blank`, `simulation` circuit/particles) registered in `lesson-blocks.tsx`
+- [x] "Interactive Activity" badge on lesson page + gamepad/Activity chip on subject lesson list
+- [x] **+45 lessons authored & seeded** (Maths +21, English +16, AI&CS/GameDev code labs, Science sims, History timeline, Homemaking/Building match games) → first ~2 school months fully filled
+- [x] Calendar regenerated (677 entries); unauthored later days render a friendly "· soon" placeholder instead of bare subject chips
+- [x] Security: code sandbox uses `sandbox="allow-scripts"` only (isolated from app + Convex)
+- [x] Verified: typecheck 0 errors, lint 0 errors, weeks 1–8 have a real lesson in every slot
+
 **Step 5 — Docs** ⏳
+- [x] `docs/curriculum-plan.md` — interactive system, authored expansion, + full remaining-year build-out list
 - [ ] Design skill: calendar page styling guidance
-- [ ] `docs/curriculum-authoring.md`
 - [ ] Update README
 
 ### Phase 10 — Security, Testing, Polish  ⏳

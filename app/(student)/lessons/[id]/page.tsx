@@ -31,7 +31,11 @@ export default function LessonPage() {
   return (
     <article className="max-w-3xl space-y-6">
       <header className="space-y-2">
-        <Badge className="border-white/10 bg-white/5 text-muted-foreground">Lesson</Badge>
+        {lesson.kind === "activity" ? (
+          <Badge className="border-cyan-500/30 bg-cyan-500/15 text-cyan-200">Interactive Activity</Badge>
+        ) : (
+          <Badge className="border-white/10 bg-white/5 text-muted-foreground">Lesson</Badge>
+        )}
         <h1 className="text-2xl font-bold text-white xl:text-3xl">{lesson.title}</h1>
         <p className="text-sm text-muted-foreground">{lesson.description}</p>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -87,6 +91,10 @@ export default function LessonPage() {
             <ListChecks size={18} /> Take the quiz ({quiz.questions.length} questions · +{lesson.pointsAwarded} pts)
           </Button>
         </Link>
+      ) : lesson.kind === "activity" ? (
+        <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.06] p-4 text-center text-sm text-cyan-100">
+          Great work — keep practising this activity to boost your score!
+        </div>
       ) : (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center text-sm text-muted-foreground">
           Quiz coming soon for this lesson.

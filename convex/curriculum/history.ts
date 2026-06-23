@@ -1250,5 +1250,47 @@ export const history: SubjectCurriculum = {
         { q: "After Reconstruction, the South saw the rise of…", options: ["'Jim Crow' segregation laws", "equal rights for all", "no government", "a new king"], answer: "'Jim Crow' segregation laws", explain: "Lasted into the 1960s." },
       ],
     },
+
+    // ===================== HISTORY TIMELINE CHALLENGE (1 activity) =====================
+    {
+      topic: "World War II",
+      title: "Activity: WWII Timeline Challenge",
+      difficulty: "intermediate",
+      minutes: 10,
+      points: 90,
+      summary: "Drag the key events of World War II into the correct order, then explore them on the timeline.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Put History in Order" },
+        {
+          type: "text",
+          text: "Historians use chronology — putting events in the order they happened — to understand cause and effect. Test your knowledge of World War II by arranging these key events from earliest to latest.",
+        },
+        {
+          type: "interactive",
+          variant: "ordering",
+          data: [
+            { key: "1", value: "Germany invades Poland (1939) — war begins" },
+            { key: "2", value: "The Battle of Britain (1940)" },
+            { key: "3", value: "Pearl Harbor; USA enters the war (1941)" },
+            { key: "4", value: "D-Day landings in Normandy (1944)" },
+            { key: "5", value: "Victory in Europe (VE Day, 1945)" },
+            { key: "6", value: "War ends after Japan surrenders (1945)" },
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "timeline",
+          data: [
+            { key: "1939", value: "Germany invades Poland; Britain and France declare war." },
+            { key: "1940", value: "The Battle of Britain — the RAF defends the skies." },
+            { key: "1941", value: "Japan attacks Pearl Harbor; the USA joins the war." },
+            { key: "1944", value: "D-Day: Allied forces land in Normandy." },
+            { key: "1945", value: "Germany surrenders (VE Day); later Japan surrenders, ending the war." },
+          ],
+        },
+      ],
+      questions: [],
+    },
   ],
 };

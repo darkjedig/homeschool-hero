@@ -41,8 +41,9 @@ async function orderedLessonsBySubject(
   for (const s of subjects) {
     const lessons = await ctx.db
       .query("lessons")
-      .withIndex("by_subject", (q) => q.eq("subjectId", s._id))
-      .filter((q) => q.eq(q.field("status"), "published"))
+      .withIndex("by_subject_and_status", (q) =>
+        q.eq("subjectId", s._id).eq("status", "published"),
+      )
       .take(300);
     const topics = await ctx.db
       .query("topics")

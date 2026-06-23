@@ -1,4 +1,5 @@
 import type { SubjectCurriculum } from "./types";
+import { match } from "./types";
 
 export const homemaking: SubjectCurriculum = {
   slug: "homemaking",
@@ -955,6 +956,33 @@ export const homemaking: SubjectCurriculum = {
         { q: "If something smokes or shocks, …", options: ["switch off + unplug", "use it more", "put water on it", "ignore it"], answer: "switch off + unplug", explain: "Then get help." },
         { q: "Plugging a heater, kettle and microwave into one extension lead is…", options: ["a fire risk (overload)", "safe", "required", "free electricity"], answer: "a fire risk (overload)", explain: "Spread the load." },
       ],
+    },
+
+    // ===================== HOMEMAKING ACTIVITY (1) =====================
+    {
+      topic: "Kitchen Safety",
+      title: "Activity: Kitchen Safety Match-Up",
+      difficulty: "beginner",
+      minutes: 8,
+      points: 80,
+      summary: "Match each kitchen hazard to the safe thing you should do about it.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Stay Safe in the Kitchen" },
+        {
+          type: "text",
+          text: "A safe cook is a happy cook! Match each kitchen situation to the right safety action. Tap a hazard, then tap the matching safe response.",
+        },
+        match(
+          ["A pan handle sticking out", "Turn it inward, away from the edge"],
+          ["A sharp knife", "Cut away from your body on a board"],
+          ["A small pan fire", "Cover it; never use water"],
+          ["Raw chicken juices", "Wash hands and surfaces well"],
+          ["A hot oven tray", "Use oven gloves to lift it"],
+          ["A spill on the floor", "Wipe it up straight away"],
+        ),
+      ],
+      questions: [],
     },
   ],
 };

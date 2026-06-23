@@ -1,7 +1,14 @@
 import type { SubjectCurriculum } from "./types";
+import { match, cloze } from "./types";
 
 export const english: SubjectCurriculum = {
   slug: "english",
+  topics: [
+    { name: "Punctuation", description: "Capital letters, full stops, commas, and apostrophes.", difficulty: "beginner" },
+    { name: "Spelling Patterns", description: "Plurals, prefixes, suffixes, and spelling rules.", difficulty: "beginner" },
+    { name: "Paragraphs", description: "Building and linking clear paragraphs.", difficulty: "intermediate" },
+    { name: "Inference", description: "Reading between the lines using clues.", difficulty: "intermediate" },
+  ],
   lessons: [
     // ===================== GRAMMAR (5) =====================
     {
@@ -1053,6 +1060,709 @@ export const english: SubjectCurriculum = {
         { q: "The opening introduces…", options: ["characters and setting", "the solution", "the climax", "the credits"], answer: "characters and setting", explain: "It sets the scene." },
         { q: "Order: opening, build-up, problem, resolution, …", options: ["ending", "title", "preface", "index"], answer: "ending", explain: "The ending wraps up." },
       ],
+    },
+
+    // ===================== PUNCTUATION (4) =====================
+    {
+      topic: "Punctuation",
+      title: "Capital Letters & Full Stops",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Sentences start with a capital letter and end with a full stop. Capitals also begin names and the word I.",
+      blocks: [
+        { type: "heading", text: "Starting and Stopping Sentences" },
+        {
+          type: "text",
+          text: "Every sentence begins with a capital letter and ends with an end mark — usually a full stop. The full stop tells the reader to pause and shows one complete idea has finished.\n\nCapital letters are also used for proper nouns (names of people, places, days, months) and always for the word 'I'. So we write: 'On Monday, I visited London.'",
+        },
+        {
+          type: "example",
+          text: "Wrong: 'we went to paris in july'. Right: 'We went to Paris in July.' — capital W to start, capital P for Paris, capital J for July.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Start every sentence with a capital letter.",
+            "End a statement with a full stop.",
+            "Capitalise names, places, days, and months.",
+            "The word 'I' is always a capital.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Which sentence is punctuated correctly?" },
+            { key: "option_0", value: "My friend Sam lives in Spain." },
+            { key: "option_1", value: "my friend sam lives in spain" },
+            { key: "option_2", value: "My friend sam lives in Spain" },
+            { key: "option_3", value: "my Friend Sam lives in spain." },
+            { key: "answer", value: "My friend Sam lives in Spain." },
+            { key: "explanation", value: "Capital start, capital names (Sam, Spain), full stop at the end." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Every sentence should start with a…", options: ["capital letter", "comma", "small letter", "number"], answer: "capital letter", explain: "Sentences begin with capitals." },
+        { q: "Which word always needs a capital?", options: ["I", "and", "the", "dog"], answer: "I", explain: "'I' is always capitalised." },
+        { q: "A statement usually ends with a…", options: ["full stop", "comma", "capital", "hyphen"], answer: "full stop", explain: "Full stops end statements." },
+        { q: "Which needs a capital letter?", options: ["London", "river", "happy", "running"], answer: "London", explain: "Place names are proper nouns." },
+        { q: "Which is correct?", options: ["She likes maths.", "she likes maths", "She likes maths", "she Likes Maths."], answer: "She likes maths.", explain: "Capital start and full stop." },
+      ],
+    },
+    {
+      topic: "Punctuation",
+      title: "Question & Exclamation Marks",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Questions end with a question mark; strong feeling or shouting ends with an exclamation mark.",
+      blocks: [
+        { type: "heading", text: "Asking and Exclaiming" },
+        {
+          type: "text",
+          text: "Not every sentence ends with a full stop. A question — a sentence that asks something — ends with a question mark (?). Questions often start with words like who, what, where, when, why, how, or do.\n\nAn exclamation mark (!) shows strong feeling, surprise, or shouting, like 'Look out!' or 'What a goal!'. Use exclamation marks sparingly — if everything is exciting, nothing is.",
+        },
+        {
+          type: "example",
+          text: "'Where are you going?' (a question). 'That's amazing!' (an exclamation). 'I am going home.' (a statement).",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Questions end with a question mark (?).",
+            "Strong feeling/shouting ends with an exclamation mark (!).",
+            "Statements end with a full stop (.).",
+            "Don't overuse exclamation marks.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Which end mark fits: 'How old are you__'" },
+            { key: "option_0", value: "?" },
+            { key: "option_1", value: "!" },
+            { key: "option_2", value: "." },
+            { key: "option_3", value: "," },
+            { key: "answer", value: "?" },
+            { key: "explanation", value: "It asks something, so it needs a question mark." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A question ends with a…", options: ["question mark", "full stop", "comma", "exclamation mark"], answer: "question mark", explain: "Questions use ?" },
+        { q: "Which shows strong feeling?", options: ["Exclamation mark", "Full stop", "Comma", "Colon"], answer: "Exclamation mark", explain: "! shows excitement/shouting." },
+        { q: "Which sentence is a question?", options: ["What time is it?", "It is three o'clock.", "Wow, look!", "Sit down."], answer: "What time is it?", explain: "It asks something." },
+        { q: "'Watch out__' best ends with…", options: ["!", "?", ".", ","], answer: "!", explain: "It's a warning shout." },
+        { q: "Question words include…", options: ["who, what, why", "the, a, an", "run, jump, hop", "big, small"], answer: "who, what, why", explain: "These often begin questions." },
+      ],
+    },
+    {
+      topic: "Punctuation",
+      title: "Commas in Lists & Clauses",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 70,
+      summary: "Commas separate items in a list and mark a pause, helping make sentences clear.",
+      blocks: [
+        { type: "heading", text: "The Helpful Pause" },
+        {
+          type: "text",
+          text: "A comma marks a short pause and keeps sentences clear. The most common use is in a list: 'I bought apples, bananas, pears, and grapes.' Commas go between the items.\n\nCommas also separate an opening part of a sentence from the main part: 'After lunch, we played outside.' Without the comma, sentences can be confusing — compare 'Let's eat, Grandpa!' with 'Let's eat Grandpa!'.",
+        },
+        {
+          type: "example",
+          text: "'On Saturday, we visited my aunt, my uncle, and my cousins.' Commas separate the day from the sentence and each person in the list.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Use commas between items in a list.",
+            "Use a comma after an opening phrase.",
+            "A comma marks a short pause.",
+            "Commas prevent confusion.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Which list is punctuated correctly?" },
+            { key: "option_0", value: "We need eggs, milk, flour, and sugar." },
+            { key: "option_1", value: "We need eggs milk flour and sugar." },
+            { key: "option_2", value: "We need eggs. milk. flour. and sugar." },
+            { key: "option_3", value: "We need, eggs milk flour sugar." },
+            { key: "answer", value: "We need eggs, milk, flour, and sugar." },
+            { key: "explanation", value: "Commas separate each item in the list." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Commas are used to separate…", options: ["items in a list", "whole sentences only", "capital letters", "paragraphs"], answer: "items in a list", explain: "Lists need commas between items." },
+        { q: "A comma marks a…", options: ["short pause", "full stop", "shout", "question"], answer: "short pause", explain: "It signals a brief pause." },
+        { q: "Where does a comma go: 'After the game we ate'?", options: ["After 'game'", "After 'we'", "After 'ate'", "No comma"], answer: "After 'game'", explain: "Comma after the opening phrase." },
+        { q: "Which is correct?", options: ["red, blue, green", "red blue green", "red. blue. green", "red,blue,green,"], answer: "red, blue, green", explain: "Commas between list items." },
+        { q: "Commas help to…", options: ["prevent confusion", "end sentences", "ask questions", "shout"], answer: "prevent confusion", explain: "They make meaning clear." },
+      ],
+    },
+    {
+      topic: "Punctuation",
+      title: "Apostrophes",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 70,
+      summary: "Apostrophes show ownership (Sam's bag) or mark missing letters in contractions (don't = do not).",
+      blocks: [
+        { type: "heading", text: "Two Jobs for the Apostrophe" },
+        {
+          type: "text",
+          text: "The apostrophe (') has two main jobs. First, it shows possession (belonging): 'Sam's bag' means the bag belonging to Sam. Add 's to a person or thing to show ownership.\n\nSecond, it marks missing letters in a contraction, where two words are squashed together: do not → don't, it is → it's, can not → can't. The apostrophe stands in for the dropped letters.",
+        },
+        {
+          type: "example",
+          text: "'The dog's bone' (the bone belongs to the dog). 'I'm hungry' (I'm = I am — the apostrophe replaces the 'a').",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Apostrophe + s shows ownership: Sam's.",
+            "Apostrophes mark missing letters: don't = do not.",
+            "it's = it is; its (no apostrophe) = belonging to it.",
+            "Don't add apostrophes just to make plurals.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What does the apostrophe do in 'can't'?" },
+            { key: "option_0", value: "Marks the missing letters (cannot)" },
+            { key: "option_1", value: "Shows ownership" },
+            { key: "option_2", value: "Makes it plural" },
+            { key: "option_3", value: "Ends the sentence" },
+            { key: "answer", value: "Marks the missing letters (cannot)" },
+            { key: "explanation", value: "can't = cannot — the apostrophe replaces 'no'." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "'Sara's coat' shows…", options: ["ownership", "a contraction", "a plural", "a question"], answer: "ownership", explain: "The coat belongs to Sara." },
+        { q: "do not shortens to…", options: ["don't", "dont", "do'nt", "donot"], answer: "don't", explain: "Apostrophe replaces the 'o'." },
+        { q: "Which means 'it is'?", options: ["it's", "its", "its'", "it is'"], answer: "it's", explain: "it's = it is." },
+        { q: "An apostrophe can mark…", options: ["missing letters", "a new paragraph", "a list", "a capital"], answer: "missing letters", explain: "As in contractions." },
+        { q: "Which is correct for 'the toys belonging to the children'?", options: ["the children's toys", "the childrens toys", "the childrens' toys", "the children toys's"], answer: "the children's toys", explain: "Add 's to show possession." },
+      ],
+    },
+
+    // ===================== SPELLING PATTERNS (3) =====================
+    {
+      topic: "Spelling Patterns",
+      title: "Making Plurals",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Most plurals add -s, but words ending in s, x, ch, sh add -es, and some y-words change to -ies.",
+      blocks: [
+        { type: "heading", text: "More Than One" },
+        {
+          type: "text",
+          text: "A plural means more than one. Usually we just add -s: cat → cats, book → books.\n\nBut there are patterns. Words ending in s, x, ch, or sh add -es: box → boxes, brush → brushes. Words ending in a consonant + y change the y to i and add -es: baby → babies, party → parties. A few words are irregular: child → children, mouse → mice.",
+        },
+        {
+          type: "example",
+          text: "fox → foxes (ends in x, add -es). story → stories (consonant + y, change to -ies). dog → dogs (just add -s).",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Most words: just add -s.",
+            "Ends in s, x, ch, sh: add -es.",
+            "Consonant + y: change y to i, add -es.",
+            "Some are irregular: child → children.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What is the plural of 'bus'?" },
+            { key: "option_0", value: "buses" },
+            { key: "option_1", value: "buss" },
+            { key: "option_2", value: "busies" },
+            { key: "option_3", value: "bus" },
+            { key: "answer", value: "buses" },
+            { key: "explanation", value: "Ends in 's', so add -es." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Plural of 'cat'?", options: ["cats", "cates", "caties", "cat"], answer: "cats", explain: "Just add -s." },
+        { q: "Plural of 'box'?", options: ["boxes", "boxs", "boxies", "box"], answer: "boxes", explain: "Ends in x, add -es." },
+        { q: "Plural of 'baby'?", options: ["babies", "babys", "babyes", "baby"], answer: "babies", explain: "Consonant + y → -ies." },
+        { q: "Plural of 'brush'?", options: ["brushes", "brushs", "brushies", "brush"], answer: "brushes", explain: "Ends in sh, add -es." },
+        { q: "Which plural is irregular?", options: ["children", "dogs", "cars", "books"], answer: "children", explain: "child → children doesn't follow the rules." },
+      ],
+    },
+    {
+      topic: "Spelling Patterns",
+      title: "Prefixes",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "A prefix is added to the START of a word to change its meaning, like un-, re-, and dis-.",
+      blocks: [
+        { type: "heading", text: "Add to the Front" },
+        {
+          type: "text",
+          text: "A prefix is a group of letters added to the beginning of a word to change its meaning. The original word doesn't change its spelling — you just attach the prefix.\n\nCommon prefixes: 'un-' means not (unhappy = not happy), 're-' means again (replay = play again), 'dis-' means not/opposite (disagree = not agree), and 'pre-' means before (preview = view before).",
+        },
+        {
+          type: "example",
+          text: "un + kind = unkind (not kind). re + build = rebuild (build again). Notice 'kind' and 'build' keep their spelling.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "A prefix goes at the START of a word.",
+            "un- = not; re- = again; dis- = opposite.",
+            "The root word keeps its spelling.",
+            "Prefixes change the meaning.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What does 're-' mean in 'rewrite'?" },
+            { key: "option_0", value: "Again" },
+            { key: "option_1", value: "Not" },
+            { key: "option_2", value: "Before" },
+            { key: "option_3", value: "After" },
+            { key: "answer", value: "Again" },
+            { key: "explanation", value: "rewrite = write again." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A prefix is added to the…", options: ["start of a word", "end of a word", "middle", "next word"], answer: "start of a word", explain: "Prefixes go at the front." },
+        { q: "'un-' usually means…", options: ["not", "again", "before", "very"], answer: "not", explain: "unhappy = not happy." },
+        { q: "re + use = …", options: ["reuse", "unuse", "usere", "used"], answer: "reuse", explain: "Attach the prefix to the front." },
+        { q: "What does 'disappear' suggest?", options: ["the opposite of appear", "appear again", "appear before", "appear loudly"], answer: "the opposite of appear", explain: "dis- = opposite/not." },
+        { q: "Adding a prefix changes a word's…", options: ["meaning", "first letter only", "number of syllables only", "tense"], answer: "meaning", explain: "Prefixes change meaning." },
+      ],
+    },
+    {
+      topic: "Spelling Patterns",
+      title: "Suffixes",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 70,
+      summary: "A suffix is added to the END of a word, like -ed, -ing, -ful and -ly, sometimes changing the spelling.",
+      blocks: [
+        { type: "heading", text: "Add to the End" },
+        {
+          type: "text",
+          text: "A suffix is added to the end of a word. Suffixes can change the tense (jump → jumped, jumping) or the type of word (care → careful → carefully).\n\nSometimes the root spelling changes: a short word ending in a single vowel + consonant often doubles the consonant (run → running), and a silent 'e' is usually dropped before -ing or -ed (make → making, hope → hoped). Words ending in consonant + y change y to i (happy → happily).",
+        },
+        {
+          type: "example",
+          text: "hope + ed → hoped (drop the e). run + ing → running (double the n). beauty + ful → beautiful (y → i).",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "A suffix goes at the END of a word.",
+            "Drop silent 'e' before -ing/-ed: make → making.",
+            "Double a final consonant after a short vowel: run → running.",
+            "Consonant + y → i before most suffixes: happy → happily.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Add -ing to 'hop'." },
+            { key: "option_0", value: "hopping" },
+            { key: "option_1", value: "hoping" },
+            { key: "option_2", value: "hopeing" },
+            { key: "option_3", value: "hoped" },
+            { key: "answer", value: "hopping" },
+            { key: "explanation", value: "Short vowel + consonant → double the p: hopping." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A suffix is added to the…", options: ["end of a word", "start of a word", "middle", "previous word"], answer: "end of a word", explain: "Suffixes go at the end." },
+        { q: "make + ing = …", options: ["making", "makeing", "makking", "maked"], answer: "making", explain: "Drop the silent e." },
+        { q: "run + ing = …", options: ["running", "runing", "runned", "runs"], answer: "running", explain: "Double the n." },
+        { q: "happy + ly = …", options: ["happily", "happyly", "happly", "happilly"], answer: "happily", explain: "Change y to i." },
+        { q: "care + ful = …", options: ["careful", "carefull", "carful", "careing"], answer: "careful", explain: "Just add -ful here." },
+      ],
+    },
+
+    // ===================== PARAGRAPHS (3) =====================
+    {
+      topic: "Paragraphs",
+      title: "Topic Sentences",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 70,
+      summary: "A paragraph is a group of sentences about one idea, and it usually starts with a topic sentence.",
+      blocks: [
+        { type: "heading", text: "One Idea, One Paragraph" },
+        {
+          type: "text",
+          text: "A paragraph is a group of sentences all about ONE main idea. When you move to a new idea, you start a new paragraph (on a new line, often indented).\n\nMost paragraphs begin with a topic sentence — a sentence that tells the reader what the paragraph is about. The sentences that follow give details, examples, and explanations that support it.",
+        },
+        {
+          type: "example",
+          text: "Topic sentence: 'Dolphins are very intelligent animals.' The next sentences then give examples: they use tools, solve problems, and communicate.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "A paragraph covers ONE main idea.",
+            "Start a new paragraph for a new idea.",
+            "The topic sentence states the main idea.",
+            "Other sentences support it with detail.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What is the job of a topic sentence?" },
+            { key: "option_0", value: "To tell the reader the paragraph's main idea" },
+            { key: "option_1", value: "To end the paragraph" },
+            { key: "option_2", value: "To list every detail" },
+            { key: "option_3", value: "To ask a question" },
+            { key: "answer", value: "To tell the reader the paragraph's main idea" },
+            { key: "explanation", value: "It introduces what the paragraph is about." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A paragraph is about…", options: ["one main idea", "many unrelated ideas", "one word", "a whole book"], answer: "one main idea", explain: "Each paragraph = one idea." },
+        { q: "You start a new paragraph when…", options: ["the idea changes", "every sentence", "you run out of room", "you use a comma"], answer: "the idea changes", explain: "New idea → new paragraph." },
+        { q: "The topic sentence usually comes…", options: ["at the start", "at the very end", "in the middle only", "never"], answer: "at the start", explain: "It introduces the paragraph." },
+        { q: "Sentences after the topic sentence give…", options: ["supporting details", "a new idea", "the title", "nothing"], answer: "supporting details", explain: "They back up the main idea." },
+        { q: "A topic sentence states the…", options: ["main idea", "last detail", "author's name", "page number"], answer: "main idea", explain: "It signals the paragraph's focus." },
+      ],
+    },
+    {
+      topic: "Paragraphs",
+      title: "Building a Strong Paragraph",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 70,
+      summary: "A strong paragraph follows a point with evidence and an explanation that ties it together.",
+      blocks: [
+        { type: "heading", text: "Point, Evidence, Explain" },
+        {
+          type: "text",
+          text: "A useful structure for a strong paragraph is Point–Evidence–Explain. First make your POINT (the topic sentence). Then give EVIDENCE — a fact, example, or quotation that backs it up. Finally EXPLAIN how the evidence supports your point.\n\nThis keeps writing focused and convincing, whether you're answering a reading question or writing an argument.",
+        },
+        {
+          type: "example",
+          text: "Point: 'Recycling helps the planet.' Evidence: 'It saves energy and reduces landfill waste.' Explain: 'So when we recycle, we protect resources for the future.'",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Point: state your main idea.",
+            "Evidence: give a fact or example.",
+            "Explain: link the evidence to the point.",
+            "Stay on one idea throughout.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "ordering",
+          data: [
+            { key: "1", value: "Point — state your main idea" },
+            { key: "2", value: "Evidence — give an example or fact" },
+            { key: "3", value: "Explain — show how it supports the point" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "In Point–Evidence–Explain, what comes first?", options: ["Point", "Evidence", "Explain", "Conclusion"], answer: "Point", explain: "Start by stating the idea." },
+        { q: "Evidence is…", options: ["a fact or example", "your opinion only", "the title", "a question"], answer: "a fact or example", explain: "It backs up the point." },
+        { q: "The 'Explain' step…", options: ["links evidence to the point", "adds a new idea", "ends the essay", "repeats the point word for word"], answer: "links evidence to the point", explain: "It shows why the evidence matters." },
+        { q: "A strong paragraph stays on…", options: ["one idea", "many ideas", "no idea", "the title only"], answer: "one idea", explain: "Focus keeps it clear." },
+        { q: "P-E-E helps writing be…", options: ["focused and convincing", "longer and vaguer", "random", "shorter only"], answer: "focused and convincing", explain: "Structure makes it persuasive." },
+      ],
+    },
+    {
+      topic: "Paragraphs",
+      title: "Linking Ideas with Connectives",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 70,
+      summary: "Connectives (linking words) join ideas smoothly, showing order, addition, contrast, or cause.",
+      blocks: [
+        { type: "heading", text: "Joining Your Ideas" },
+        {
+          type: "text",
+          text: "Connectives (also called linking words) help your writing flow by joining ideas. They show the reader how one idea relates to the next.\n\nDifferent connectives do different jobs: for ORDER use 'first, next, finally'; to ADD use 'also, and, furthermore'; for CONTRAST use 'but, however, although'; for CAUSE use 'because, so, therefore'. Choosing the right one makes writing clearer.",
+        },
+        {
+          type: "example",
+          text: "'I wanted to play outside. However, it was raining, so I read a book instead.' — 'However' shows contrast; 'so' shows cause.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Connectives join ideas and aid flow.",
+            "Order: first, next, finally.",
+            "Contrast: but, however, although.",
+            "Cause: because, so, therefore.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Which connective shows CONTRAST?" },
+            { key: "option_0", value: "However" },
+            { key: "option_1", value: "Also" },
+            { key: "option_2", value: "First" },
+            { key: "option_3", value: "Because" },
+            { key: "answer", value: "However" },
+            { key: "explanation", value: "'However' signals a contrasting idea." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Connectives are used to…", options: ["join ideas", "end sentences", "spell words", "make plurals"], answer: "join ideas", explain: "They link ideas together." },
+        { q: "Which shows cause?", options: ["because", "however", "next", "also"], answer: "because", explain: "'Because' gives a reason." },
+        { q: "Which shows order?", options: ["finally", "but", "therefore", "and"], answer: "finally", explain: "'Finally' orders steps." },
+        { q: "'Also' is used to…", options: ["add information", "contrast", "show time", "ask"], answer: "add information", explain: "'Also' adds an idea." },
+        { q: "Good connectives make writing…", options: ["flow clearly", "longer only", "harder", "louder"], answer: "flow clearly", explain: "They improve flow." },
+      ],
+    },
+
+    // ===================== INFERENCE (2) =====================
+    {
+      topic: "Inference",
+      title: "Reading Between the Lines",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 70,
+      summary: "Inference means working out what a text suggests but does not say directly, using clues.",
+      blocks: [
+        { type: "heading", text: "What the Text Suggests" },
+        {
+          type: "text",
+          text: "Sometimes a writer doesn't tell you something directly — they hint at it. Inference is using clues in the text, plus what you already know, to work out the unstated meaning. It's like being a detective.\n\nFor example, if a text says 'Maya pulled her coat tight and her teeth chattered', it never says 'it was cold' — but you can infer that it was, from the clues.",
+        },
+        {
+          type: "example",
+          text: "Clue: 'He slammed the door and refused to speak.' Inference: he is angry or upset, even though the text doesn't use those words.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Inference = reading between the lines.",
+            "Use clues in the text + what you know.",
+            "The answer is suggested, not stated.",
+            "Act like a detective looking for evidence.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "'Sam's stomach rumbled and he eyed the lunchbox.' What can you infer?" },
+            { key: "option_0", value: "Sam is hungry" },
+            { key: "option_1", value: "Sam is tired" },
+            { key: "option_2", value: "Sam is cold" },
+            { key: "option_3", value: "Sam is angry" },
+            { key: "answer", value: "Sam is hungry" },
+            { key: "explanation", value: "A rumbling stomach and eyeing food are clues for hunger." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Inference means…", options: ["working out unstated meaning", "copying the text", "spelling words", "reading aloud"], answer: "working out unstated meaning", explain: "It's reading between the lines." },
+        { q: "To infer, you use…", options: ["clues and what you know", "only the title", "the page number", "guesses with no clues"], answer: "clues and what you know", explain: "Combine evidence and knowledge." },
+        { q: "'Her eyes filled with tears.' You can infer she is…", options: ["sad", "hungry", "fast", "tall"], answer: "sad", explain: "Tears suggest sadness." },
+        { q: "An inference is…", options: ["suggested by clues", "stated word-for-word", "always wrong", "the first sentence"], answer: "suggested by clues", explain: "It's implied, not stated." },
+        { q: "Good readers infer like…", options: ["detectives", "robots", "artists only", "no one"], answer: "detectives", explain: "They hunt for clues." },
+      ],
+    },
+    {
+      topic: "Inference",
+      title: "Using Evidence to Support Answers",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 70,
+      summary: "When answering questions about a text, back up your idea by quoting or referring to evidence from the text.",
+      blocks: [
+        { type: "heading", text: "Prove It from the Text" },
+        {
+          type: "text",
+          text: "When you answer a question about a text, it's not enough to give an opinion — you should support it with evidence from the text. This means pointing to a word, phrase, or sentence that proves your answer.\n\nA good answer often uses the pattern: make your point, then add 'because the text says…' followed by the quotation. This shows your idea comes from the text, not just your imagination.",
+        },
+        {
+          type: "example",
+          text: "Question: 'How do we know the dog was scared?' Answer: 'The dog was scared because the text says it was \"trembling and hiding under the table\".'",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Support answers with text evidence.",
+            "Quote or refer to a word or phrase.",
+            "Use 'because the text says…'.",
+            "Evidence proves your point.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Which answer uses evidence best?" },
+            { key: "option_0", value: "He was nervous because the text says his 'hands were shaking'." },
+            { key: "option_1", value: "He was nervous, I just think so." },
+            { key: "option_2", value: "He was nervous." },
+            { key: "option_3", value: "Maybe he was nervous?" },
+            { key: "answer", value: "He was nervous because the text says his 'hands were shaking'." },
+            { key: "explanation", value: "It backs the point with a quotation from the text." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A good answer is supported with…", options: ["evidence from the text", "only an opinion", "a drawing", "a guess"], answer: "evidence from the text", explain: "Evidence proves the point." },
+        { q: "A helpful phrase is…", options: ["because the text says…", "I don't know but…", "everyone knows…", "maybe…"], answer: "because the text says…", explain: "It introduces evidence." },
+        { q: "Evidence can be…", options: ["a quoted word or phrase", "your mood", "the title font", "the page count"], answer: "a quoted word or phrase", explain: "Quote directly from the text." },
+        { q: "Backing up an answer makes it…", options: ["more convincing", "longer only", "wrong", "secret"], answer: "more convincing", explain: "Evidence strengthens answers." },
+        { q: "Which is weakest?", options: ["'He was brave.' (no evidence)", "He was brave because he 'stood his ground'.", "He was brave; the text says 'he did not run'.", "He was brave, shown by 'he faced the bear'."], answer: "'He was brave.' (no evidence)", explain: "It gives no text evidence." },
+      ],
+    },
+
+    // ===================== VOCABULARY (1) =====================
+    {
+      topic: "Vocabulary",
+      title: "Synonyms & Antonyms",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Synonyms are words with similar meanings; antonyms are words with opposite meanings.",
+      blocks: [
+        { type: "heading", text: "Similar and Opposite Words" },
+        {
+          type: "text",
+          text: "A synonym is a word that means nearly the same as another word: big and large, happy and glad, fast and quick. Using synonyms helps you avoid repeating the same word and makes writing more interesting.\n\nAn antonym is a word that means the opposite: hot and cold, up and down, day and night. Knowing antonyms helps you understand and describe contrasts.",
+        },
+        {
+          type: "example",
+          text: "Synonym of 'happy': joyful. Antonym of 'happy': sad. Synonym of 'small': tiny. Antonym of 'small': large.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Synonyms = similar meanings (big/large).",
+            "Antonyms = opposite meanings (hot/cold).",
+            "Synonyms add variety to writing.",
+            "Antonyms describe contrasts.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "flashcards",
+          data: [
+            { key: "Synonym of 'fast'", value: "quick" },
+            { key: "Antonym of 'happy'", value: "sad" },
+            { key: "Synonym of 'big'", value: "large" },
+            { key: "Antonym of 'up'", value: "down" },
+            { key: "Synonym of 'smart'", value: "clever" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A synonym has a meaning that is…", options: ["similar", "opposite", "unrelated", "longer"], answer: "similar", explain: "Synonyms mean nearly the same." },
+        { q: "An antonym of 'hot' is…", options: ["cold", "warm", "boiling", "heat"], answer: "cold", explain: "Opposite meaning." },
+        { q: "A synonym of 'happy' is…", options: ["joyful", "sad", "angry", "tired"], answer: "joyful", explain: "Similar meaning." },
+        { q: "Antonyms are words that are…", options: ["opposite", "the same", "rhyming", "plural"], answer: "opposite", explain: "Opposite meanings." },
+        { q: "Which pair are synonyms?", options: ["big / large", "up / down", "hot / cold", "day / night"], answer: "big / large", explain: "They mean the same; the others are opposites." },
+      ],
+    },
+
+    // ===================== ENGLISH ACTIVITY GAMES (3) =====================
+    {
+      topic: "Vocabulary",
+      title: "Activity: Vocabulary Match-Up",
+      difficulty: "beginner",
+      minutes: 8,
+      points: 80,
+      summary: "Match each word to its meaning in this quick vocabulary game.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Match the Meanings" },
+        {
+          type: "text",
+          text: "Tap a word, then tap its meaning to make a pair. Match them all in as few tries as you can!",
+        },
+        match(
+          ["enormous", "very big"],
+          ["terrified", "very scared"],
+          ["delighted", "very happy"],
+          ["ancient", "very old"],
+          ["silent", "completely quiet"],
+          ["rapid", "very fast"],
+        ),
+      ],
+      questions: [],
+    },
+    {
+      topic: "Punctuation",
+      title: "Activity: Punctuation Fix-It",
+      difficulty: "intermediate",
+      minutes: 8,
+      points: 80,
+      summary: "Drop the right punctuation word into each sentence to fix it.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Fill the Gaps" },
+        {
+          type: "text",
+          text: "Choose the correct word from the bank to complete each punctuation rule. Then check your answers.",
+        },
+        cloze(
+          ["Every sentence starts with a ___ letter.", "capital"],
+          ["A question ends with a question ___.", "mark"],
+          ["Items in a list are separated by a ___.", "comma"],
+          ["An apostrophe can show ___ , like Sam's bag.", "ownership"],
+          ["A statement ends with a full ___.", "stop"],
+        ),
+      ],
+      questions: [],
+    },
+    {
+      topic: "Grammar",
+      title: "Activity: Word-Class Sort",
+      difficulty: "beginner",
+      minutes: 8,
+      points: 80,
+      summary: "Match each example word to its word class (noun, verb, adjective, adverb).",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Sort the Words" },
+        {
+          type: "text",
+          text: "Match each word to the part of speech it belongs to. Remember: nouns name things, verbs are actions, adjectives describe nouns, and adverbs describe verbs.",
+        },
+        match(
+          ["dog (a thing)", "noun"],
+          ["run (an action)", "verb"],
+          ["happy (describes a noun)", "adjective"],
+          ["quickly (describes a verb)", "adverb"],
+          ["London (a name)", "proper noun"],
+        ),
+      ],
+      questions: [],
     },
   ],
 };

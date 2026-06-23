@@ -60,6 +60,35 @@ export const seedRichCurriculum = mutation({
         .withIndex("by_subject", (q) => q.eq("subjectId", subject._id))
         .take(100);
       const topicById = new Map(topics.map((t) => [t.name, t._id]));
+      let maxOrder = topics.reduce((m, t) => Math.max(m, t.order), -1);
+
+      // Ensure declared topics exist (appended after existing ones).
+      for (const spec of subjectBlock.topics ?? []) {
+        if (topicById.has(spec.name)) continue;
+        maxOrder += 1;
+        const id = await ctx.db.insert("topics", {
+          subjectId: subject._id,
+          name: spec.name,
+          description: spec.description,
+          order: maxOrder,
+          difficultyLevel: spec.difficulty,
+        });
+        topicById.set(spec.name, id);
+      }
+
+      // Auto-create any topic referenced by a lesson but still missing.
+      for (const entry of subjectBlock.lessons) {
+        if (topicById.has(entry.topic)) continue;
+        maxOrder += 1;
+        const id = await ctx.db.insert("topics", {
+          subjectId: subject._id,
+          name: entry.topic,
+          description: `Key skills and practice for ${entry.topic}.`,
+          order: maxOrder,
+          difficultyLevel: entry.difficulty,
+        });
+        topicById.set(entry.topic, id);
+      }
 
       for (const entry of subjectBlock.lessons) {
         const topicId = topicById.get(entry.topic);
@@ -84,6 +113,7 @@ export const seedRichCurriculum = mutation({
           description: entry.summary,
           lessonNotes: toFallbackNotes(entry.summary, entry.blocks),
           content: toContent(entry.blocks),
+          kind: entry.kind ?? "lesson",
           videoUrl: "",
           videoProvider: "youtube",
           difficultyLevel: entry.difficulty,

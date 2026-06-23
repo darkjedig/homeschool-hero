@@ -1,7 +1,11 @@
 import type { SubjectCurriculum } from "./types";
+import { code } from "./types";
 
 export const aics: SubjectCurriculum = {
   slug: "ai-and-computer-science",
+  topics: [
+    { name: "Coding Basics", description: "Write and run your first real code.", difficulty: "beginner" },
+  ],
   lessons: [
     // ===================== PROMPTS (4) =====================
     {
@@ -1151,6 +1155,96 @@ export const aics: SubjectCurriculum = {
         { q: "Before submitting AI-helped work, you should…", options: ["understand it fully", "delete your notes", "ignore it", "share it everywhere"], answer: "understand it fully", explain: "Own your work." },
         { q: "AI should be treated as a…", options: ["helper, not a replacement", "teacher you must obey", "virus", "password"], answer: "helper, not a replacement", explain: "You still think." },
         { q: "When AI helps with a project, you should…", options: ["be honest about it", "hide it", "lie", "delete it"], answer: "be honest about it", explain: "Like citing a source." },
+      ],
+    },
+
+    // ===================== CODING BASICS (2 activity labs) =====================
+    {
+      topic: "Coding Basics",
+      title: "Activity: Your First JavaScript",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 90,
+      summary: "Write and run real JavaScript. Use variables and console.log to make the computer print messages.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Talking to the Computer" },
+        {
+          type: "text",
+          text: "JavaScript is a real programming language used to build websites and games. Today you will write some and RUN it.\n\nTwo key ideas: a VARIABLE stores information (like a labelled box), and console.log(...) prints something to the screen. We make a variable with 'let', for example: let name = \"Hudson\";",
+        },
+        {
+          type: "example",
+          text: "let age = 11;\nconsole.log(\"I am \" + age + \" years old\");\n→ prints: I am 11 years old",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "A variable stores a value: let score = 10;",
+            "console.log(...) prints to the console.",
+            "Text (strings) go in quotes; numbers don't.",
+            "Use + to join text together.",
+          ],
+        },
+        code({
+          language: "javascript",
+          instructions: "Read the code, then press Run. Change the name and number, then Run again to see what happens.",
+          starter:
+            'let name = "Hudson";\nlet level = 12;\nconsole.log("Hello, " + name + "!");\nconsole.log("You are level " + level);',
+          challenge: "Make the console print a line that says: Next level is 13",
+          expected: "Next level is 13",
+        }),
+      ],
+      questions: [
+        { q: "What does console.log do?", options: ["Prints to the console", "Deletes a file", "Saves the game", "Adds numbers only"], answer: "Prints to the console", explain: "It outputs a message." },
+        { q: "Which keyword makes a variable?", options: ["let", "print", "show", "make"], answer: "let", explain: "e.g. let score = 10;" },
+        { q: "How do you write text in code?", options: ["In quotes", "In brackets only", "In capitals", "With a #"], answer: "In quotes", explain: 'Strings use "quotes".' },
+        { q: "A variable is like a…", options: ["labelled box that stores a value", "picture", "sound", "colour"], answer: "labelled box that stores a value", explain: "It holds information." },
+        { q: "What joins two pieces of text?", options: ["+", "-", "*", "/"], answer: "+", explain: 'e.g. "a" + "b" → "ab".' },
+      ],
+    },
+    {
+      topic: "Coding Basics",
+      title: "Activity: Conditions & Decisions",
+      difficulty: "intermediate",
+      minutes: 13,
+      points: 100,
+      summary: "Use if/else so your program can make decisions, just like a real game checking the rules.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Making the Computer Decide" },
+        {
+          type: "text",
+          text: "Programs make decisions using 'if'. An if statement checks whether something is true, and only runs its code when it is. You can add 'else' for what happens otherwise.\n\nWe compare things with operators: > (greater than), < (less than), and === (equal to). For example: if (score > 100) { ... }.",
+        },
+        {
+          type: "example",
+          text: 'let score = 80;\nif (score >= 70) {\n  console.log("You passed!");\n} else {\n  console.log("Try again");\n}\n→ prints: You passed!',
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "if (condition) { ... } runs code only when true.",
+            "else { ... } runs when the condition is false.",
+            "Compare with >, <, and === (equal).",
+            "Decisions are the rules of every game.",
+          ],
+        },
+        code({
+          language: "javascript",
+          instructions: "Run the code. Then change the value of 'score' and Run again to see a different message.",
+          starter:
+            'let score = 45;\nif (score >= 50) {\n  console.log("Level complete!");\n} else {\n  console.log("Keep practising");\n}',
+          challenge: "Change score so the console prints: Level complete!",
+          expected: "Level complete!",
+        }),
+      ],
+      questions: [
+        { q: "An 'if' statement runs its code when the condition is…", options: ["true", "false", "empty", "a number"], answer: "true", explain: "Only true conditions run the block." },
+        { q: "What runs when the condition is false?", options: ["the else block", "the if block", "nothing ever", "the title"], answer: "the else block", explain: "else handles the other case." },
+        { q: "Which means 'greater than or equal to'?", options: [">=", "=>", "><", "=<"], answer: ">=", explain: "score >= 50." },
+        { q: "=== is used to check if two things are…", options: ["equal", "different", "added", "bigger"], answer: "equal", explain: "Strict equality." },
+        { q: "Decisions in code are important because they…", options: ["let programs follow rules", "make code longer", "slow the computer", "do nothing"], answer: "let programs follow rules", explain: "Games rely on conditions." },
       ],
     },
   ],

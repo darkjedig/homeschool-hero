@@ -6,7 +6,7 @@ import { SubjectIcon } from "@/components/shared/subject-icon";
 import { subjectMeta, hexToRgb } from "@/lib/subjects";
 import { notFound, useParams } from "next/navigation";
 import Link from "next/link";
-import { PlayCircle, Star, Clock, ChevronRight } from "lucide-react";
+import { PlayCircle, Star, Clock, ChevronRight, Gamepad2 } from "lucide-react";
 
 export default function SubjectPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -89,10 +89,21 @@ export default function SubjectPage() {
                         className="grid h-10 w-10 shrink-0 place-items-center rounded-xl"
                         style={{ backgroundColor: `${accent}22` }}
                       >
-                        <PlayCircle size={20} style={{ color: accent }} />
+                        {l.kind === "activity" ? (
+                          <Gamepad2 size={20} style={{ color: accent }} />
+                        ) : (
+                          <PlayCircle size={20} style={{ color: accent }} />
+                        )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium text-white">{l.title}</p>
+                        <p className="flex items-center gap-2 truncate font-medium text-white">
+                          {l.title}
+                          {l.kind === "activity" && (
+                            <span className="shrink-0 rounded-full border border-cyan-500/30 bg-cyan-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-cyan-200">
+                              Activity
+                            </span>
+                          )}
+                        </p>
                         <div className="mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Clock size={12} /> {l.estimatedMinutes} min

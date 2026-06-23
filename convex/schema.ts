@@ -25,6 +25,11 @@ export const contentBlock = v.object({
       v.literal("flashcards"),
       v.literal("ordering"),
       v.literal("timeline"),
+      v.literal("codeSandbox"),
+      v.literal("mathArena"),
+      v.literal("match"),
+      v.literal("fillBlank"),
+      v.literal("simulation"),
     ),
   ),
   // Generic interactive payload as {key,value} pairs (works for reveal/MCQ,
@@ -93,6 +98,9 @@ export default defineSchema({
     description: v.string(),
     lessonNotes: v.string(),
     content: v.optional(contentBlocks),
+    // Distinguishes a normal teaching lesson from an interactive activity/game
+    // lesson (drives the "Activity" badge in the UI). Absent = teaching lesson.
+    kind: v.optional(v.union(v.literal("lesson"), v.literal("activity"))),
     videoUrl: v.string(),
     videoProvider: v.literal("youtube"),
     difficultyLevel: v.union(
@@ -108,7 +116,9 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_topic", ["topicId"])
+    .index("by_topic_and_status", ["topicId", "status"])
     .index("by_subject", ["subjectId"])
+    .index("by_subject_and_status", ["subjectId", "status"])
     .index("by_status", ["status"])
     .index("by_slug", ["slug"])
     .searchIndex("search_title", { searchField: "title" }),

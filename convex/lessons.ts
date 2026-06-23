@@ -8,8 +8,9 @@ export const listPublishedByTopic = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("lessons")
-      .withIndex("by_topic", (q) => q.eq("topicId", args.topicId))
-      .filter((q) => q.eq(q.field("status"), "published"))
+      .withIndex("by_topic_and_status", (q) =>
+        q.eq("topicId", args.topicId).eq("status", "published"),
+      )
       .take(100);
   },
 });
@@ -20,8 +21,9 @@ export const listPublishedBySubject = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("lessons")
-      .withIndex("by_subject", (q) => q.eq("subjectId", args.subjectId))
-      .filter((q) => q.eq(q.field("status"), "published"))
+      .withIndex("by_subject_and_status", (q) =>
+        q.eq("subjectId", args.subjectId).eq("status", "published"),
+      )
       .take(100);
   },
 });

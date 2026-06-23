@@ -13,7 +13,7 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 
 ## Environment / Auth
 - `.env.local` (gitignored) holds: `NEXT_PUBLIC_CONVEX_URL`, `CONVEX_DEPLOY_KEY`, `CONVEX_DEPLOYMENT`, `NEXT_PUBLIC_CONVEX_SITE_URL`
-- Convex CLI authenticates non-interactively via the deploy key (browser login was flaky in non-interactive shell). Always prefix Convex CLI with `set -a; source .env.local; set +a` (values are quoted because deploy key contains `|`).
+- Convex CLI authenticates non-interactively via the deploy key (browser login was flaky in non-interactive shell). **Do NOT `source .env.local`** — the deploy key value contains a `|`, so an unquoted `source` mangles it (bash treats `|` as a pipe). The Convex CLI reads `.env.local` automatically; just run `npx convex run ...` directly. Push code first with `npx convex dev --once` before running newly-edited functions.
 - Auth env vars set on deployment by `@convex-dev/auth` setup: `SITE_URL`, `JWT_PRIVATE_KEY`, `JWKS`.
 
 ## Design Tokens
@@ -32,6 +32,10 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
   - Subject manager + lesson editor (rich content + inline quiz editor + YouTube search helper) shipped post-Phase 8.
   - **Full multi-lesson curriculum authored + seeded**: each TOPIC is now a 4–8 lesson unit. 167 new rich lessons + 835 quiz questions via `convex/seedRichCurriculum.ts` (idempotent). Curriculum data lives in `convex/curriculum/{maths,english,science,history,aics,gamedev,homemaking,building}.ts` + shared `types.ts`. Master plan/log: `docs/curriculum-plan.md`. ~206 total lessons now. Calendar regenerated (677/41wk).
   - Flashcards interactive upgraded to a real 3D flip animation (was broken: flip button set state to false instead of toggling).
+- Phase 9b — **Interactive Activity System** (high-spec learning): schema `contentBlock.variant` extended (`codeSandbox · mathArena · match · fillBlank · simulation`) + `lessons.kind` (`lesson`/`activity`). New authoring builders `code/arena/match/cloze/sim` + optional per-subject `topics` in `convex/curriculum/types.ts`. `seedRichCurriculum` now auto-creates declared/referenced topics (appended in order) and seeds `kind`.
+  - 5 new React components in `components/student/interactive/`: `code-sandbox` (sandboxed `<iframe sandbox="allow-scripts">`, console via `postMessage`, canvas for game-dev — fully isolated, no same-origin), `math-arena` (generative practice game w/ streak/timer), `match-game`, `fill-blank` (cloze w/ word bank), `simulation` (`circuit` + `particles` canvas). Registered in `lesson-blocks.tsx`. "Activity" badge on lesson page + gamepad chip on subject list.
+  - **+45 lessons authored & seeded** (Maths +21: Decimals/Percentages/Measurement/Geometry/Negative Numbers/Times Tables + 3 arena games; English +16: Punctuation/Spelling/Paragraphs/Inference/Vocabulary + match/cloze games; AI&CS + GameDev code labs; Science circuit/particles sims; History WWII timeline; Homemaking/Building match games). ~216 rich lessons total. Calendar regenerated (677 entries); **weeks 1–8 (Aug 25→~Oct 21) fully filled**; later unauthored days render a friendly "· soon" placeholder (calendar page) instead of bare subject chips. Full remaining-year curriculum logged in `docs/curriculum-plan.md`.
+- **Convex plugin demo**: MCP `status` connected to deployment; applied query-optimization rule — added `by_topic_and_status` + `by_subject_and_status` compound indexes and updated `lessons.ts` + `calendar.ts` to stop post-index `.filter()` scans on published lessons (~206 rows today, scales as curriculum grows).
 - Blog Parts 1–7 written (`blog/` dir).
 
 ## Next.js routing note
@@ -50,15 +54,17 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - Created `specs.md` (9-phase checklist).
 
 ## Known Issues / Blockers
-- **Convex MCP disabled** in `~/.config/opencode/opencode.json` (auth bug with v2 tokens). Verify Convex via CLI: `npx convex run <fn>` / `npx convex dev --once`. Convex auto-loads `.env.local`.
+- **Convex MCP**: `status` tool works (finds `oceanic-crane-853` dev + prod). `insights`/`run` require interactive login via `npx convex dev` in a terminal (deploy-key CLI works separately). Re-enable in Cursor MCP settings if disabled.
 - **GitHub**: repo `darkjedig/homeschool-hero` created (public). Fine-grained PAT now has Contents:Write. Push works via `git push "https://x-access-token:<PAT>@github.com/darkjedig/homeschool-hero.git" main:main`.
 
 ## Next Steps (Phase 10)
 
 ### Curriculum follow-ups (optional polish)
 - 4 lessons skipped in the rich seed (title overlap with original text-only seedLessons, e.g. "What Is a Fraction?", "Finding the Main Idea"). They still render fine via `lessonNotes` fallback, but lack rich `content` blocks. Patch by renaming/deleting the old text-only versions or adding content to them.
-- To add MORE lessons: edit the relevant `convex/curriculum/<subject>.ts`, then re-run `npx convex run seedRichCurriculum:seedRichCurriculum` (idempotent) + `npx convex run calendar:generateYear`.
-- Interactive content authoring: builders `mcq/fc/ord/tl` live in `convex/curriculum/types.ts`. Reveal = `{key:"question"|"option_0..3"|"answer"|"explanation"}`.
+- To add MORE lessons: edit the relevant `convex/curriculum/<subject>.ts`, then `npx convex dev --once` (push), then `npx convex run seedRichCurriculum:seedRichCurriculum` (idempotent) + `npx convex run calendar:generateYear`.
+- Interactive content authoring: builders `mcq/fc/ord/tl` + new `code/arena/match/cloze/sim` live in `convex/curriculum/types.ts`. Reveal = `{key:"question"|"option_0..3"|"answer"|"explanation"}`. Activity lessons set `kind:"activity"` and may have `questions: []` (no quiz).
+- **Continue the curriculum build toward ~260 lessons/year** so the full Aug→June calendar fills with real content — remaining unit list per subject is logged in `docs/curriculum-plan.md` (calendar currently thins out from ~Oct 22 onward).
+- New simulation ids can be added in `components/student/interactive/simulation.tsx` (currently `circuit`, `particles`); future: `forces`, `lightRays`, `soundWaves`, `plantGrowth`.
 
 ### Remaining work
 - Phase 10: Full RBAC audit, Playwright + Vitest, mobile polish, error boundaries, README.

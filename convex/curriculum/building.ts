@@ -1,4 +1,5 @@
 import type { SubjectCurriculum } from "./types";
+import { match } from "./types";
 
 export const building: SubjectCurriculum = {
   slug: "building-and-construction",
@@ -959,6 +960,33 @@ export const building: SubjectCurriculum = {
         { q: "The rule is to measure and mark…", options: ["before cutting", "after cutting", "instead of cutting", "never"], answer: "before cutting", explain: "Then cut along the mark." },
         { q: "Always mark from a…", options: ["fixed reference edge", "guess", "moving point", "finger"], answer: "fixed reference edge", explain: "Consistency." },
       ],
+    },
+
+    // ===================== BUILDING ACTIVITY (1) =====================
+    {
+      topic: "Hand-Tool Mechanics",
+      title: "Activity: Tool ↔ Job Match-Up",
+      difficulty: "beginner",
+      minutes: 8,
+      points: 80,
+      summary: "Match each hand tool to the job it is designed to do.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "The Right Tool for the Job" },
+        {
+          type: "text",
+          text: "Using the correct tool makes a job safer and easier. Match each tool to what it is used for. Tap a tool, then tap its job.",
+        },
+        match(
+          ["Hammer", "Drive in nails"],
+          ["Screwdriver", "Turn screws"],
+          ["Tape measure", "Measure lengths"],
+          ["Spirit level", "Check something is flat/level"],
+          ["Saw", "Cut wood"],
+          ["Set square", "Mark a right angle (90°)"],
+        ),
+      ],
+      questions: [],
     },
   ],
 };

@@ -8,7 +8,68 @@ heading + teaching text + worked example + key points + 1 interactive
 Progress key: `[x]` authored + seeded · `[ ]` pending
 
 Interactive rotation legend: **MCQ** = reveal-style quick check · **FC** = flashcards ·
-**ORD** = drag ordering · **TL** = timeline.
+**ORD** = drag ordering · **TL** = timeline · **CODE** = runnable code sandbox ·
+**ARENA** = generative maths game · **MATCH** = match-up game · **CLOZE** = fill-in-the-blank ·
+**SIM** = science simulation.
+
+---
+
+## Interactive Activity System (live)
+
+A high-spec interactive layer woven into lessons + dedicated **activity lessons**
+(`kind: "activity"`, shown with an "Activity" badge / gamepad icon).
+
+**Schema** — `convex/schema.ts` `contentBlock.variant` now also supports
+`codeSandbox · mathArena · match · fillBlank · simulation`; `lessons.kind`
+(`"lesson" | "activity"`, optional) flags activity lessons.
+
+**Authoring builders** — `convex/curriculum/types.ts`:
+- `code({ language, starter, instructions, challenge?, expected? })` → runnable JS/HTML lab.
+- `arena({ title, mode, min, max, count, seconds? })` → generative maths game (`mode`: add/sub/mul/div/mixed/fractions/percent).
+- `match(...[term, def])` → two-column match-up.
+- `cloze(...[sentenceWith___, answer])` → fill-in-the-blank with word bank.
+- `sim(simId, title?)` → simulation (`circuit` | `particles`).
+
+**Components** — `components/student/interactive/`: `code-sandbox.tsx`
+(sandboxed `<iframe sandbox="allow-scripts">`, console via `postMessage`, canvas
+for game-dev), `math-arena.tsx`, `match-game.tsx`, `fill-blank.tsx`,
+`simulation.tsx`. Registered in `components/student/lesson-blocks.tsx`.
+
+**Security** — code runs in an iframe with `allow-scripts` only (no
+`allow-same-origin`), fully isolated from the app + Convex. All content is static
+authored data; no secrets exposed.
+
+---
+
+## Interactive Expansion — Authored Now (45 new lessons)
+
+Fills the first ~2 school months (Aug 25 → ~Oct 21) with no bare calendar chips;
+remaining days render a friendly "· soon" placeholder.
+
+### Maths (+21)
+- Decimals (4): Tenths & Hundredths · Comparing & Ordering · Adding & Subtracting · Decimals, Money & Rounding
+- Percentages (3): What Is a Percentage? · Finding Percentages of Amounts (ARENA) · Fractions, Decimals & Percentages (FC)
+- Measurement (3): Length & Metric Units · Mass & Capacity · Converting Units
+- Geometry (3): Perimeter · Area of Rectangles · Angles Basics
+- Negative Numbers (3): Numbers Below Zero · Ordering Pos/Neg (ORD) · Adding & Subtracting with Negatives
+- Times Tables (2): Multiplication Facts (ARENA) · Division Facts (ARENA)
+- Activities (3): Times-Tables Sprint · Add & Subtract Dash · Percentages Face-Off (all ARENA)
+
+### English (+16)
+- Punctuation (4): Capitals & Full Stops · Question & Exclamation Marks · Commas · Apostrophes
+- Spelling Patterns (3): Making Plurals · Prefixes · Suffixes
+- Paragraphs (3): Topic Sentences · Building a Strong Paragraph · Linking with Connectives (ORD)
+- Inference (2): Reading Between the Lines · Using Evidence to Support Answers
+- Vocabulary (1): Synonyms & Antonyms (FC)
+- Activities (3): Vocabulary Match-Up (MATCH) · Punctuation Fix-It (CLOZE) · Word-Class Sort (MATCH)
+
+### Other subjects (+8 activity labs)
+- AI & CS (2): Your First JavaScript (CODE) · Conditions & Decisions (CODE)
+- Game Dev (2): Draw a Sprite on the Canvas (CODE) · Animate a Moving Character (CODE)
+- Science (2): Build a Circuit (SIM circuit) · Heat & States of Matter (SIM particles)
+- History (1): WWII Timeline Challenge (ORD + TL)
+- Homemaking (1): Kitchen Safety Match-Up (MATCH)
+- Building (1): Tool ↔ Job Match-Up (MATCH)
 
 ---
 
@@ -294,9 +355,49 @@ Interactive rotation legend: **MCQ** = reveal-style quick check · **FC** = flas
 ---
 
 ## Totals
-- Maths: 19 · English: 22 · Science: 20 · History: 26 · AI&CS: 24 · GameDev: 20 · Homemaking: 20 · Building: 20
-- **= 171 rich lessons** (adds to the ~39 existing text lessons; new titles are distinct so seeding is idempotent/additive)
+- Original rich set: Maths 19 · English 22 · Science 20 · History 26 · AI&CS 24 · GameDev 20 · Homemaking 20 · Building 20 = **171**
+- Interactive expansion (this phase): **+45** (Maths +21, English +16, AI&CS +2, GameDev +2, Science +2, History +1, Homemaking +1, Building +1)
+- **≈ 216 rich lessons** seeded (plus ~39 original text lessons). New titles are distinct → seeding is idempotent/additive.
+
+---
+
+## Remaining Curriculum — Future Build-Out (NOT yet authored)
+
+Target ≈ 260 lessons/year so the full Aug→June calendar fills with real content.
+Each future unit follows the same shape (heading + teaching blocks + worked
+example + key points + ≥1 interactive + 5-question quiz) and adds a matching
+activity (ARENA / MATCH / CLOZE / CODE / SIM / TL) per unit.
+
+### Maths → ~190 (daily)
+- Finish Decimals (multiplying/dividing), Percentages (increase/decrease, of money), Geometry (volume, 3D shapes, symmetry, coordinates), Measurement (time, area of compound shapes), Negative Numbers (multiplying), Statistics & Averages, Graphs & Charts, Time & Money, Mental-Maths strategies, multi-step Word Problems. Add a recurring `mathArena` activity per unit.
+
+### English → ~190 (daily)
+- Persuasive / Creative / Non-fiction / Report Writing, Summarising, Story Structure, Editing & Proofreading, Planning, Tone & Audience, Comparing Texts, Explanation Texts, Poetry, Speech Writing. Add `match` / `fillBlank` activity per unit.
+
+### Science → ~76
+- Light, Sound, Space, Plants, Animals & Habitats, Ecosystems, Materials & Properties, Scientific Method / Fair Testing / Recording Data. Add more `simulation` ids: `forces` (balance), `lightRays`, `soundWaves`, `plantGrowth`.
+
+### History → ~76
+- WWI / WWII / Founding / 1812 / Civil War sub-topics + Ancient Civilisations, Source Analysis, Bias & Propaganda, Chronology. Add a `timeline` challenge per era.
+
+### AI & CS → ~38
+- Algorithms, Variables, Conditionals, Loops, Functions, Debugging, Binary, Logic Gates, Internet Safety. Add a `codeSandbox` lab per concept.
+
+### Game Dev → ~38
+- Sprites, Collision, Controls, Health/Lives, Timers, Win/Lose Conditions, Animation, Menus, Sound. Add `codeSandbox` canvas projects.
+
+### Homemaking → ~38
+- Meal Planning, Nutrition, Food Storage, Laundry, Budgeting, Routines, Sewing Basics. Add `match` / checklist activities.
+
+### Building → ~38
+- Materials, Measuring, Angles, Levels, Load & Stability, Tool Safety, Project Planning, Joints & Fixings. Add `match` / diagram activities.
+
+---
 
 ## Seeding
-- `convex/seedRichCurriculum.ts` iterates `convex/curriculum/*.ts`, inserts lessons (with `content` blocks) + a 5-question quiz each. Idempotent by subject+title.
+- `convex/seedRichCurriculum.ts` iterates `convex/curriculum/*.ts`, inserts lessons (with `content` blocks) + a 5-question quiz each. Idempotent by subject+title. It also auto-creates any topic declared in a subject's `topics` array (or referenced by a lesson) that doesn't yet exist, appended after existing topics.
 - After seeding, run `calendar:generateYear` so the calendar picks up the new multi-lesson topic order.
+- Commands (CLI reads `.env.local` automatically — do **not** `source` it; the deploy key contains a `|`):
+  - `npx convex dev --once` (push schema + functions)
+  - `npx convex run seedRichCurriculum:seedRichCurriculum`
+  - `npx convex run calendar:generateYear`

@@ -4,6 +4,17 @@
 
 export type Difficulty = "beginner" | "intermediate" | "advanced";
 
+export type InteractiveVariant =
+  | "reveal"
+  | "flashcards"
+  | "ordering"
+  | "timeline"
+  | "codeSandbox"
+  | "mathArena"
+  | "match"
+  | "fillBlank"
+  | "simulation";
+
 export type Block =
   | { type: "heading"; text: string }
   | { type: "text"; text: string }
@@ -11,7 +22,7 @@ export type Block =
   | { type: "keyPoints"; items: string[] }
   | {
       type: "interactive";
-      variant: "reveal" | "flashcards" | "ordering" | "timeline";
+      variant: InteractiveVariant;
       data: { key: string; value: string }[];
     };
 
@@ -31,10 +42,21 @@ export type RichLesson = {
   summary: string; // 1–2 sentences → description + opening text
   blocks: Block[]; // heading + text + example + keyPoints + interactive
   questions: Question[]; // 5 MCQs
+  kind?: "lesson" | "activity"; // "activity" → interactive game/lab lesson
+};
+
+export type TopicSpec = {
+  name: string;
+  description: string;
+  difficulty: Difficulty;
 };
 
 export type SubjectCurriculum = {
   slug: string;
+  // New topics to ensure exist before seeding lessons (appended after any
+  // existing topics, preserving prior order). Topics referenced by a lesson but
+  // missing here are auto-created with a generic description as a fallback.
+  topics?: TopicSpec[];
   lessons: RichLesson[];
 };
 
@@ -87,4 +109,74 @@ export function tl(...events: [string, string][]): Block {
     variant: "timeline",
     data: events.map(([key, value]) => ({ key, value })),
   };
+}
+
+/**
+ * Runnable code lab. The student edits `starter` and clicks Run; output renders
+ * in a sandboxed iframe (JS console + HTML preview). All config is encoded as
+ * {key,value} pairs so the schema only needs the new variant literal.
+ */
+export function code(cfg: {
+  language: "javascript" | "html";
+  starter: string;
+  instructions: string;
+  challenge?: string;
+  expected?: string; // substring that should appear in console output
+}): Block {
+  const data: { key: string; value: string }[] = [
+    { key: "language", value: cfg.language },
+    { key: "starter", value: cfg.starter },
+    { key: "instructions", value: cfg.instructions },
+  ];
+  if (cfg.challenge) data.push({ key: "challenge", value: cfg.challenge });
+  if (cfg.expected) data.push({ key: "expected", value: cfg.expected });
+  return { type: "interactive", variant: "codeSandbox", data };
+}
+
+/** Generative maths practice arena (infinite questions, scoring, optional timer). */
+export function arena(cfg: {
+  title: string;
+  mode: "add" | "sub" | "mul" | "div" | "mixed" | "fractions" | "percent";
+  min: number;
+  max: number;
+  count: number;
+  seconds?: number;
+}): Block {
+  const data: { key: string; value: string }[] = [
+    { key: "title", value: cfg.title },
+    { key: "mode", value: cfg.mode },
+    { key: "min", value: String(cfg.min) },
+    { key: "max", value: String(cfg.max) },
+    { key: "count", value: String(cfg.count) },
+  ];
+  if (cfg.seconds) data.push({ key: "seconds", value: String(cfg.seconds) });
+  return { type: "interactive", variant: "mathArena", data };
+}
+
+/** Match game: each [term, definition] pair → a card to match. */
+export function match(...pairs: [string, string][]): Block {
+  return {
+    type: "interactive",
+    variant: "match",
+    data: pairs.map(([key, value]) => ({ key, value })),
+  };
+}
+
+/**
+ * Fill-in-the-blank (cloze). Each [sentence, answer] uses "___" in the sentence
+ * to mark the blank; answers seed a shuffled word bank.
+ */
+export function cloze(...items: [string, string][]): Block {
+  return {
+    type: "interactive",
+    variant: "fillBlank",
+    data: items.map(([key, value]) => ({ key, value })),
+  };
+}
+
+/** Interactive science simulation, selected by id (e.g. "circuit", "particles"). */
+export function sim(simId: "circuit" | "particles", title?: string): Block {
+  const data: { key: string; value: string }[] = [{ key: "sim", value: simId }];
+  if (title) data.push({ key: "title", value: title });
+  return { type: "interactive", variant: "simulation", data };
 }

@@ -6,6 +6,11 @@ import { RevealBlock } from "./interactive/reveal";
 import { FlashcardsBlock } from "./interactive/flashcards";
 import { OrderingBlock } from "./interactive/ordering";
 import { TimelineBlock } from "./interactive/timeline";
+import { CodeSandboxBlock } from "./interactive/code-sandbox";
+import { MathArenaBlock } from "./interactive/math-arena";
+import { MatchGameBlock } from "./interactive/match-game";
+import { FillBlankBlock } from "./interactive/fill-blank";
+import { SimulationBlock } from "./interactive/simulation";
 import { Lightbulb, PlayCircle } from "lucide-react";
 
 type Block = NonNullable<Doc<"lessons">["content"]>[number];
@@ -74,6 +79,11 @@ export function LessonBlocks({
             if (b.variant === "flashcards") return <FlashcardsBlock key={i} data={data} />;
             if (b.variant === "ordering") return <OrderingBlock key={i} data={data} />;
             if (b.variant === "timeline") return <TimelineBlock key={i} data={data} />;
+            if (b.variant === "codeSandbox") return <CodeSandboxBlock key={i} data={data} />;
+            if (b.variant === "mathArena") return <MathArenaBlock key={i} data={data} />;
+            if (b.variant === "match") return <MatchGameBlock key={i} data={data} />;
+            if (b.variant === "fillBlank") return <FillBlankBlock key={i} data={data} />;
+            if (b.variant === "simulation") return <SimulationBlock key={i} data={data} />;
             return null;
           default:
             return null;

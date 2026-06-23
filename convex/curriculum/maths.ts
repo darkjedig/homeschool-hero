@@ -1,7 +1,16 @@
 import type { SubjectCurriculum } from "./types";
+import { arena } from "./types";
 
 export const maths: SubjectCurriculum = {
   slug: "maths",
+  topics: [
+    { name: "Decimals", description: "Tenths, hundredths, and decimal calculations.", difficulty: "beginner" },
+    { name: "Percentages", description: "Understanding and finding percentages.", difficulty: "intermediate" },
+    { name: "Measurement", description: "Length, mass, capacity, and converting units.", difficulty: "beginner" },
+    { name: "Geometry", description: "Shapes, perimeter, area, and angles.", difficulty: "intermediate" },
+    { name: "Negative Numbers", description: "Numbers below zero and how to use them.", difficulty: "intermediate" },
+    { name: "Times Tables", description: "Multiplication and division fact fluency.", difficulty: "beginner" },
+  ],
   lessons: [
     // ===================== FRACTIONS (6) =====================
     {
@@ -913,6 +922,898 @@ export const maths: SubjectCurriculum = {
         { q: "Exact answer 612; estimate was 600. This is…", options: ["Close — probably right", "Way off — wrong", "Impossible", "Too small"], answer: "Close — probably right", explain: "Exact is near the estimate." },
         { q: "Best way to CHECK a word-problem answer?", options: ["Re-read and ask if it makes sense", "Guess again", "Pick a bigger number", "Erase it"], answer: "Re-read and ask if it makes sense", explain: "Sense-checking is the final safety net." },
       ],
+    },
+
+    // ===================== DECIMALS (4) =====================
+    {
+      topic: "Decimals",
+      title: "Tenths & Hundredths",
+      difficulty: "beginner",
+      minutes: 11,
+      points: 60,
+      summary: "Decimals extend our number system past the ones using a decimal point, with columns for tenths and hundredths.",
+      blocks: [
+        { type: "heading", text: "Past the Decimal Point" },
+        {
+          type: "text",
+          text: "A decimal point separates whole numbers from parts of a whole. The first column after the point is tenths (1/10), and the next is hundredths (1/100).\n\nSo 0.3 means 3 tenths, and 0.30 means 30 hundredths — which is the same amount. 0.45 means 4 tenths and 5 hundredths, or 45 hundredths in total.",
+        },
+        {
+          type: "example",
+          text: "In 2.36: the 2 is ones, the 3 is tenths (3/10), and the 6 is hundredths (6/100). Together that is two and thirty-six hundredths.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "The point separates wholes from parts.",
+            "1st place after point = tenths (1/10).",
+            "2nd place after point = hundredths (1/100).",
+            "0.3 = 0.30 (extra zeros on the end don't change the value).",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "In 4.27, what does the 7 represent?" },
+            { key: "option_0", value: "7 hundredths" },
+            { key: "option_1", value: "7 tenths" },
+            { key: "option_2", value: "7 ones" },
+            { key: "option_3", value: "7 tens" },
+            { key: "answer", value: "7 hundredths" },
+            { key: "explanation", value: "The second place after the point is hundredths." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "What is the first place after the decimal point?", options: ["Tenths", "Hundredths", "Ones", "Tens"], answer: "Tenths", explain: "The first column after the point is tenths." },
+        { q: "Which is the same as 0.5?", options: ["0.50", "0.05", "5.0", "0.005"], answer: "0.50", explain: "Extra zeros on the end don't change the value." },
+        { q: "0.6 means…", options: ["6 tenths", "6 hundredths", "6 ones", "60 ones"], answer: "6 tenths", explain: "One place after the point = tenths." },
+        { q: "In 3.08, the 8 is in the…", options: ["hundredths place", "tenths place", "ones place", "tens place"], answer: "hundredths place", explain: "Second place after the point = hundredths." },
+        { q: "How do you write 'forty-five hundredths' as a decimal?", options: ["0.45", "4.5", "45.0", "0.045"], answer: "0.45", explain: "45 hundredths = 0.45." },
+      ],
+    },
+    {
+      topic: "Decimals",
+      title: "Comparing & Ordering Decimals",
+      difficulty: "beginner",
+      minutes: 11,
+      points: 60,
+      summary: "To compare decimals, line up the decimal points and compare each column from left to right.",
+      blocks: [
+        { type: "heading", text: "Which Decimal Is Bigger?" },
+        {
+          type: "text",
+          text: "Compare decimals one column at a time, starting from the left (the biggest place value). First compare ones, then tenths, then hundredths.\n\nA common trap: 0.45 is NOT bigger than 0.5. Give them the same number of decimal places first: 0.5 = 0.50, and 0.50 > 0.45.",
+        },
+        {
+          type: "example",
+          text: "Order 0.7, 0.65, 0.7 has 7 tenths; 0.65 has 6 tenths. 7 tenths > 6 tenths, so 0.7 > 0.65.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Line up the decimal points.",
+            "Compare left to right (biggest place first).",
+            "Add zeros so both have the same length.",
+            "More decimal places does NOT mean bigger.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Which is larger: 0.4 or 0.39?" },
+            { key: "option_0", value: "0.4" },
+            { key: "option_1", value: "0.39" },
+            { key: "option_2", value: "They are equal" },
+            { key: "option_3", value: "Cannot tell" },
+            { key: "answer", value: "0.4" },
+            { key: "explanation", value: "0.4 = 0.40, and 0.40 > 0.39." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Which is larger: 0.8 or 0.75?", options: ["0.8", "0.75", "Equal", "Cannot tell"], answer: "0.8", explain: "0.8 = 0.80 > 0.75." },
+        { q: "Which is smallest: 0.3, 0.31, 0.29?", options: ["0.29", "0.3", "0.31", "All equal"], answer: "0.29", explain: "0.29 < 0.30 < 0.31." },
+        { q: "0.5 ___ 0.50", options: ["=", ">", "<", "none"], answer: "=", explain: "Extra zero doesn't change the value." },
+        { q: "First step to compare 0.6 and 0.58?", options: ["Make them 0.60 and 0.58", "Add them", "Multiply", "Round both to 1"], answer: "Make them 0.60 and 0.58", explain: "Give them the same number of places." },
+        { q: "Which is largest: 1.2, 1.19, 1.09?", options: ["1.2", "1.19", "1.09", "Equal"], answer: "1.2", explain: "1.20 > 1.19 > 1.09." },
+      ],
+    },
+    {
+      topic: "Decimals",
+      title: "Adding & Subtracting Decimals",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 70,
+      summary: "Add and subtract decimals by lining up the decimal points so each column matches.",
+      blocks: [
+        { type: "heading", text: "Keep the Points in Line" },
+        {
+          type: "text",
+          text: "The golden rule for adding and subtracting decimals is to line up the decimal points. That keeps tenths under tenths and hundredths under hundredths.\n\nFill any gaps with zeros so the numbers are the same length, then add or subtract column by column from the right, carrying or borrowing just like whole numbers. Bring the decimal point straight down into the answer.",
+        },
+        {
+          type: "example",
+          text: "3.40 + 1.25: line up points → 3.40 + 1.25 = 4.65. The point drops straight down.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Line up the decimal points.",
+            "Fill gaps with zeros to match lengths.",
+            "Add/subtract from the right, carry/borrow as normal.",
+            "Drop the point straight down into the answer.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What is 2.5 + 1.35?" },
+            { key: "option_0", value: "3.85" },
+            { key: "option_1", value: "3.40" },
+            { key: "option_2", value: "1.60" },
+            { key: "option_3", value: "15.0" },
+            { key: "answer", value: "3.85" },
+            { key: "explanation", value: "2.50 + 1.35 = 3.85 (line up the points)." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "What is 1.2 + 3.4?", options: ["4.6", "4.06", "46", "4.10"], answer: "4.6", explain: "Tenths add to 6 tenths." },
+        { q: "The most important rule is to…", options: ["Line up decimal points", "Add the points", "Ignore zeros", "Start from the left"], answer: "Line up decimal points", explain: "Aligned points keep place values matched." },
+        { q: "What is 5.0 − 2.35?", options: ["2.65", "3.35", "2.75", "3.65"], answer: "2.65", explain: "5.00 − 2.35 = 2.65." },
+        { q: "To add 4.5 + 0.75, rewrite 4.5 as…", options: ["4.50", "4.05", "45.0", "0.45"], answer: "4.50", explain: "Match the number of decimal places." },
+        { q: "What is 0.8 + 0.2?", options: ["1.0", "0.10", "0.16", "1.6"], answer: "1.0", explain: "8 tenths + 2 tenths = 10 tenths = 1." },
+      ],
+    },
+    {
+      topic: "Decimals",
+      title: "Decimals, Money & Rounding",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 70,
+      summary: "Money is decimals in action: two places for pence/cents. Rounding decimals makes numbers easier to use.",
+      blocks: [
+        { type: "heading", text: "Decimals in Real Life" },
+        {
+          type: "text",
+          text: "Money uses two decimal places: £3.50 means 3 pounds and 50 pence. Writing £3.5 is incomplete — money usually shows both places.\n\nRounding decimals: to round to one decimal place, look at the second decimal. If it's 5 or more, round the first decimal up; if less than 5, keep it the same. So 2.46 rounds to 2.5, and 2.43 rounds to 2.4.",
+        },
+        {
+          type: "example",
+          text: "Round 7.84 to one decimal place: the second decimal is 4 (less than 5), so it stays 7.8.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Money uses 2 decimal places (£3.50, not £3.5).",
+            "To round, look at the NEXT digit.",
+            "5 or more → round up; less than 5 → stay.",
+            "Rounding gives a simpler, close-enough number.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Round 5.67 to one decimal place." },
+            { key: "option_0", value: "5.7" },
+            { key: "option_1", value: "5.6" },
+            { key: "option_2", value: "6.0" },
+            { key: "option_3", value: "5.67" },
+            { key: "answer", value: "5.7" },
+            { key: "explanation", value: "The second decimal (7) is 5 or more, so round up to 5.7." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "How should £4.20 be written for money?", options: ["£4.20", "£4.2", "£420", "£4.200"], answer: "£4.20", explain: "Money uses two decimal places." },
+        { q: "Round 3.42 to one decimal place.", options: ["3.4", "3.5", "3.0", "4.0"], answer: "3.4", explain: "Second decimal 2 < 5, so it stays." },
+        { q: "Round 9.95 to one decimal place.", options: ["10.0", "9.9", "9.5", "9.0"], answer: "10.0", explain: "5 rounds up: 9.9 → 10.0." },
+        { q: "£2.05 means…", options: ["2 pounds 5 pence", "2 pounds 50 pence", "25 pence", "205 pounds"], answer: "2 pounds 5 pence", explain: "0.05 = 5 hundredths = 5 pence." },
+        { q: "To round to 1 decimal place you look at the…", options: ["second decimal", "first decimal", "whole number", "last digit only"], answer: "second decimal", explain: "The next digit decides rounding." },
+      ],
+    },
+
+    // ===================== PERCENTAGES (3) =====================
+    {
+      topic: "Percentages",
+      title: "What Is a Percentage?",
+      difficulty: "beginner",
+      minutes: 11,
+      points: 60,
+      summary: "Percent means 'out of 100'. A percentage is a special fraction with denominator 100.",
+      blocks: [
+        { type: "heading", text: "Out of One Hundred" },
+        {
+          type: "text",
+          text: "'Per cent' literally means 'per hundred'. So 50% means 50 out of 100, which is the same as the fraction 50/100 = 1/2, or the decimal 0.5.\n\nPercentages are everywhere: test scores, sales, battery levels. 25% means a quarter, 50% means a half, 75% means three quarters, and 100% means the whole thing.",
+        },
+        {
+          type: "example",
+          text: "A battery at 25% has a quarter of its charge left, because 25% = 25/100 = 1/4.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Percent means 'out of 100'.",
+            "50% = 1/2 = 0.5.",
+            "25% = 1/4; 75% = 3/4.",
+            "100% = the whole amount.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What fraction is the same as 50%?" },
+            { key: "option_0", value: "1/2" },
+            { key: "option_1", value: "1/4" },
+            { key: "option_2", value: "1/5" },
+            { key: "option_3", value: "5/1" },
+            { key: "answer", value: "1/2" },
+            { key: "explanation", value: "50% = 50/100 = 1/2." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "What does 'per cent' mean?", options: ["Out of 100", "Out of 10", "Out of 50", "Times 100"], answer: "Out of 100", explain: "Percent = per hundred." },
+        { q: "25% as a fraction is…", options: ["1/4", "1/2", "1/5", "2/5"], answer: "1/4", explain: "25/100 = 1/4." },
+        { q: "100% of something means…", options: ["All of it", "Half of it", "None of it", "Double it"], answer: "All of it", explain: "100% is the whole amount." },
+        { q: "75% is the same as…", options: ["3/4", "1/4", "1/2", "7/5"], answer: "3/4", explain: "75/100 = 3/4." },
+        { q: "10% as a decimal is…", options: ["0.1", "0.01", "1.0", "10"], answer: "0.1", explain: "10/100 = 0.1." },
+      ],
+    },
+    {
+      topic: "Percentages",
+      title: "Finding Percentages of Amounts",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 70,
+      summary: "Find a percentage of an amount using easy building blocks: 10%, 50%, and 1%.",
+      blocks: [
+        { type: "heading", text: "Building Blocks: 10%, 50%, 1%" },
+        {
+          type: "text",
+          text: "To find 10% of a number, divide by 10. To find 50%, halve it. To find 1%, divide by 100. You can combine these to find any percentage.\n\nTo find 30%, find 10% then multiply by 3. To find 25%, halve and halve again. To find 15%, add 10% and 5% (where 5% is half of 10%).",
+        },
+        {
+          type: "example",
+          text: "Find 30% of 60: 10% of 60 = 6, so 30% = 6 × 3 = 18.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "10% → divide by 10.",
+            "50% → halve it.",
+            "1% → divide by 100.",
+            "Combine blocks for any percentage (e.g. 30% = 3 × 10%).",
+          ],
+        },
+        arena({ title: "Percentages Sprint", mode: "percent", min: 10, max: 100, count: 8 }),
+      ],
+      questions: [
+        { q: "What is 10% of 80?", options: ["8", "16", "0.8", "800"], answer: "8", explain: "Divide by 10: 80 ÷ 10 = 8." },
+        { q: "What is 50% of 24?", options: ["12", "6", "48", "2.4"], answer: "12", explain: "Halve it: 24 ÷ 2 = 12." },
+        { q: "What is 25% of 40?", options: ["10", "20", "4", "100"], answer: "10", explain: "Half of half: 40 → 20 → 10." },
+        { q: "What is 30% of 50?", options: ["15", "20", "5", "150"], answer: "15", explain: "10% of 50 = 5, ×3 = 15." },
+        { q: "What is 1% of 300?", options: ["3", "30", "0.3", "300"], answer: "3", explain: "Divide by 100: 300 ÷ 100 = 3." },
+      ],
+    },
+    {
+      topic: "Percentages",
+      title: "Fractions, Decimals & Percentages",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 70,
+      summary: "Fractions, decimals, and percentages are three ways to write the same amount. Learn to switch between them.",
+      blocks: [
+        { type: "heading", text: "Three Ways, One Amount" },
+        {
+          type: "text",
+          text: "Every fraction can be written as a decimal and a percentage. To go from a decimal to a percentage, multiply by 100 (0.25 → 25%). To go from a percentage to a decimal, divide by 100 (40% → 0.4).\n\nKnowing the common ones by heart saves time: 1/2 = 0.5 = 50%, 1/4 = 0.25 = 25%, 3/4 = 0.75 = 75%, 1/10 = 0.1 = 10%.",
+        },
+        {
+          type: "example",
+          text: "Convert 0.6 to a percentage: 0.6 × 100 = 60%.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Decimal → percent: multiply by 100.",
+            "Percent → decimal: divide by 100.",
+            "1/2 = 0.5 = 50%.",
+            "1/4 = 0.25 = 25%; 3/4 = 0.75 = 75%.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "flashcards",
+          data: [
+            { key: "1/2 as a percentage", value: "50%" },
+            { key: "0.25 as a percentage", value: "25%" },
+            { key: "3/4 as a decimal", value: "0.75" },
+            { key: "10% as a decimal", value: "0.1" },
+            { key: "0.6 as a percentage", value: "60%" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "0.5 as a percentage is…", options: ["50%", "5%", "0.5%", "500%"], answer: "50%", explain: "0.5 × 100 = 50%." },
+        { q: "40% as a decimal is…", options: ["0.4", "4.0", "0.04", "40"], answer: "0.4", explain: "40 ÷ 100 = 0.4." },
+        { q: "1/4 equals which percentage?", options: ["25%", "50%", "75%", "14%"], answer: "25%", explain: "1/4 = 0.25 = 25%." },
+        { q: "0.75 as a percentage is…", options: ["75%", "7.5%", "0.75%", "750%"], answer: "75%", explain: "0.75 × 100 = 75%." },
+        { q: "To change a percentage to a decimal you…", options: ["divide by 100", "multiply by 100", "add 100", "subtract 100"], answer: "divide by 100", explain: "e.g. 30% = 0.3." },
+      ],
+    },
+
+    // ===================== MEASUREMENT (3) =====================
+    {
+      topic: "Measurement",
+      title: "Length & Metric Units",
+      difficulty: "beginner",
+      minutes: 11,
+      points: 60,
+      summary: "Length is measured in millimetres, centimetres, metres, and kilometres, which step up in tens, hundreds, and thousands.",
+      blocks: [
+        { type: "heading", text: "Measuring Distance" },
+        {
+          type: "text",
+          text: "We measure length with metric units. The main ones are millimetres (mm), centimetres (cm), metres (m), and kilometres (km).\n\nThey connect neatly: 10 mm = 1 cm, 100 cm = 1 m, and 1000 m = 1 km. Choose a sensible unit for the job — mm for a fingernail, cm for a pencil, m for a room, km for a journey.",
+        },
+        {
+          type: "example",
+          text: "A door is about 2 m tall. A football pitch is about 100 m long. The drive to a city might be 50 km.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "10 mm = 1 cm.",
+            "100 cm = 1 m.",
+            "1000 m = 1 km.",
+            "Pick a unit that suits the size.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "How many centimetres are in 1 metre?" },
+            { key: "option_0", value: "100" },
+            { key: "option_1", value: "10" },
+            { key: "option_2", value: "1000" },
+            { key: "option_3", value: "12" },
+            { key: "answer", value: "100" },
+            { key: "explanation", value: "100 cm = 1 m." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "How many millimetres in 1 cm?", options: ["10", "100", "1000", "12"], answer: "10", explain: "10 mm = 1 cm." },
+        { q: "Best unit to measure a pencil?", options: ["Centimetres", "Kilometres", "Metres", "Tonnes"], answer: "Centimetres", explain: "A pencil is a few cm long." },
+        { q: "1000 m equals…", options: ["1 km", "1 cm", "100 km", "10 m"], answer: "1 km", explain: "1000 m = 1 km." },
+        { q: "Best unit for the distance between two towns?", options: ["Kilometres", "Millimetres", "Centimetres", "Metres"], answer: "Kilometres", explain: "Towns are km apart." },
+        { q: "How many cm in 2 m?", options: ["200", "20", "2000", "120"], answer: "200", explain: "100 cm per metre × 2 = 200." },
+      ],
+    },
+    {
+      topic: "Measurement",
+      title: "Mass & Capacity",
+      difficulty: "beginner",
+      minutes: 11,
+      points: 60,
+      summary: "Mass (how heavy) is measured in grams and kilograms; capacity (how much it holds) in millilitres and litres.",
+      blocks: [
+        { type: "heading", text: "Heavy and Full" },
+        {
+          type: "text",
+          text: "Mass tells us how heavy something is. We use grams (g) and kilograms (kg), where 1000 g = 1 kg. An apple is about 100 g; a bag of sugar is 1 kg.\n\nCapacity tells us how much a container holds. We use millilitres (ml) and litres (l), where 1000 ml = 1 l. A teaspoon is about 5 ml; a big bottle of water is about 2 l.",
+        },
+        {
+          type: "example",
+          text: "A carton holds 1 litre of juice = 1000 ml. Half a litre = 500 ml.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Mass: 1000 g = 1 kg.",
+            "Capacity: 1000 ml = 1 l.",
+            "Use g/ml for small amounts, kg/l for large.",
+            "Half a litre = 500 ml.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "How many grams are in 1 kilogram?" },
+            { key: "option_0", value: "1000" },
+            { key: "option_1", value: "100" },
+            { key: "option_2", value: "10" },
+            { key: "option_3", value: "500" },
+            { key: "answer", value: "1000" },
+            { key: "explanation", value: "1000 g = 1 kg." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "How many ml in 1 litre?", options: ["1000", "100", "10", "500"], answer: "1000", explain: "1000 ml = 1 l." },
+        { q: "Best unit to weigh a person?", options: ["Kilograms", "Grams", "Millilitres", "Litres"], answer: "Kilograms", explain: "People are tens of kg." },
+        { q: "Half a litre is…", options: ["500 ml", "50 ml", "5000 ml", "100 ml"], answer: "500 ml", explain: "Half of 1000 ml." },
+        { q: "2 kg equals…", options: ["2000 g", "200 g", "20 g", "2 g"], answer: "2000 g", explain: "1000 g × 2." },
+        { q: "Capacity measures…", options: ["How much it holds", "How heavy it is", "How long it is", "How hot it is"], answer: "How much it holds", explain: "Capacity = volume a container holds." },
+      ],
+    },
+    {
+      topic: "Measurement",
+      title: "Converting Units",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 70,
+      summary: "Convert between units by multiplying or dividing by 10, 100, or 1000 depending on the units.",
+      blocks: [
+        { type: "heading", text: "Bigger or Smaller Units?" },
+        {
+          type: "text",
+          text: "Converting units is just multiplying or dividing by 10, 100, or 1000. Going from a BIG unit to a SMALL unit (m to cm) you multiply, because you get more of the smaller units. Going from SMALL to BIG (cm to m) you divide.\n\nFor example, 3 m to cm: multiply by 100 → 300 cm. And 2500 g to kg: divide by 1000 → 2.5 kg.",
+        },
+        {
+          type: "example",
+          text: "Convert 4.5 km to metres: 4.5 × 1000 = 4500 m. Convert 750 ml to litres: 750 ÷ 1000 = 0.75 l.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Big → small unit: multiply.",
+            "Small → big unit: divide.",
+            "Use 10, 100, or 1000 depending on the units.",
+            "Check: more small units than big units.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Convert 3 m to centimetres." },
+            { key: "option_0", value: "300 cm" },
+            { key: "option_1", value: "30 cm" },
+            { key: "option_2", value: "3000 cm" },
+            { key: "option_3", value: "0.03 cm" },
+            { key: "answer", value: "300 cm" },
+            { key: "explanation", value: "m → cm: multiply by 100. 3 × 100 = 300." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Convert 5 cm to mm.", options: ["50 mm", "5 mm", "500 mm", "0.5 mm"], answer: "50 mm", explain: "cm → mm: ×10." },
+        { q: "Convert 2000 m to km.", options: ["2 km", "20 km", "200 km", "0.2 km"], answer: "2 km", explain: "m → km: ÷1000." },
+        { q: "Going from a big unit to a small unit you…", options: ["multiply", "divide", "add", "subtract"], answer: "multiply", explain: "You get more small units." },
+        { q: "Convert 3 kg to grams.", options: ["3000 g", "300 g", "30 g", "0.003 g"], answer: "3000 g", explain: "kg → g: ×1000." },
+        { q: "Convert 1500 ml to litres.", options: ["1.5 l", "15 l", "150 l", "0.15 l"], answer: "1.5 l", explain: "ml → l: ÷1000." },
+      ],
+    },
+
+    // ===================== GEOMETRY (3) =====================
+    {
+      topic: "Geometry",
+      title: "Perimeter",
+      difficulty: "beginner",
+      minutes: 11,
+      points: 60,
+      summary: "Perimeter is the total distance around the outside of a shape — add up all the side lengths.",
+      blocks: [
+        { type: "heading", text: "All the Way Around" },
+        {
+          type: "text",
+          text: "The perimeter is the distance all the way around the edge of a 2D shape. To find it, add the lengths of every side.\n\nFor a rectangle you can add length + width + length + width, or use the shortcut 2 × (length + width). Perimeter is measured in length units like cm or m.",
+        },
+        {
+          type: "example",
+          text: "A rectangle 5 cm by 3 cm: perimeter = 5 + 3 + 5 + 3 = 16 cm, or 2 × (5 + 3) = 16 cm.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Perimeter = distance around the outside.",
+            "Add up all the side lengths.",
+            "Rectangle shortcut: 2 × (length + width).",
+            "Measured in length units (cm, m).",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "A square has sides of 4 cm. What is its perimeter?" },
+            { key: "option_0", value: "16 cm" },
+            { key: "option_1", value: "8 cm" },
+            { key: "option_2", value: "12 cm" },
+            { key: "option_3", value: "4 cm" },
+            { key: "answer", value: "16 cm" },
+            { key: "explanation", value: "4 sides × 4 cm = 16 cm." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Perimeter means the distance…", options: ["around the outside", "across the middle", "inside the shape", "of one side"], answer: "around the outside", explain: "It's the total edge length." },
+        { q: "A rectangle 6 cm by 2 cm has perimeter…", options: ["16 cm", "12 cm", "8 cm", "24 cm"], answer: "16 cm", explain: "2 × (6 + 2) = 16." },
+        { q: "A square has perimeter 20 cm. One side is…", options: ["5 cm", "4 cm", "10 cm", "20 cm"], answer: "5 cm", explain: "20 ÷ 4 = 5." },
+        { q: "Perimeter is measured in…", options: ["cm or m", "cm²", "litres", "kg"], answer: "cm or m", explain: "It's a length." },
+        { q: "Shortcut for a rectangle's perimeter?", options: ["2 × (length + width)", "length × width", "length + width", "4 × length"], answer: "2 × (length + width)", explain: "Two lengths plus two widths." },
+      ],
+    },
+    {
+      topic: "Geometry",
+      title: "Area of Rectangles",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 70,
+      summary: "Area is the space inside a 2D shape. For a rectangle, area = length × width, measured in square units.",
+      blocks: [
+        { type: "heading", text: "Space Inside" },
+        {
+          type: "text",
+          text: "Area measures the flat space inside a shape, like how much carpet covers a floor. For a rectangle, area = length × width.\n\nArea is measured in SQUARE units, such as cm² or m², because you are counting square tiles that fit inside. A rectangle 4 cm by 3 cm fits 12 one-centimetre squares, so its area is 12 cm².",
+        },
+        {
+          type: "example",
+          text: "A rug 5 m long and 2 m wide has area = 5 × 2 = 10 m².",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Area = space inside a shape.",
+            "Rectangle area = length × width.",
+            "Measured in square units (cm², m²).",
+            "Perimeter is around; area is inside — don't mix them up.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What is the area of a rectangle 6 cm by 4 cm?" },
+            { key: "option_0", value: "24 cm²" },
+            { key: "option_1", value: "20 cm²" },
+            { key: "option_2", value: "10 cm²" },
+            { key: "option_3", value: "24 cm" },
+            { key: "answer", value: "24 cm²" },
+            { key: "explanation", value: "6 × 4 = 24, in square cm." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Area of a rectangle is…", options: ["length × width", "length + width", "2 × (l + w)", "4 × side"], answer: "length × width", explain: "Multiply the two sides." },
+        { q: "Area is measured in…", options: ["square units", "length units", "litres", "kg"], answer: "square units", explain: "e.g. cm² or m²." },
+        { q: "A square of side 5 cm has area…", options: ["25 cm²", "20 cm²", "10 cm²", "5 cm²"], answer: "25 cm²", explain: "5 × 5 = 25." },
+        { q: "A rectangle 7 m by 3 m has area…", options: ["21 m²", "20 m²", "10 m²", "21 m"], answer: "21 m²", explain: "7 × 3 = 21." },
+        { q: "Which measures the space INSIDE a shape?", options: ["Area", "Perimeter", "Length", "Height"], answer: "Area", explain: "Area is the inside; perimeter is around." },
+      ],
+    },
+    {
+      topic: "Geometry",
+      title: "Angles Basics",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 70,
+      summary: "Angles measure turn, in degrees. Right angles are 90°, and angles are named acute, right, obtuse, or straight.",
+      blocks: [
+        { type: "heading", text: "Measuring Turns" },
+        {
+          type: "text",
+          text: "An angle measures how much something turns, in degrees (°). A full turn is 360°, a half turn is 180° (a straight line), and a quarter turn is 90° (a right angle).\n\nWe name angles by size: acute angles are less than 90° (sharp), right angles are exactly 90° (a square corner), obtuse angles are between 90° and 180° (wide), and a straight angle is exactly 180°.",
+        },
+        {
+          type: "example",
+          text: "The corner of a book is a right angle (90°). The hands of a clock at 3 o'clock make a 90° angle.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Angles are measured in degrees (°).",
+            "Right angle = 90°; straight = 180°; full turn = 360°.",
+            "Acute < 90°; obtuse is between 90° and 180°.",
+            "A right angle looks like a square corner.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "An angle of 45° is called…" },
+            { key: "option_0", value: "Acute" },
+            { key: "option_1", value: "Right" },
+            { key: "option_2", value: "Obtuse" },
+            { key: "option_3", value: "Straight" },
+            { key: "answer", value: "Acute" },
+            { key: "explanation", value: "Less than 90° → acute." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "A right angle is…", options: ["90°", "45°", "180°", "360°"], answer: "90°", explain: "A square corner is 90°." },
+        { q: "A straight line is an angle of…", options: ["180°", "90°", "360°", "45°"], answer: "180°", explain: "Half a full turn." },
+        { q: "An angle of 120° is…", options: ["Obtuse", "Acute", "Right", "Straight"], answer: "Obtuse", explain: "Between 90° and 180°." },
+        { q: "A full turn is…", options: ["360°", "180°", "90°", "270°"], answer: "360°", explain: "All the way around." },
+        { q: "Angles are measured in…", options: ["degrees", "centimetres", "grams", "litres"], answer: "degrees", explain: "The unit of turn is the degree." },
+      ],
+    },
+
+    // ===================== NEGATIVE NUMBERS (3) =====================
+    {
+      topic: "Negative Numbers",
+      title: "Numbers Below Zero",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 60,
+      summary: "Negative numbers are less than zero. They sit to the left of zero on the number line.",
+      blocks: [
+        { type: "heading", text: "Going Below Zero" },
+        {
+          type: "text",
+          text: "Some numbers are less than zero — we call them negative numbers, written with a minus sign, like −3. They appear in real life: temperatures below freezing, money you owe, floors below ground.\n\nOn a number line, negatives go to the LEFT of zero and positives to the right. The further left, the smaller: −5 is less than −2, even though 5 is bigger than 2.",
+        },
+        {
+          type: "example",
+          text: "A temperature of −4°C is colder than −1°C, because −4 is further left of zero on the number line.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Negative numbers are less than zero.",
+            "They sit left of zero on the number line.",
+            "Further left = smaller value.",
+            "−5 < −2 (further from zero on the left = smaller).",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "Which temperature is colder?" },
+            { key: "option_0", value: "−7°C" },
+            { key: "option_1", value: "−2°C" },
+            { key: "option_2", value: "0°C" },
+            { key: "option_3", value: "3°C" },
+            { key: "answer", value: "−7°C" },
+            { key: "explanation", value: "−7 is furthest left, so it's the smallest/coldest." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Negative numbers are…", options: ["less than zero", "greater than zero", "equal to zero", "always whole"], answer: "less than zero", explain: "They sit below zero." },
+        { q: "On a number line, negatives are…", options: ["left of zero", "right of zero", "above zero", "at zero"], answer: "left of zero", explain: "Positives go right, negatives left." },
+        { q: "Which is smaller: −3 or −8?", options: ["−8", "−3", "Equal", "Cannot tell"], answer: "−8", explain: "−8 is further left." },
+        { q: "Which is the warmest?", options: ["2°C", "−2°C", "−5°C", "−10°C"], answer: "2°C", explain: "Positive is warmer than any negative." },
+        { q: "Owing £5 could be shown as…", options: ["−5", "+5", "0", "50"], answer: "−5", explain: "Debt is negative money." },
+      ],
+    },
+    {
+      topic: "Negative Numbers",
+      title: "Ordering Positive & Negative Numbers",
+      difficulty: "intermediate",
+      minutes: 11,
+      points: 60,
+      summary: "Order numbers using the number line: the further left, the smaller; the further right, the larger.",
+      blocks: [
+        { type: "heading", text: "Lining Them Up" },
+        {
+          type: "text",
+          text: "To put numbers in order, imagine the number line. The smallest is furthest left, the largest furthest right. Every negative number is smaller than every positive number, and zero sits in the middle.\n\nSo ordering −3, 2, −1, 0 from smallest to largest gives: −3, −1, 0, 2.",
+        },
+        {
+          type: "example",
+          text: "Order from smallest: −5, 1, −2, 4 → −5, −2, 1, 4.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Smallest = furthest left on the line.",
+            "Every negative < every positive.",
+            "Zero is between negatives and positives.",
+            "Among negatives, bigger digit = smaller value.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "ordering",
+          data: [
+            { key: "1", value: "−6" },
+            { key: "2", value: "−2" },
+            { key: "3", value: "0" },
+            { key: "4", value: "3" },
+            { key: "5", value: "7" },
+          ],
+        },
+      ],
+      questions: [
+        { q: "Smallest of these: −2, 5, −9, 0?", options: ["−9", "−2", "0", "5"], answer: "−9", explain: "Furthest left." },
+        { q: "Largest of these: −4, −1, 2, −7?", options: ["2", "−1", "−4", "−7"], answer: "2", explain: "The only positive." },
+        { q: "Zero is…", options: ["between negatives and positives", "the smallest number", "the largest number", "a negative number"], answer: "between negatives and positives", explain: "It's the middle of the line." },
+        { q: "Order smallest first: 1, −3, −1.", options: ["−3, −1, 1", "1, −1, −3", "−1, −3, 1", "1, −3, −1"], answer: "−3, −1, 1", explain: "Left to right on the line." },
+        { q: "Which is true?", options: ["−8 < −3", "−3 < −8", "−8 = −3", "−8 > 0"], answer: "−8 < −3", explain: "−8 is further left." },
+      ],
+    },
+    {
+      topic: "Negative Numbers",
+      title: "Adding & Subtracting with Negatives",
+      difficulty: "advanced",
+      minutes: 12,
+      points: 80,
+      summary: "Use the number line to add and subtract with negatives: adding moves right, subtracting moves left.",
+      blocks: [
+        { type: "heading", text: "Moving on the Number Line" },
+        {
+          type: "text",
+          text: "Think of a number line. Adding a positive moves you RIGHT; subtracting moves you LEFT. This works even when you start on a negative number.\n\nStart at −3 and add 5: move 5 right → 2. Start at 2 and subtract 6: move 6 left → −4. Temperatures are a great way to picture this: −3°C warming by 5° becomes 2°C.",
+        },
+        {
+          type: "example",
+          text: "−2 + 6: start at −2, move 6 right → 4. 1 − 4: start at 1, move 4 left → −3.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Add a positive → move right.",
+            "Subtract → move left.",
+            "Crossing zero is allowed.",
+            "Temperature changes are a handy picture.",
+          ],
+        },
+        {
+          type: "interactive",
+          variant: "reveal",
+          data: [
+            { key: "question", value: "What is −3 + 5?" },
+            { key: "option_0", value: "2" },
+            { key: "option_1", value: "−2" },
+            { key: "option_2", value: "8" },
+            { key: "option_3", value: "−8" },
+            { key: "answer", value: "2" },
+            { key: "explanation", value: "Start at −3, move 5 right → 2." },
+          ],
+        },
+      ],
+      questions: [
+        { q: "What is −5 + 2?", options: ["−3", "3", "−7", "7"], answer: "−3", explain: "From −5 move 2 right → −3." },
+        { q: "What is 3 − 7?", options: ["−4", "4", "−10", "10"], answer: "−4", explain: "From 3 move 7 left → −4." },
+        { q: "Adding a positive number moves you…", options: ["right", "left", "up", "nowhere"], answer: "right", explain: "Towards larger numbers." },
+        { q: "−1 + 4 = ?", options: ["3", "−3", "5", "−5"], answer: "3", explain: "From −1 move 4 right → 3." },
+        { q: "It is −2°C and it gets 6° colder. New temperature?", options: ["−8°C", "4°C", "8°C", "−4°C"], answer: "−8°C", explain: "Colder = move left: −2 − 6 = −8." },
+      ],
+    },
+
+    // ===================== TIMES TABLES (2) =====================
+    {
+      topic: "Times Tables",
+      title: "Multiplication Facts",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Multiplication is repeated addition. Knowing your times tables by heart makes maths much faster.",
+      blocks: [
+        { type: "heading", text: "Fast Repeated Addition" },
+        {
+          type: "text",
+          text: "Multiplication is a quick way to add equal groups. 4 × 3 means four groups of three, which is 3 + 3 + 3 + 3 = 12.\n\nMultiplication can be done in any order: 4 × 3 = 3 × 4. Handy patterns help: ×10 adds a zero, ×5 ends in 0 or 5, and ×2 is just doubling. Practising until the facts are instant frees your brain for harder problems.",
+        },
+        {
+          type: "example",
+          text: "6 × 4: that's six groups of four = 24. Or four groups of six = 24. Same answer either way.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Multiplication = repeated addition of equal groups.",
+            "Order doesn't matter: a × b = b × a.",
+            "×10 adds a zero; ×2 is doubling.",
+            "Instant recall makes everything faster.",
+          ],
+        },
+        arena({ title: "Times-Tables Warm-Up", mode: "mul", min: 2, max: 12, count: 10 }),
+      ],
+      questions: [
+        { q: "What is 7 × 6?", options: ["42", "36", "48", "13"], answer: "42", explain: "Seven sixes = 42." },
+        { q: "4 × 3 is the same as…", options: ["3 + 3 + 3 + 3", "4 + 3", "4 + 4 + 4 + 4", "3 × 3"], answer: "3 + 3 + 3 + 3", explain: "Four groups of three." },
+        { q: "What is 9 × 10?", options: ["90", "19", "99", "900"], answer: "90", explain: "×10 adds a zero." },
+        { q: "8 × 5 = ?", options: ["40", "45", "13", "35"], answer: "40", explain: "Eight fives = 40." },
+        { q: "Because order doesn't matter, 6 × 4 = …", options: ["4 × 6", "6 + 4", "4 − 6", "6 ÷ 4"], answer: "4 × 6", explain: "a × b = b × a." },
+      ],
+    },
+    {
+      topic: "Times Tables",
+      title: "Division Facts",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Division is the opposite of multiplication: it shares an amount into equal groups.",
+      blocks: [
+        { type: "heading", text: "The Opposite of Times" },
+        {
+          type: "text",
+          text: "Division splits a number into equal groups. 12 ÷ 3 asks 'how many groups of 3 are in 12?' — the answer is 4.\n\nDivision and multiplication are linked: because 3 × 4 = 12, we know 12 ÷ 3 = 4 and 12 ÷ 4 = 3. Knowing your times tables means you also know your division facts.",
+        },
+        {
+          type: "example",
+          text: "20 ÷ 5 = 4, because 5 × 4 = 20. Check by multiplying back: 4 × 5 = 20. ✓",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Division shares into equal groups.",
+            "It's the opposite (inverse) of multiplication.",
+            "3 × 4 = 12 means 12 ÷ 3 = 4.",
+            "Check division by multiplying back.",
+          ],
+        },
+        arena({ title: "Division Dash", mode: "div", min: 2, max: 12, count: 10 }),
+      ],
+      questions: [
+        { q: "What is 24 ÷ 6?", options: ["4", "6", "3", "8"], answer: "4", explain: "6 × 4 = 24." },
+        { q: "Division is the opposite of…", options: ["Multiplication", "Addition", "Rounding", "Subtraction"], answer: "Multiplication", explain: "They are inverse operations." },
+        { q: "If 7 × 5 = 35, then 35 ÷ 5 = …", options: ["7", "5", "30", "35"], answer: "7", explain: "Use the linked fact." },
+        { q: "What is 30 ÷ 5?", options: ["6", "5", "25", "15"], answer: "6", explain: "5 × 6 = 30." },
+        { q: "How can you CHECK 18 ÷ 3 = 6?", options: ["6 × 3 = 18", "18 + 3", "18 − 6", "6 ÷ 3"], answer: "6 × 3 = 18", explain: "Multiply back to check." },
+      ],
+    },
+
+    // ===================== MATHS ACTIVITY GAMES (3) =====================
+    {
+      topic: "Times Tables",
+      title: "Activity: Times-Tables Sprint",
+      difficulty: "beginner",
+      minutes: 8,
+      points: 80,
+      summary: "A fast-paced multiplication game. Beat the timer and build your longest streak!",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Beat the Clock" },
+        {
+          type: "text",
+          text: "Time to put your times tables to the test! Answer as many multiplication questions as you can. Try to beat your best streak each time you play.",
+        },
+        arena({ title: "Times-Tables Sprint", mode: "mul", min: 2, max: 12, count: 15, seconds: 60 }),
+      ],
+      questions: [],
+    },
+    {
+      topic: "Problem Solving",
+      title: "Activity: Add & Subtract Dash",
+      difficulty: "beginner",
+      minutes: 8,
+      points: 80,
+      summary: "A mental-maths game mixing addition and subtraction against the clock.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Quick Mental Maths" },
+        {
+          type: "text",
+          text: "Sharpen your mental maths! Add and subtract quickly to keep your streak alive. Speed and accuracy both count.",
+        },
+        arena({ title: "Add & Subtract Dash", mode: "mixed", min: 2, max: 30, count: 15, seconds: 60 }),
+      ],
+      questions: [],
+    },
+    {
+      topic: "Percentages",
+      title: "Activity: Percentages Face-Off",
+      difficulty: "intermediate",
+      minutes: 8,
+      points: 90,
+      summary: "Find percentages of amounts as fast as you can in this challenge game.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Percentage Power" },
+        {
+          type: "text",
+          text: "Use your 10%, 50% and 1% building blocks to find percentages of amounts quickly. How high can you score?",
+        },
+        arena({ title: "Percentages Face-Off", mode: "percent", min: 10, max: 100, count: 12, seconds: 75 }),
+      ],
+      questions: [],
     },
   ],
 };

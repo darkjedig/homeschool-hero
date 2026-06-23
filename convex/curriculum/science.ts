@@ -1,4 +1,5 @@
 import type { SubjectCurriculum } from "./types";
+import { sim } from "./types";
 
 export const science: SubjectCurriculum = {
   slug: "science",
@@ -952,6 +953,82 @@ export const science: SubjectCurriculum = {
         { q: "Like poles (N + N)…", options: ["repel", "attract", "stick", "do nothing"], answer: "repel", explain: "Push apart." },
         { q: "A magnet has how many poles?", options: ["Two (N and S)", "One", "Four", "None"], answer: "Two (N and S)", explain: "Always a pair." },
         { q: "Which does a magnet NOT attract?", options: ["Plastic", "Iron", "Nickel", "Cobalt"], answer: "Plastic", explain: "Non-magnetic." },
+      ],
+    },
+
+    // ===================== SCIENCE SIMULATIONS (2 activity labs) =====================
+    {
+      topic: "Electricity",
+      title: "Activity: Build a Circuit",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 90,
+      summary: "Experiment with a simple circuit: add batteries and flip the switch to see how the bulb's brightness changes.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Make the Bulb Shine" },
+        {
+          type: "text",
+          text: "A circuit is a complete loop that lets electricity flow. It needs a power source (a battery), wires, and something to power (a bulb). If there is a gap — like an open switch — the electricity cannot flow and the bulb stays off.\n\nMore batteries provide more voltage (push), which makes the bulb shine brighter. Use the simulation below to test this yourself.",
+        },
+        {
+          type: "example",
+          text: "Switch open = gap in the loop = no flow = bulb OFF. Switch closed with 3 batteries = strong flow = very bright bulb.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "A circuit must be a complete loop.",
+            "An open switch breaks the loop (bulb off).",
+            "More batteries = more voltage = brighter bulb.",
+            "Battery, wires, and bulb work together.",
+          ],
+        },
+        sim("circuit", "Circuit Simulator"),
+      ],
+      questions: [
+        { q: "For a bulb to light, the circuit must be…", options: ["a complete loop", "broken", "very long", "made of plastic"], answer: "a complete loop", explain: "Electricity needs a full path." },
+        { q: "An open switch makes the bulb…", options: ["turn off", "brighter", "explode", "change colour"], answer: "turn off", explain: "It breaks the loop." },
+        { q: "Adding more batteries makes the bulb…", options: ["brighter", "dimmer", "switch off", "bigger"], answer: "brighter", explain: "More voltage = more brightness." },
+        { q: "What provides the power in a circuit?", options: ["The battery", "The bulb", "The wire only", "The switch"], answer: "The battery", explain: "Batteries are the power source." },
+        { q: "Voltage is like the…", options: ["push that drives the current", "colour of the wire", "length of the circuit", "weight of the bulb"], answer: "push that drives the current", explain: "More push = brighter bulb." },
+      ],
+    },
+    {
+      topic: "States of Matter",
+      title: "Activity: Heat & States of Matter",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 90,
+      summary: "Use the temperature slider to watch particles change between solid, liquid, and gas.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Watch Particles Move" },
+        {
+          type: "text",
+          text: "Everything is made of tiny particles. How much energy they have decides the state of matter. In a SOLID, particles are packed tightly and only vibrate. In a LIQUID, they are close but can slide past each other. In a GAS, they have lots of energy and spread far apart, moving fast.\n\nAdding heat gives particles more energy. Drag the temperature slider in the simulation to melt a solid into a liquid, then boil it into a gas.",
+        },
+        {
+          type: "example",
+          text: "Ice (solid) + heat → water (liquid) + more heat → steam (gas). Cooling reverses it.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Solids: particles packed, only vibrating.",
+            "Liquids: particles close but sliding.",
+            "Gases: particles spread out, moving fast.",
+            "Heat adds energy and changes the state.",
+          ],
+        },
+        sim("particles", "Particle Simulator"),
+      ],
+      questions: [
+        { q: "In a solid, particles…", options: ["are packed and vibrate", "spread far apart", "disappear", "move very fast"], answer: "are packed and vibrate", explain: "Solids hold their shape." },
+        { q: "Adding heat gives particles more…", options: ["energy", "colour", "weight", "names"], answer: "energy", explain: "Energy speeds them up." },
+        { q: "In a gas, particles are…", options: ["spread out and fast", "packed tightly", "frozen still", "in a neat grid"], answer: "spread out and fast", explain: "Gases fill their container." },
+        { q: "Ice melting into water is a change from…", options: ["solid to liquid", "gas to solid", "liquid to gas", "gas to liquid"], answer: "solid to liquid", explain: "Heating a solid melts it." },
+        { q: "Which state lets particles slide past each other?", options: ["Liquid", "Solid", "None", "Only gas"], answer: "Liquid", explain: "Liquids flow and take a container's shape." },
       ],
     },
   ],

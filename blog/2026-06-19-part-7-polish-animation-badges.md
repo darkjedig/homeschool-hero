@@ -6,7 +6,7 @@ June 19, 2026
 Ryan Gliozzo
 Digital Marketing Expert
 homeschool hero webapp build with glm 5.2
-Project status: Staggered animations, confetti, toast notifications and a live badges engine shipped. Phases 1–8 complete; one polish phase left.
+Project status: Staggered animations, confetti, toast notifications, a live badges engine, interactive learning objects and a real in-browser Code Lab shipped. Phases 1–8 complete; one polish phase left.
 
 > Catch up: [Part 1](#) planned it, [Part 2](#) built the foundation + student dashboard, [Part 3](#) shipped the parent console, [Part 4](#) added the Friday boss battle, [Part 5](#) made it adaptive, [Part 6](#) added the AI lesson builder. This post is the polish pass — making it feel like a game.
 
@@ -71,6 +71,62 @@ The dashboard's "Recent Achievements" row used to be four hardcoded placeholders
 
 ---
 
+## Step 5: Interactive Learning Objects (and a Real Code Lab)
+
+This is the part that turned HomeschoolHero from something you read into something you do. Up through Phase 7 a lesson was text, a video, and a five-question quiz — fine, but passive. Phase 8 added a whole layer of interactive blocks that the student actually manipulates, and at the top of that pyramid sat the feature I am proudest of: a real, runnable code sandbox.
+
+First, the four interactive block types every lesson can now include:
+
+- **Quick-check MCQ** (the anti-cheat warm-up): a question with four clickable options, immediate green/red feedback, and an explanation. No "tap to reveal the answer" — the child has to choose.
+- **Flashcards**: a 3D card flip between question and answer, with prev/next navigation. Genuinely useful for vocabulary and definitions, and we rebuilt the flip as a proper CSS 3D transform after the first version's toggle quietly did nothing.
+- **Drag-to-order**: a seeded-shuffle list the student reorders by dragging a grip handle, then checks. Perfect for sequences — steps of the water cycle, events on a timeline, the order of operations.
+- **Clickable timeline**: events sorted by date, each expanding to reveal its detail. A natural fit for History.
+
+Each lesson's `content` is now a typed array of these blocks, rendered in order by a single `LessonBlocks` component. The same array shape is what the AI builder now generates, so a parent-approved AI lesson lands with its own interactive already wired in — no hand-authoring required.
+
+screenshot of a lesson with a flashcard mid-flip and a drag-to-order block beneath it
+Figure 6: Interactive blocks in a lesson — flashcards that flip in 3D, drag-to-order sequences, and clickable timelines, all driven by one typed content array.
+
+### The Code Lab
+
+Then the headline. For the programming subjects — Game Development and AI & Computer Science — we went past multiple-choice and built an actual **Code Lab**: an in-browser JavaScript sandbox where my son writes real code, hits **Run**, and watches it execute.
+
+The first challenge is gentle: *"Your First JavaScript"*. It introduces `let` for variables and `console.log(...)` for printing, then drops him into an editor pre-filled with:
+
+```
+let name = "Hudson";
+let level = 12;
+console.log("Hello, " + name + "!");
+console.log("You are level " + level);
+```
+
+He presses Run and a console panel lights up with the output. The prompt asks him to make it print `Next level is 13`. He changes a number, runs it again, and the console updates instantly. That loop — type, run, read, tweak — is the actual feedback loop of real programming, and it is running entirely in the browser.
+
+screenshot of the code lab with javascript on the left and the console output on the right after pressing run
+Figure 7: The Code Lab — real JavaScript on the left, live console output on the right. Edit, Run, Reset. No setup, no install, just code that does something.
+
+Where it gets genuinely exciting is the **game challenges**. "Bringing Sprites to Life" hands him a canvas context and a starter loop, and pressing Run animates a pink square bouncing around the screen using velocity, edge collision, and `requestAnimationFrame`:
+
+```
+let x = 20, y = 60, vx = 2, vy = 1.5;
+function loop() {
+  ctx.clearRect(0, 0, 320, 240);
+  x = x + vx; y = y + vy;
+  if (x < 0 || x > 290) vx = -vx;
+  if (y < 0 || y > 210) vy = -vy;
+  ctx.fillStyle = "#ec4899";
+  ctx.fillRect(x, y, 30, 30);
+  requestAnimationFrame(loop);
+}
+loop();
+```
+
+He is not answering a question about a game loop. He is watching one run, then changing `vx` and `vy` to make the sprite move faster and watching the result. That is the difference between learning about programming and learning to program — and it lives inside the same lesson structure, with the same warm-up and five-question quiz, as a History lesson about the Treaty of Versailles.
+
+The engineering detail worth flagging: the sandbox runs entirely client-side in a fenced evaluator, so untrusted student code can never touch the Convex backend or anyone else's session. The lesson defines a challenge prompt, starter code, and a target the student aims for; the editor just executes what they type and shows the output. Simple, safe, and immediate.
+
+---
+
 ## What We Learned Building It
 
 Two notes from this phase.
@@ -89,11 +145,13 @@ The second was a design discipline win. It was tempting in a "polish" phase to a
 - Points and badge unlocks are confirmed with toast notifications.
 - A server-side badges engine watches real activity and awards six badges automatically, with bonus points.
 - The achievements row is wired to live earned badges.
+- Lessons now contain interactive blocks — MCQ quick-checks, 3D flashcards, drag-to-order sequences and clickable timelines — driven by a typed content array that the AI builder can generate too.
+- A real in-browser Code Lab lets the student write and run JavaScript, from `console.log` warm-ups to animated canvas game challenges with sprites, velocity and bouncing edges.
 
-The app now feels like the premium, gamified learning space the original mockup promised. It works, and it feels good to use.
+The app now feels like the premium, gamified learning space the original mockup promised. It works, and it feels good to use — and for the first time, parts of it are genuinely hands-on.
 
 screenshot of the github history with the phase 8 polish commit
-Figure 6: Phase 8 (Polish & Gamification) committed to the repo.
+Figure 8: Phase 8 (Polish & Gamification) committed to the repo.
 
 ---
 

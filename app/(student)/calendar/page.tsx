@@ -128,10 +128,30 @@ export default function CalendarPage() {
               <div className="space-y-1">
                 {entries.map((e) => {
                   const rgb = hexToRgb(e.subjectColor);
+
+                  // No authored lesson yet (e.g. months beyond the current
+                  // content) → friendly, non-clickable placeholder chip.
+                  if (!e.lessonId) {
+                    return (
+                      <div
+                        key={e._id}
+                        className="block rounded border border-dashed border-white/10 px-1 py-0.5 text-[10px]"
+                        title={`${e.subjectName}: more lessons coming soon`}
+                      >
+                        <div className="flex items-center gap-0.5">
+                          <Circle size={9} className="shrink-0 text-muted-foreground/40" />
+                          <span className="truncate font-medium text-muted-foreground/60">
+                            {e.subjectName} · soon
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <Link
                       key={e._id}
-                      href={e.lessonId ? `/lessons/${e.lessonId}` : "#"}
+                      href={`/lessons/${e.lessonId}`}
                       className="block rounded px-1 py-0.5 text-[10px] transition hover:-translate-y-0.5"
                       style={{
                         backgroundColor: `rgba(${rgb},0.12)`,

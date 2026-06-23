@@ -1,4 +1,5 @@
 import type { SubjectCurriculum } from "./types";
+import { code } from "./types";
 
 export const gamedev: SubjectCurriculum = {
   slug: "game-development",
@@ -958,6 +959,94 @@ export const gamedev: SubjectCurriculum = {
         { q: "Walk cycle frames are…", options: ["looped while moving", "shown once ever", "never used", "only in menus"], answer: "looped while moving", explain: "Cycle A,B,C,D…" },
         { q: "The chosen frame depends on…", options: ["the character's state", "the colour of the room", "the computer brand", "nothing"], answer: "the character's state", explain: "Idle/walk/jump." },
         { q: "Frame speed affects…", options: ["the feel of animation", "the score", "the colour", "the name"], answer: "the feel of animation", explain: "Too fast/slow looks off." },
+      ],
+    },
+
+    // ===================== GAME-DEV CODE LABS (2 activity labs) =====================
+    {
+      topic: "Coordinates",
+      title: "Activity: Draw a Sprite on the Canvas",
+      difficulty: "intermediate",
+      minutes: 13,
+      points: 100,
+      summary: "Use JavaScript and (x, y) coordinates to draw a game sprite on a real canvas.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Your First Game Graphics" },
+        {
+          type: "text",
+          text: "Games draw pictures on a 'canvas' — a grid where the top-left corner is (0, 0). The x value moves right, and the y value moves DOWN.\n\nIn the code lab, a canvas and a drawing tool called 'ctx' are ready for you. ctx.fillStyle sets the colour, and ctx.fillRect(x, y, width, height) draws a rectangle — a simple sprite!",
+        },
+        {
+          type: "example",
+          text: 'ctx.fillStyle = "lime";\nctx.fillRect(100, 80, 40, 40);\n→ draws a 40×40 green square at x=100, y=80.',
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "The canvas top-left is (0, 0).",
+            "x moves right; y moves DOWN.",
+            "ctx.fillStyle sets the colour.",
+            "ctx.fillRect(x, y, w, h) draws a rectangle.",
+          ],
+        },
+        code({
+          language: "javascript",
+          instructions: "Press Run to see the sprite. Change the x and y numbers and Run again to move it around the canvas.",
+          starter:
+            'ctx.fillStyle = "#06b6d4";\nctx.fillRect(40, 40, 50, 50);\n\nctx.fillStyle = "#f472b6";\nctx.fillRect(180, 120, 50, 50);\nconsole.log("Two sprites drawn!");',
+          challenge: "Draw a third sprite somewhere on the canvas using fillRect.",
+        }),
+      ],
+      questions: [
+        { q: "On a canvas, the point (0, 0) is the…", options: ["top-left corner", "centre", "bottom-right", "top-right"], answer: "top-left corner", explain: "Canvas origin is top-left." },
+        { q: "Increasing y moves a sprite…", options: ["down", "up", "left", "right"], answer: "down", explain: "y grows downward on a canvas." },
+        { q: "Which draws a rectangle?", options: ["ctx.fillRect(x, y, w, h)", "ctx.print()", "console.log()", "ctx.colour()"], answer: "ctx.fillRect(x, y, w, h)", explain: "fillRect draws filled rectangles." },
+        { q: "ctx.fillStyle sets the…", options: ["colour", "size only", "score", "name"], answer: "colour", explain: "It chooses the fill colour." },
+        { q: "To move a sprite right, increase its…", options: ["x value", "y value", "colour", "width only"], answer: "x value", explain: "x grows to the right." },
+      ],
+    },
+    {
+      topic: "Character Movement",
+      title: "Activity: Animate a Moving Character",
+      difficulty: "advanced",
+      minutes: 14,
+      points: 110,
+      summary: "Use a game loop and velocity to make a sprite move and bounce across the screen.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Bringing Sprites to Life" },
+        {
+          type: "text",
+          text: "Movement comes from a GAME LOOP that runs many times per second. Each time, we clear the screen, change the sprite's position by its VELOCITY (speed + direction), and draw it again.\n\nIf the sprite hits an edge, we flip its velocity so it bounces back. requestAnimationFrame keeps the loop running smoothly.",
+        },
+        {
+          type: "example",
+          text: "x = x + vx;  // move by velocity each frame\nif (x < 0 || x > 280) vx = -vx;  // bounce off the edges",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "A game loop updates and redraws each frame.",
+            "Position changes by velocity (vx, vy).",
+            "Flip velocity to bounce off edges.",
+            "requestAnimationFrame runs the loop.",
+          ],
+        },
+        code({
+          language: "javascript",
+          instructions: "Press Run to watch the sprite bounce. Try changing vx or vy to make it faster or slower.",
+          starter:
+            'let x = 20, y = 60, vx = 2, vy = 1.5;\nfunction loop() {\n  ctx.clearRect(0, 0, 320, 240);\n  x = x + vx;\n  y = y + vy;\n  if (x < 0 || x > 290) vx = -vx;\n  if (y < 0 || y > 210) vy = -vy;\n  ctx.fillStyle = "#ec4899";\n  ctx.fillRect(x, y, 30, 30);\n  requestAnimationFrame(loop);\n}\nloop();',
+          challenge: "Make the sprite move faster by changing vx and vy.",
+        }),
+      ],
+      questions: [
+        { q: "A game loop runs…", options: ["many times per second", "once ever", "only on a click", "never"], answer: "many times per second", explain: "It updates each frame." },
+        { q: "Velocity describes a sprite's…", options: ["speed and direction", "colour", "name", "score"], answer: "speed and direction", explain: "vx and vy move it." },
+        { q: "To bounce off an edge you…", options: ["flip the velocity", "delete the sprite", "stop the game", "change colour"], answer: "flip the velocity", explain: "Reverse vx or vy." },
+        { q: "Why clear the canvas each frame?", options: ["So the old sprite doesn't smear", "To save points", "To change colour", "It's optional and useless"], answer: "So the old sprite doesn't smear", explain: "Clear then redraw." },
+        { q: "requestAnimationFrame is used to…", options: ["keep the loop running smoothly", "draw one rectangle", "print text", "end the game"], answer: "keep the loop running smoothly", explain: "It schedules the next frame." },
       ],
     },
   ],
