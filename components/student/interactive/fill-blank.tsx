@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { PenLine, RefreshCw, Check } from "lucide-react";
+import type { InteractiveProps } from "./types";
 
-type Pair = { key: string; value: string };
 type Token = { id: number; word: string };
 
 function hashSeed(s: string): number {
@@ -26,7 +26,7 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
  * Fill-in-the-blank (cloze). data: key = sentence with "___", value = answer.
  * Tap a blank to select it, then tap a word from the bank to drop it in.
  */
-export function FillBlankBlock({ data }: { data: Pair[] }) {
+export function FillBlankBlock({ data, onComplete }: InteractiveProps) {
   const items = data.length > 0 ? data : [{ key: "The ___ is blue.", value: "sky" }];
   const answers = useMemo(() => items.map((i) => i.value), [items]);
   const bank = useMemo<Token[]>(
@@ -142,7 +142,15 @@ export function FillBlankBlock({ data }: { data: Pair[] }) {
         {!checked ? (
           <button
             type="button"
-            onClick={() => setChecked(true)}
+            onClick={() => {
+              setChecked(true);
+              onComplete?.({
+                score: correctCount,
+                total: items.length,
+                detail: `Filled ${correctCount}/${items.length} blanks correctly`,
+                completed: true,
+              });
+            }}
             disabled={!allFilled}
             className="rounded-xl bg-purple-500 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-400 disabled:opacity-40"
           >

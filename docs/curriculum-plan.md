@@ -28,16 +28,95 @@ A high-spec interactive layer woven into lessons + dedicated **activity lessons*
 - `arena({ title, mode, min, max, count, seconds? })` → generative maths game (`mode`: add/sub/mul/div/mixed/fractions/percent).
 - `match(...[term, def])` → two-column match-up.
 - `cloze(...[sentenceWith___, answer])` → fill-in-the-blank with word bank.
-- `sim(simId, title?)` → simulation (`circuit` | `particles`).
+- `sim(simId, title?)` → animated simulation (`circuit` | `particles` | `heart` | `lungs` | `skeleton` | `digestive` | `brain`).
 
 **Components** — `components/student/interactive/`: `code-sandbox.tsx`
 (sandboxed `<iframe sandbox="allow-scripts">`, console via `postMessage`, canvas
 for game-dev), `math-arena.tsx`, `match-game.tsx`, `fill-blank.tsx`,
-`simulation.tsx`. Registered in `components/student/lesson-blocks.tsx`.
+`simulation.tsx` (+ `body-sims.tsx` for human-body animations). Registered in
+`components/student/lesson-blocks.tsx`.
 
-**Security** — code runs in an iframe with `allow-scripts` only (no
+---
+
+## Two kinds of interactive (when to use which)
+
+Not every lesson needs the same type. We use **two families** of interactives,
+chosen by what the topic teaches best:
+
+### 1. Learning simulations (movement, cause-and-effect)
+**Goal:** Capture attention and build intuition — the student *sees* a process
+happen and manipulates it (sliders, buttons, animated paths).
+
+**Best for:** Science processes, geography, history timelines in motion, coding
+canvas output, anything where **watching something change** teaches the concept.
+
+| Sim id | Example lesson | What the student does |
+|--------|----------------|------------------------|
+| `particles` | Heat & States of Matter | Heat slider → particles speed up / spread |
+| `circuit` | Build a Circuit | Add batteries, flip switch → bulb brightness |
+| `heart` | The Heart & Blood | BPM slider → pulsing heart + blood loop |
+| `lungs` | The Lungs & Breathing | Watch lungs expand/contract, O₂ in / CO₂ out |
+| `skeleton` | Bones & Muscles | Bend elbow slider → biceps/triceps pairs animate |
+| `digestive` | The Digestive System | Step food through mouth → stomach → intestines |
+| `brain` | The Brain & Nerves | "Touch hot stove" → nerve signal races to brain |
+
+**Authoring:** `sim("heart", "How the Heart Pumps Blood")` in the lesson's
+`blocks` array, placed **after key points** and **before** any quiz-style check.
+Add new sim ids in `body-sims.tsx` / `simulation.tsx` and extend `sim()` in
+`types.ts`. Patch existing DB lessons with
+`npx convex run enrichLessons:attachBodySimulations` (or subject-specific patch).
+
+**Future sim candidates:** forces/balance, light rays, sound waves, plant growth,
+water cycle, tectonic plates, day/night Earth rotation, historical battle map.
+
+### 2. Practice games & quick checks (score, recall, repetition)
+**Goal:** Reinforce facts and skills through repetition, scoring, and feedback.
+
+**Best for:** Maths fluency, vocabulary, grammar rules, ordering steps, matching
+terms, code challenges with expected output.
+
+| Variant | Example use |
+|---------|-------------|
+| `mathArena` | Times tables, fractions, mental maths sprints |
+| `codeSandbox` | JavaScript / canvas game-dev labs |
+| `match` | Vocabulary pairs, tool ↔ job, safety rules |
+| `fillBlank` | Punctuation, cloze sentences |
+| `reveal` | Single MCQ quick-check after reading |
+| `flashcards` | Term ↔ definition revision |
+| `ordering` | Sequence steps (digestion order, historical events) |
+| `timeline` | Expandable dated events |
+
+**Rule of thumb:** If the lesson is about a **process you can animate**, lead
+with a **simulation** and keep a lighter game/check for recall. If the lesson is
+about **rules, facts, or computation**, use **arena / match / MCQ / flashcards**.
+Dedicated **activity lessons** (`kind: "activity"`) are usually full simulation
+or full game experiences (e.g. "Activity: Heat & States of Matter").
+
+---
+
+**Security** — code sandbox runs in an iframe with `allow-scripts` only (no
 `allow-same-origin`), fully isolated from the app + Convex. All content is static
 authored data; no secrets exposed.
+
+**Result logging (parent visibility)** — every interactive reports its outcome so
+parents can see exactly what a student did:
+- Table `interactiveResults` + `convex/interactiveResults.ts` (`log` mutation,
+  `recentForParents` + `forLesson` queries). First completion of each lesson+block
+  earns 5 engagement points + up to 10 score-scaled points and feeds the badge engine.
+- All 9 components emit results via an `onComplete` prop (`interactive/types.ts`);
+  `lesson-blocks.tsx` records lessonId + block index. The code lab logs the exact
+  code lines + console output; arena/match/cloze/ordering log score; flashcards,
+  timeline and simulations log exploration.
+- Parents see results on the **dashboard** ("Recent interactive activity"), on the
+  **parent lesson editor** (per-lesson breakdown), and in the **CSV/JSON export**.
+
+**Coverage (100%)** — every teaching lesson has ≥1 logged interactive, so each
+school day surfaces multiple interactive lessons. New lessons get one automatically
+at seed time and existing ones were back-filled, via the shared pure derivation
+`convex/curriculum/derive.ts` (maths → topic-matched arena drill; other subjects →
+a flashcard deck or quick-check MCQ built from the lesson's own quiz). Re-run any
+time with `npx convex run enrichLessons:ensureInteractivePractice` (idempotent;
+returns a coverage %).
 
 ---
 
@@ -143,11 +222,11 @@ remaining days render a friendly "· soon" placeholder.
 ## Science (4 topics → 20 lessons)
 
 ### Human Body — beginner (5 lessons)
-- [x] L1 The Heart & Blood — MCQ
-- [x] L2 The Lungs & Breathing — MCQ
-- [x] L3 Bones & Muscles — FC
-- [x] L4 The Digestive System — ORD
-- [x] L5 The Brain & Nerves — MCQ
+- [x] L1 The Heart & Blood — **SIM heart** + MCQ
+- [x] L2 The Lungs & Breathing — **SIM lungs** + MCQ
+- [x] L3 Bones & Muscles — **SIM skeleton** + FC
+- [x] L4 The Digestive System — **SIM digestive** + ORD
+- [x] L5 The Brain & Nerves — **SIM brain** + MCQ
 
 ### Electricity — intermediate (5 lessons)
 - [x] L1 What Is Electricity? — MCQ

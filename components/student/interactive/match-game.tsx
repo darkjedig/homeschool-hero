@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link2, CheckCircle2, RefreshCw } from "lucide-react";
-
-type Pair = { key: string; value: string };
+import type { InteractiveProps } from "./types";
 
 function hashSeed(s: string): number {
   let h = 0;
@@ -22,7 +21,7 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 }
 
 /** Two-column matching game: tap a term, then its definition. */
-export function MatchGameBlock({ data }: { data: Pair[] }) {
+export function MatchGameBlock({ data, onComplete }: InteractiveProps) {
   const pairs = data.length > 0 ? data : [{ key: "—", value: "—" }];
   const terms = useMemo(
     () => seededShuffle(pairs, hashSeed(pairs.map((p) => p.key).join("|"))),
@@ -39,6 +38,19 @@ export function MatchGameBlock({ data }: { data: Pair[] }) {
   const [attempts, setAttempts] = useState(0);
 
   const allMatched = matched.size === pairs.length;
+  const loggedRef = useRef(false);
+
+  useEffect(() => {
+    if (allMatched && !loggedRef.current) {
+      loggedRef.current = true;
+      onComplete?.({
+        score: pairs.length,
+        total: pairs.length,
+        detail: `Matched all ${pairs.length} pairs in ${attempts} tries`,
+        completed: true,
+      });
+    }
+  }, [allMatched, pairs.length, attempts, onComplete]);
 
   const pickDef = (defKey: string) => {
     if (!selTerm || matched.has(defKey)) return;

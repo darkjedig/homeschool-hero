@@ -174,8 +174,18 @@ export function cloze(...items: [string, string][]): Block {
   };
 }
 
-/** Interactive science simulation, selected by id (e.g. "circuit", "particles"). */
-export function sim(simId: "circuit" | "particles", title?: string): Block {
+/** Interactive science simulation, selected by id. */
+export function sim(
+  simId:
+    | "circuit"
+    | "particles"
+    | "heart"
+    | "lungs"
+    | "skeleton"
+    | "digestive"
+    | "brain",
+  title?: string,
+): Block {
   const data: { key: string; value: string }[] = [{ key: "sim", value: simId }];
   if (title) data.push({ key: "title", value: title });
   return { type: "interactive", variant: "simulation", data };

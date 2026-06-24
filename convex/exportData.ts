@@ -6,7 +6,7 @@ export const allData = internalQuery({
   args: {},
   handler: async (ctx) => {
     await requireParent(ctx);
-    const [subjects, lessons, quizzes, attempts, videoProgress, points, redemptions] =
+    const [subjects, lessons, quizzes, attempts, videoProgress, points, redemptions, interactiveResults] =
       await Promise.all([
         ctx.db.query("subjects").take(200),
         ctx.db.query("lessons").take(500),
@@ -15,8 +15,9 @@ export const allData = internalQuery({
         ctx.db.query("videoProgress").take(1000),
         ctx.db.query("pointsLedger").take(2000),
         ctx.db.query("rewardRedemptions").take(500),
+        ctx.db.query("interactiveResults").take(2000),
       ]);
     void quizzes;
-    return { subjects, lessons, attempts, videoProgress, points, redemptions };
+    return { subjects, lessons, attempts, videoProgress, points, redemptions, interactiveResults };
   },
 });

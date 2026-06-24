@@ -3,8 +3,7 @@
 import { useMemo, useState } from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import { GripVertical, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
-
-type Pair = { key: string; value: string };
+import type { InteractiveProps, Pair } from "./types";
 
 function hashSeed(s: string): number {
   let h = 0;
@@ -23,7 +22,7 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 }
 
 /** Drag-to-order: items start in a stable shuffled order; key = correct order. */
-export function OrderingBlock({ data }: { data: Pair[] }) {
+export function OrderingBlock({ data, onComplete }: InteractiveProps) {
   const correct = useMemo(
     () => [...data].sort((a, b) => Number(a.key) - Number(b.key)),
     [data],
@@ -61,7 +60,18 @@ export function OrderingBlock({ data }: { data: Pair[] }) {
       <div className="mt-4 flex items-center gap-3">
         {!checked ? (
           <button
-            onClick={() => setChecked(true)}
+            onClick={() => {
+              setChecked(true);
+              const correctCount = items.filter(
+                (it, idx) => it.value === correct[idx]?.value,
+              ).length;
+              onComplete?.({
+                score: correctCount,
+                total: items.length,
+                detail: `Ordered ${correctCount}/${items.length} correctly`,
+                completed: true,
+              });
+            }}
             className="rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-400"
           >
             Check order

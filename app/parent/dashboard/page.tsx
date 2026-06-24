@@ -9,6 +9,7 @@ import {
   Brain,
   Coins,
   Trophy,
+  Gamepad2,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -43,6 +44,7 @@ const TOOLTIP_STYLE = {
 export default function ParentDashboardPage() {
   const stats = useQuery(api.dashboard.overview);
   const subjects = useQuery(api.subjects.list);
+  const interactive = useQuery(api.interactiveResults.recentForParents, { limit: 12 });
 
   const lessonsBySubject = (subjects ?? []).map((s) => ({
     name: subjectMeta(s.slug).shortName,
@@ -157,6 +159,59 @@ export default function ParentDashboardPage() {
               )}
             </tbody>
           </table>
+        </div>
+      </Panel>
+
+      <Panel title="Recent interactive activity" subtitle="What students did in lesson activities" accent="#06b6d4">
+        <div className="space-y-2">
+          {(interactive ?? []).map((r) => (
+            <div
+              key={r._id}
+              className="flex items-start gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3"
+            >
+              <span
+                className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+                style={{ backgroundColor: `${r.subjectColor}22` }}
+              >
+                <Gamepad2 size={15} style={{ color: r.subjectColor }} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  <Link
+                    href={`/parent/lessons/${r.lessonId}`}
+                    className="truncate text-sm font-medium text-white hover:text-cyan-300"
+                  >
+                    {r.lessonTitle}
+                  </Link>
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {r.title}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">{r.subjectName}</span>
+                </div>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground" title={r.detail}>
+                  {r.detail}
+                </p>
+              </div>
+              {r.percentage !== undefined && (
+                <span
+                  className={
+                    "shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold " +
+                    (r.percentage >= 60
+                      ? "bg-green-500/15 text-green-300"
+                      : "bg-orange-500/15 text-orange-300")
+                  }
+                >
+                  {r.percentage}%
+                </span>
+              )}
+            </div>
+          ))}
+          {(interactive ?? []).length === 0 && (
+            <p className="py-10 text-center text-sm text-muted-foreground">
+              No interactive activity yet. As students play lesson activities,
+              their attempts and results appear here in real time.
+            </p>
+          )}
         </div>
       </Panel>
     </div>

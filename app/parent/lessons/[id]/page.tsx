@@ -14,6 +14,7 @@ import { QuizEditor } from "@/components/parent/quiz-editor";
 export default function EditLessonPage() {
   const { id } = useParams<{ id: string }>();
   const lesson = useQuery(api.lessons.get, { lessonId: id as never });
+  const activity = useQuery(api.interactiveResults.forLesson, { lessonId: id as never });
   const update = useMutation(api.lessons.update);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -158,6 +159,47 @@ export default function EditLessonPage() {
           View, edit, add and remove the questions students answer after this lesson.
         </p>
         <QuizEditor lessonId={lesson._id} />
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+        <h2 className="mb-1 text-sm font-semibold text-white">Interactive activity results</h2>
+        <p className="mb-4 text-xs text-muted-foreground">
+          Exactly what students did in this lesson&apos;s interactive activities, newest first.
+        </p>
+        <div className="space-y-2">
+          {(activity ?? []).map((r) => (
+            <div key={r._id} className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {r.title}
+                </span>
+                <div className="flex items-center gap-2">
+                  {r.percentage !== undefined && (
+                    <span
+                      className={
+                        "rounded-full px-2 py-0.5 text-xs font-semibold " +
+                        (r.percentage >= 60
+                          ? "bg-green-500/15 text-green-300"
+                          : "bg-orange-500/15 text-orange-300")
+                      }
+                    >
+                      {r.score}/{r.total} · {r.percentage}%
+                    </span>
+                  )}
+                  <span className="text-[11px] text-muted-foreground">
+                    {new Date(r.createdAt).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              <p className="mt-1.5 text-sm text-slate-200">{r.detail}</p>
+            </div>
+          ))}
+          {(activity ?? []).length === 0 && (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              No interactive attempts recorded for this lesson yet.
+            </p>
+          )}
+        </div>
       </section>
     </div>
   );

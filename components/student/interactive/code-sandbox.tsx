@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Play, RotateCcw, Terminal, Code2, CheckCircle2, Target } from "lucide-react";
+import type { InteractiveProps } from "./types";
 
-type Pair = { key: string; value: string };
 type LogLine = { type: "log" | "info" | "warn" | "error"; text: string };
 
 /**
@@ -13,7 +13,7 @@ type LogLine = { type: "log" | "info" | "warn" | "error"; text: string };
  * output is forwarded to the parent via postMessage. A `<canvas>` (id "canvas",
  * with `ctx`) is provided for game-dev drawing lessons.
  */
-export function CodeSandboxBlock({ data }: { data: Pair[] }) {
+export function CodeSandboxBlock({ data, onComplete }: InteractiveProps) {
   const get = (k: string) => data.find((d) => d.key === k)?.value ?? "";
   const language = (get("language") || "javascript") as "javascript" | "html";
   const starter = get("starter");
@@ -26,6 +26,15 @@ export function CodeSandboxBlock({ data }: { data: Pair[] }) {
   const [ran, setRan] = useState(false);
   const [runKey, setRunKey] = useState(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const logsRef = useRef<LogLine[]>([]);
+  const codeRef = useRef(code);
+
+  useEffect(() => {
+    logsRef.current = logs;
+  }, [logs]);
+  useEffect(() => {
+    codeRef.current = code;
+  }, [code]);
 
   const showPreview = useMemo(
     () => language === "html" || /\b(canvas|ctx|document)\b/.test(code),
@@ -51,6 +60,24 @@ export function CodeSandboxBlock({ data }: { data: Pair[] }) {
     setLogs([]);
     setRan(true);
     setRunKey((k) => k + 1); // force iframe reload even if code unchanged
+    // Output arrives asynchronously from the iframe; capture it after it settles
+    // so the parent activity log records exactly what the student ran + the result.
+    window.setTimeout(() => {
+      const out = logsRef.current.map((l) => l.text).join(" | ").slice(0, 300);
+      const lineCount = codeRef.current.split("\n").filter((l) => l.trim()).length;
+      const didPass = expected
+        ? out.toLowerCase().includes(expected.toLowerCase())
+        : null;
+      onComplete?.({
+        score: didPass === null ? undefined : didPass ? 1 : 0,
+        total: didPass === null ? undefined : 1,
+        detail:
+          `Ran ${language} code (${lineCount} line${lineCount === 1 ? "" : "s"}). ` +
+          `Output: ${out || "(no console output)"}` +
+          (didPass === true ? " — challenge complete" : ""),
+        completed: true,
+      });
+    }, 900);
   };
 
   const reset = () => {
@@ -121,8 +148,9 @@ export function CodeSandboxBlock({ data }: { data: Pair[] }) {
         </div>
 
         {/* Visual preview (canvas / HTML). Kept mounted so canvas drawing works;
-            collapsed to zero height when the code has no visual output. */}
-        <div className={showPreview ? "rounded-xl border border-white/10 bg-white" : "h-0 overflow-hidden"}>
+            collapsed to zero height when the code has no visual output.
+            overflow-hidden clips the (square) iframe to the rounded corners. */}
+        <div className={showPreview ? "overflow-hidden rounded-xl border border-white/10 bg-white" : "h-0 overflow-hidden"}>
           <iframe
             key={runKey}
             ref={iframeRef}
@@ -131,8 +159,8 @@ export function CodeSandboxBlock({ data }: { data: Pair[] }) {
             srcDoc={srcdoc}
             width={340}
             height={260}
-            className={showPreview ? "block w-full" : ""}
-            style={showPreview ? { height: 260 } : { height: 0, width: 0, border: 0 }}
+            className={showPreview ? "block w-full border-0" : ""}
+            style={showPreview ? { height: 260, border: 0 } : { height: 0, width: 0, border: 0 }}
           />
         </div>
 

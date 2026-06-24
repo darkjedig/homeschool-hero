@@ -141,6 +141,14 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 - [x] Security: code sandbox uses `sandbox="allow-scripts"` only (isolated from app + Convex)
 - [x] Verified: typecheck 0 errors, lint 0 errors, weeks 1–8 have a real lesson in every slot
 
+**Step 7 — Interactive Result Logging + Full Coverage** ✅
+- [x] `interactiveResults` table + `convex/interactiveResults.ts` (`log` mutation w/ score-scaled points + badges on first completion; `recentForParents` + `forLesson` parent queries)
+- [x] All 9 interactive components emit results via `onComplete` (shared `interactive/types.ts`); `lesson-blocks.tsx` logs lessonId + block index. Code lab logs what the student ran + console output
+- [x] Parent visibility: dashboard "Recent interactive activity" panel + per-lesson results on the parent lesson editor + interactive rows in CSV/JSON export
+- [x] Shared `convex/curriculum/derive.ts` (maths→arena drill; else flashcards/MCQ from the lesson's own quiz) used by the seed (new lessons) **and** `enrichLessons:ensureInteractivePractice` (existing) → **100% interactive coverage (259/259)**; ≥2 interactive lessons per school day
+- [x] Fix: code-sandbox preview iframe rounded corners (`overflow-hidden` + `border-0`)
+- [x] Verified: typecheck 0 errors, lint 0 new errors, enrichment reports 100% coverage
+
 **Step 5 — Docs** ⏳
 - [x] `docs/curriculum-plan.md` — interactive system, authored expansion, + full remaining-year build-out list
 - [ ] Design skill: calendar page styling guidance

@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Zap, Timer, Trophy, RefreshCw, Check, X, Play } from "lucide-react";
+import type { InteractiveProps } from "./types";
 
-type Pair = { key: string; value: string };
 type Mode = "add" | "sub" | "mul" | "div" | "mixed" | "fractions" | "percent";
 type Q = { prompt: string; answer: number };
 
@@ -52,7 +52,7 @@ function makeQuestion(mode: Mode, min: number, max: number): Q {
 }
 
 /** Generative maths practice arena. Endless questions, scoring, optional timer. */
-export function MathArenaBlock({ data }: { data: Pair[] }) {
+export function MathArenaBlock({ data, onComplete }: InteractiveProps) {
   const get = (k: string) => data.find((d) => d.key === k)?.value ?? "";
   const title = get("title") || "Practice Arena";
   const mode = (get("mode") || "mixed") as Mode;
@@ -71,6 +71,7 @@ export function MathArenaBlock({ data }: { data: Pair[] }) {
   const [feedback, setFeedback] = useState<"none" | "right" | "wrong">("none");
   const [timeLeft, setTimeLeft] = useState(seconds);
   const inputRef = useRef<HTMLInputElement>(null);
+  const doneLoggedRef = useRef(false);
 
   const start = () => {
     setScore(0);
@@ -81,8 +82,22 @@ export function MathArenaBlock({ data }: { data: Pair[] }) {
     setFeedback("none");
     setTimeLeft(seconds);
     setQ(makeQuestion(mode, min, max));
+    doneLoggedRef.current = false;
     setPhase("playing");
   };
+
+  // Report the result once the round ends (side effect, not setState).
+  useEffect(() => {
+    if (phase === "done" && !doneLoggedRef.current) {
+      doneLoggedRef.current = true;
+      onComplete?.({
+        score,
+        total: count,
+        detail: `${title}: scored ${score}/${count} (best streak ${best})`,
+        completed: true,
+      });
+    }
+  }, [phase, score, count, best, title, onComplete]);
 
   // Countdown timer (only when a time limit is set). setState happens inside the
   // async timeout callback (not synchronously in the effect body).

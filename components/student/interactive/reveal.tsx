@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { Lightbulb, Check, X } from "lucide-react";
-
-type Pair = { key: string; value: string };
+import type { InteractiveProps } from "./types";
 
 /** Multiple-choice quick check (replaces tap-to-reveal so students can't
  *  just reveal the answer without thinking). Data encoded as {key,value} pairs:
  *  question, option_0..option_3, answer, explanation. */
-export function RevealBlock({ data }: { data: Pair[] }) {
+export function RevealBlock({ data, onComplete }: InteractiveProps) {
   const get = (k: string) => data.find((d) => d.key === k)?.value ?? "";
   const question = get("question") || get("prompt") || "Quick check";
   const answer = get("answer") || get("correct");
@@ -55,7 +54,16 @@ export function RevealBlock({ data }: { data: Pair[] }) {
               key={opt}
               type="button"
               disabled={revealed}
-              onClick={() => setSelected(opt)}
+              onClick={() => {
+                setSelected(opt);
+                const correct = opt === answer;
+                onComplete?.({
+                  score: correct ? 1 : 0,
+                  total: 1,
+                  detail: `${question} — answered "${opt}" (${correct ? "correct" : `incorrect; answer: ${answer}`})`,
+                  completed: true,
+                });
+              }}
               className={"flex w-full items-center gap-2 rounded-xl border px-4 py-2.5 text-left text-sm transition " + cls}
             >
               {revealed && isCorrect && <Check size={15} className="text-green-400" />}

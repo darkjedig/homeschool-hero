@@ -10,6 +10,14 @@ type DataBag = {
   videoProgress: { _id: string; lessonId: string; percentageWatched: number; completed: boolean; secondsWatched: number }[];
   points: { _id: string; sourceType: string; points: number; description: string }[];
   redemptions: { _id: string; rewardId: string; pointsSpent: number; status: string }[];
+  interactiveResults: {
+    _id: string;
+    lessonId: string;
+    title: string;
+    variant: string;
+    percentage?: number;
+    detail: string;
+  }[];
 };
 
 function esc(v: unknown): string {
@@ -33,6 +41,8 @@ function toCSV(d: DataBag): string {
     rows.push(["points", p._id, p.sourceType, `${p.points}`, p.description, ""]);
   for (const r of d.redemptions)
     rows.push(["redemption", r._id, r.rewardId, `${r.pointsSpent}pts`, r.status, ""]);
+  for (const a of d.interactiveResults)
+    rows.push(["interactive", a._id, a.lessonId, `${a.title} (${a.variant})`, a.percentage !== undefined ? `${a.percentage}%` : "—", a.detail]);
   return rows.map((r) => r.map(esc).join(",")).join("\n");
 }
 

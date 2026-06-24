@@ -212,6 +212,27 @@ export default defineSchema({
     .index("by_lesson", ["lessonId"])
     .index("by_user_and_lesson", ["userId", "lessonId"]),
 
+  // Results from interactive lesson activities (quick-checks, arenas, code labs,
+  // simulations, matching, etc). One row per completed activity attempt so a
+  // parent can see exactly what a student did and how they scored.
+  interactiveResults: defineTable({
+    userId: v.id("users"),
+    lessonId: v.id("lessons"),
+    subjectId: v.id("subjects"),
+    blockIndex: v.number(),
+    variant: v.string(),
+    title: v.string(),
+    score: v.optional(v.number()),
+    total: v.optional(v.number()),
+    percentage: v.optional(v.number()),
+    detail: v.string(),
+    completed: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_lesson", ["lessonId"])
+    .index("by_user_and_lesson", ["userId", "lessonId"]),
+
   pointsLedger: defineTable({
     userId: v.id("users"),
     sourceType: v.string(),

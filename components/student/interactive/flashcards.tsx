@@ -1,21 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Shuffle } from "lucide-react";
-
-type Pair = { key: string; value: string };
+import type { InteractiveProps } from "./types";
 
 /** Flashcard stack: each card flips between question (key) and answer (value).
  *  Click the card OR the Flip button to flip; arrows move between cards. */
-export function FlashcardsBlock({ data }: { data: Pair[] }) {
+export function FlashcardsBlock({ data, onComplete }: InteractiveProps) {
   const cards = data.length > 0 ? data : [{ key: "No cards yet", value: "—" }];
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const card = cards[i];
 
+  const seen = useRef<Set<number>>(new Set([0]));
+  const loggedRef = useRef(false);
+
+  const markSeen = (idx: number) => {
+    seen.current.add(idx);
+    if (!loggedRef.current && seen.current.size >= cards.length) {
+      loggedRef.current = true;
+      onComplete?.({
+        detail: `Reviewed all ${cards.length} flashcard${cards.length === 1 ? "" : "s"}`,
+        completed: true,
+      });
+    }
+  };
+
   const go = (dir: number) => {
     setFlipped(false);
-    setI((p) => (p + dir + cards.length) % cards.length);
+    setI((p) => {
+      const next = (p + dir + cards.length) % cards.length;
+      markSeen(next);
+      return next;
+    });
   };
 
   const flip = () => setFlipped((f) => !f);

@@ -31,6 +31,7 @@ export const science: SubjectCurriculum = {
             "Right heart → lungs; left heart → body.",
           ],
         },
+        sim("heart", "How the Heart Pumps Blood"),
         {
           type: "interactive",
           variant: "reveal",
@@ -79,6 +80,7 @@ export const science: SubjectCurriculum = {
             "Breathing in + out = respiration cycle.",
           ],
         },
+        sim("lungs", "Breathing Simulator"),
         {
           type: "interactive",
           variant: "reveal",
@@ -127,6 +129,7 @@ export const science: SubjectCurriculum = {
             "Muscles work in opposing pairs.",
           ],
         },
+        sim("skeleton", "Bones & Muscles in Motion"),
         {
           type: "interactive",
           variant: "flashcards",
@@ -172,6 +175,7 @@ export const science: SubjectCurriculum = {
             "Large intestine: reclaims water.",
           ],
         },
+        sim("digestive", "Food's Journey"),
         {
           type: "interactive",
           variant: "ordering",
@@ -217,6 +221,7 @@ export const science: SubjectCurriculum = {
             "Signals travel extremely fast.",
           ],
         },
+        sim("brain", "Nerve Signal Reflex"),
         {
           type: "interactive",
           variant: "reveal",

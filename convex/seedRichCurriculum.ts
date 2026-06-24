@@ -8,6 +8,7 @@ import { gamedev } from "./curriculum/gamedev";
 import { homemaking } from "./curriculum/homemaking";
 import { building } from "./curriculum/building";
 import type { Block, Question, SubjectCurriculum } from "./curriculum/types";
+import { deriveInteractive } from "./curriculum/derive";
 
 /**
  * One-off seed: rich multi-lesson curriculum for every subject. Each TOPIC is
@@ -104,6 +105,24 @@ export const seedRichCurriculum = mutation({
           continue;
         }
 
+        // Ensure every teaching lesson ships with at least one interactive
+        // activity. Activity lessons and lessons that already author one are
+        // left as-is; otherwise derive one from the lesson's own quiz/key points.
+        const blocks: Block[] = [...entry.blocks];
+        const hasInteractive = blocks.some((b) => b.type === "interactive");
+        if (!hasInteractive && entry.kind !== "activity") {
+          const keyPoints = blocks.find(
+            (b): b is Extract<Block, { type: "keyPoints" }> => b.type === "keyPoints",
+          )?.items;
+          const derived = deriveInteractive({
+            title: entry.title,
+            subjectSlug: subjectBlock.slug,
+            questions: entry.questions,
+            keyPoints,
+          });
+          if (derived) blocks.push(derived);
+        }
+
         const now = Date.now();
         const lessonId = await ctx.db.insert("lessons", {
           subjectId: subject._id,
@@ -112,7 +131,7 @@ export const seedRichCurriculum = mutation({
           slug: `${subjectBlock.slug}-${entry.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
           description: entry.summary,
           lessonNotes: toFallbackNotes(entry.summary, entry.blocks),
-          content: toContent(entry.blocks),
+          content: toContent(blocks),
           kind: entry.kind ?? "lesson",
           videoUrl: "",
           videoProvider: "youtube",

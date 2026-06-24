@@ -1,14 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronDown, Clock } from "lucide-react";
-
-type Pair = { key: string; value: string };
+import type { InteractiveProps } from "./types";
 
 /** Clickable timeline: events (key = date/era, value = event). Tap one to expand. */
-export function TimelineBlock({ data }: { data: Pair[] }) {
+export function TimelineBlock({ data, onComplete }: InteractiveProps) {
   const sorted = [...data].sort((a, b) => a.key.localeCompare(b.key));
   const [open, setOpen] = useState<string | null>(sorted[0]?.key ?? null);
+  const loggedRef = useRef(false);
+
+  const handleOpen = (key: string, isOpen: boolean) => {
+    setOpen(isOpen ? null : key);
+    if (!loggedRef.current) {
+      loggedRef.current = true;
+      onComplete?.({
+        detail: `Explored the timeline (${sorted.length} events)`,
+        completed: true,
+      });
+    }
+  };
 
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
@@ -23,7 +34,7 @@ export function TimelineBlock({ data }: { data: Pair[] }) {
               <span className="absolute -left-[26px] top-1 h-2.5 w-2.5 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.6)]" />
               <button
                 type="button"
-                onClick={() => setOpen(isOpen ? null : item.key)}
+                onClick={() => handleOpen(item.key, isOpen)}
                 className="flex w-full items-center gap-2 text-left"
               >
                 <span className="rounded-md bg-blue-500/15 px-2 py-0.5 text-xs font-semibold text-blue-200">

@@ -2,32 +2,78 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Lightbulb, Thermometer, Zap, FlaskConical } from "lucide-react";
+import type { InteractiveProps, InteractiveResult } from "./types";
+import {
+  HeartSim,
+  LungsSim,
+  SkeletonSim,
+  DigestiveSim,
+  BrainSim,
+} from "./body-sims";
 
-type Pair = { key: string; value: string };
+/** All supported simulation ids. */
+export type SimId =
+  | "circuit"
+  | "particles"
+  | "heart"
+  | "lungs"
+  | "skeleton"
+  | "digestive"
+  | "brain";
+
+const DEFAULT_TITLES: Record<SimId, string> = {
+  circuit: "Build a Circuit",
+  particles: "States of Matter",
+  heart: "How the Heart Pumps Blood",
+  lungs: "Breathing Simulator",
+  skeleton: "Bones & Muscles in Motion",
+  digestive: "Food's Journey",
+  brain: "Nerve Signal Reflex",
+};
 
 /** Dispatches to a specific science simulation by id. */
-export function SimulationBlock({ data }: { data: Pair[] }) {
+export function SimulationBlock({ data, onComplete }: InteractiveProps) {
   const get = (k: string) => data.find((d) => d.key === k)?.value ?? "";
-  const sim = get("sim") || "circuit";
-  const title = get("title") || (sim === "particles" ? "States of Matter" : "Build a Circuit");
+  const sim = (get("sim") || "circuit") as SimId;
+  const title = get("title") || (DEFAULT_TITLES[sim] ?? "Simulation");
+
+  const childProps = { title, onComplete };
 
   return (
     <div className="rounded-2xl border border-green-500/25 bg-green-500/[0.05] p-5">
       <p className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
         <FlaskConical size={16} className="text-green-300" /> {title}
       </p>
-      {sim === "particles" ? <Particles /> : <Circuit />}
+      {sim === "particles" && <Particles {...childProps} />}
+      {sim === "heart" && <HeartSim {...childProps} />}
+      {sim === "lungs" && <LungsSim {...childProps} />}
+      {sim === "skeleton" && <SkeletonSim {...childProps} />}
+      {sim === "digestive" && <DigestiveSim {...childProps} />}
+      {sim === "brain" && <BrainSim {...childProps} />}
+      {sim === "circuit" && <Circuit {...childProps} />}
     </div>
   );
 }
 
+type SimChildProps = {
+  title: string;
+  onComplete?: (r: InteractiveResult) => void;
+};
+
 /* ----------------------------- Circuit sim ----------------------------- */
 
-function Circuit() {
+function Circuit({ title, onComplete }: SimChildProps) {
   const [batteries, setBatteries] = useState(1);
   const [on, setOn] = useState(true);
   const brightness = on ? batteries / 3 : 0;
   const label = !on ? "Off" : batteries === 1 ? "Dim" : batteries === 2 ? "Bright" : "Very bright";
+  const loggedRef = useRef(false);
+
+  const report = (detail: string) => {
+    if (loggedRef.current) return;
+    loggedRef.current = true;
+    onComplete?.({ detail: `${title}: ${detail}`, completed: true });
+  };
 
   return (
     <div>
@@ -74,13 +120,20 @@ function Circuit() {
             min={1}
             max={3}
             value={batteries}
-            onChange={(e) => setBatteries(Number(e.target.value))}
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              setBatteries(n);
+              report(`used ${n} batter${n === 1 ? "y" : "ies"} (${n * 1.5}V)`);
+            }}
             className="w-full accent-green-500"
           />
         </label>
         <button
           type="button"
-          onClick={() => setOn((v) => !v)}
+          onClick={() => {
+            setOn((v) => !v);
+            report(`switched the circuit ${on ? "off" : "on"}`);
+          }}
           className={
             "flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold transition " +
             (on ? "bg-green-500 text-black hover:bg-green-400" : "border border-white/10 bg-white/5 text-white hover:bg-white/10")
@@ -99,10 +152,11 @@ function Circuit() {
 
 /* ----------------------------- Particles sim ----------------------------- */
 
-function Particles() {
+function Particles({ title, onComplete }: SimChildProps) {
   const [temp, setTemp] = useState(20);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tempRef = useRef(temp);
+  const loggedRef = useRef(false);
 
   useEffect(() => {
     tempRef.current = temp;
@@ -176,7 +230,18 @@ function Particles() {
             min={0}
             max={100}
             value={temp}
-            onChange={(e) => setTemp(Number(e.target.value))}
+            onChange={(e) => {
+              const t = Number(e.target.value);
+              setTemp(t);
+              if (!loggedRef.current) {
+                loggedRef.current = true;
+                const s = t < 34 ? "Solid" : t < 67 ? "Liquid" : "Gas";
+                onComplete?.({
+                  detail: `${title}: heated the sample to ${t}° (${s})`,
+                  completed: true,
+                });
+              }
+            }}
             className="w-full accent-green-500"
           />
         </label>
