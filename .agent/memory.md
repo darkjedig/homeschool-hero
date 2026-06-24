@@ -79,3 +79,11 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 
 ### Remaining work
 - Phase 10: Full RBAC audit, Playwright + Vitest, mobile polish, error boundaries, README.
+
+### STANDING RULE — duplicate lessons
+When two lessons cover the same ground (e.g. an old text-only seedLessons title vs a rich curriculum title — "How the Heart Pumps Blood" vs "The Heart & Blood"), the one **WITHOUT** an interactive is the one changed into something NEW/unique (different angle), keeping its `_id`/`topicId` stable. `enrichLessons:replaceDuplicateLessons` did this for 4 science dups → "Blood Vessels…", "Series & Parallel Circuits", "Density…", "Measuring Forces". Apply the same rule to other subjects as duplicates are found.
+
+- Phase 9e — **Electricity activities + science duplicate cleanup**:
+  - `attachElectricityActivities` mutation (idempotent) added rich interactives to the 5 Electricity lessons: match (electrical quantities), `circuit` sim (Simple Circuits), match (conductor/insulator real-world parts), match (circuit symbols), cloze (safety). Source of truth also updated in `convex/curriculum/science.ts` (imported `match`/`cloze`).
+  - `replaceDuplicateLessons` mutation (idempotent) replaced the 4 old text-only science duplicates IN PLACE (stable IDs/topicIds, rebuilt quizzes) with unique lessons: Human Body → "Blood Vessels: Arteries, Veins & Capillaries"; Electricity → "Series & Parallel Circuits"; States of Matter → "Density: Why Things Float or Sink"; Forces → "Measuring Forces". Each has rich content + a match interactive + fresh 5Q quiz.
+  - Commands: `npx convex dev --once` → `npx convex run enrichLessons:attachElectricityActivities` → `npx convex run enrichLessons:replaceDuplicateLessons` → `npx convex run calendar:generateYear`.

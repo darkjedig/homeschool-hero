@@ -12,6 +12,13 @@ Interactive rotation legend: **MCQ** = reveal-style quick check · **FC** = flas
 **ARENA** = generative maths game · **MATCH** = match-up game · **CLOZE** = fill-in-the-blank ·
 **SIM** = science simulation.
 
+> **STANDING RULE — duplicates:** when two lessons cover the same ground (e.g. an
+> old text-only seed title vs a rich curriculum title), the one **WITHOUT** an
+> interactive is changed into a NEW unique lesson (different angle), keeping its
+> `_id`/`topicId` stable via `enrichLessons:replaceDuplicateLessons`. Science's 4
+> duplicates were repurposed: → "Blood Vessels…", "Series & Parallel Circuits",
+> "Density…", "Measuring Forces". Apply the same rule to other subjects as found.
+
 ---
 
 ## Interactive Activity System (live)
@@ -227,27 +234,31 @@ remaining days render a friendly "· soon" placeholder.
 - [x] L3 Bones & Muscles — **SIM skeleton** + FC
 - [x] L4 The Digestive System — **SIM digestive** + ORD
 - [x] L5 The Brain & Nerves — **SIM brain** + MCQ
+- [x] L6 Blood Vessels: Arteries, Veins & Capillaries — **MATCH** *(was the duplicate "How the Heart Pumps Blood" → repurposed)*
 
-### Electricity — intermediate (5 lessons)
-- [x] L1 What Is Electricity? — MCQ
-- [x] L2 Simple Circuits — MCQ
-- [x] L3 Conductors & Insulators — FC
-- [x] L4 Switches & Circuit Diagrams — MCQ
-- [x] L5 Electrical Safety — MCQ
+### Electricity — intermediate (6 lessons)
+- [x] L1 What Is Electricity? — **MATCH (quantities)** + MCQ
+- [x] L2 Simple Circuits — **SIM circuit** + MCQ
+- [x] L3 Conductors & Insulators — **MATCH (parts)** + FC
+- [x] L4 Switches & Circuit Diagrams — **MATCH (symbols)** + MCQ
+- [x] L5 Electrical Safety — **CLOZE (safety rules)** + MCQ
+- [x] L6 Series & Parallel Circuits — **MATCH** *(was the duplicate "Building a Simple Circuit" → repurposed)*
 
-### States of Matter — beginner (5 lessons)
+### States of Matter — beginner (6 lessons)
 - [x] L1 Solids, Liquids & Gases — MCQ
 - [x] L2 Particle Theory — MCQ
 - [x] L3 Melting & Freezing — MCQ
 - [x] L4 Boiling, Evaporation & Condensation — ORD
 - [x] L5 The Water Cycle — ORD
+- [x] L6 Density: Why Things Float or Sink — **MATCH** *(was the duplicate "Solids, Liquids and Gases" → repurposed)*
 
-### Forces — intermediate (5 lessons)
+### Forces — intermediate (6 lessons)
 - [x] L1 Push & Pull — MCQ
 - [x] L2 Gravity — MCQ
 - [x] L3 Friction — MCQ
 - [x] L4 Balanced & Unbalanced Forces — MCQ
 - [x] L5 Magnetism — FC
+- [x] L6 Measuring Forces — **MATCH** *(was the duplicate "Push, Pull and Friction" → repurposed)*
 
 ---
 
