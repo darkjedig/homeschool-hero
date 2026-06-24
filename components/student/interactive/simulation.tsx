@@ -10,6 +10,13 @@ import {
   DigestiveSim,
   BrainSim,
 } from "./body-sims";
+import {
+  ElectronFlow,
+  ConductorTester,
+  SeriesParallel,
+  SwitchLab,
+  HazardSpotter,
+} from "./electricity-sims";
 
 /** All supported simulation ids. */
 export type SimId =
@@ -19,7 +26,12 @@ export type SimId =
   | "lungs"
   | "skeleton"
   | "digestive"
-  | "brain";
+  | "brain"
+  | "electronFlow"
+  | "conductorTester"
+  | "seriesParallel"
+  | "switchLab"
+  | "hazardSpotter";
 
 const DEFAULT_TITLES: Record<SimId, string> = {
   circuit: "Build a Circuit",
@@ -29,6 +41,11 @@ const DEFAULT_TITLES: Record<SimId, string> = {
   skeleton: "Bones & Muscles in Motion",
   digestive: "Food's Journey",
   brain: "Nerve Signal Reflex",
+  electronFlow: "Electron Flow",
+  conductorTester: "Conductor or Insulator?",
+  seriesParallel: "Series vs Parallel",
+  switchLab: "Switch & Symbol Lab",
+  hazardSpotter: "Spot the Hazards",
 };
 
 /** Dispatches to a specific science simulation by id. */
@@ -51,6 +68,11 @@ export function SimulationBlock({ data, onComplete }: InteractiveProps) {
       {sim === "digestive" && <DigestiveSim {...childProps} />}
       {sim === "brain" && <BrainSim {...childProps} />}
       {sim === "circuit" && <Circuit {...childProps} />}
+      {sim === "electronFlow" && <ElectronFlow {...childProps} />}
+      {sim === "conductorTester" && <ConductorTester {...childProps} />}
+      {sim === "seriesParallel" && <SeriesParallel {...childProps} />}
+      {sim === "switchLab" && <SwitchLab {...childProps} />}
+      {sim === "hazardSpotter" && <HazardSpotter {...childProps} />}
     </div>
   );
 }

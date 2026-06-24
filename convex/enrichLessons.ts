@@ -385,13 +385,10 @@ const REPLACEMENTS: ReplacementSpec[] = [
       },
       {
         type: "interactive",
-        variant: "match",
+        variant: "simulation",
         data: [
-          { key: "Series circuit", value: "Components share one path" },
-          { key: "Parallel circuit", value: "Each component has its own path" },
-          { key: "One bulb dies (series)", value: "All bulbs go out" },
-          { key: "One bulb dies (parallel)", value: "Other bulbs stay on" },
-          { key: "House wiring", value: "Parallel" },
+          { key: "sim", value: "seriesParallel" },
+          { key: "title", value: "Series vs Parallel" },
         ],
       },
     ],
@@ -590,5 +587,91 @@ export const replaceDuplicateLessons = mutation({
     }
 
     return { replaced, skipped, total: REPLACEMENTS.length };
+  },
+});
+
+/* --------------- Electricity: sims replace match/cloze games --------------- */
+
+/** Each Electricity lesson → the unique simulation id that fits it best (no more
+ *  pile of match games). The match/fillBlank blocks added earlier are removed
+ *  and the right sim is dropped in after the key points. Idempotent. */
+const ELECTRICITY_SIM_UPGRADES: { title: string; simId: string }[] = [
+  { title: "What Is Electricity?", simId: "electronFlow" },
+  { title: "Simple Circuits", simId: "circuit" },
+  { title: "Conductors & Insulators", simId: "conductorTester" },
+  { title: "Switches & Circuit Diagrams", simId: "switchLab" },
+  { title: "Electrical Safety", simId: "hazardSpotter" },
+  { title: "Series & Parallel Circuits", simId: "seriesParallel" },
+];
+
+const SIM_TITLES: Record<string, string> = {
+  electronFlow: "Electron Flow",
+  circuit: "Build a Circuit",
+  conductorTester: "Conductor or Insulator?",
+  switchLab: "Switch & Symbol Lab",
+  hazardSpotter: "Spot the Hazards",
+  seriesParallel: "Series vs Parallel",
+};
+
+/**
+ * Replace the match/cloze activities in the Electricity lessons with unique,
+ * lesson-specific simulations (electron flow, conductor tester, series/parallel,
+ * switch lab, hazard spotter). Idempotent — a lesson already carrying its target
+ * sim is left alone.
+ *
+ *   npx convex run enrichLessons:attachElectricitySims
+ */
+export const attachElectricitySims = mutation({
+  args: {},
+  handler: async (ctx, _args) => {
+    void _args;
+    let upgraded = 0;
+    let skipped = 0;
+
+    const allLessons = await ctx.db.query("lessons").take(500);
+    const byTitle = new Map(allLessons.map((l) => [l.title, l]));
+
+    for (const spec of ELECTRICITY_SIM_UPGRADES) {
+      const lesson = byTitle.get(spec.title);
+      if (!lesson) {
+        skipped += 1;
+        continue;
+      }
+
+      // Drop the match/fillBlank activity blocks (the things we're replacing).
+      // Keep the original reveal/flashcards quick-check + any existing sim.
+      let content: ContentBlock[] = (lesson.content ?? []).filter(
+        (b) => !(b.type === "interactive" && (b.variant === "match" || b.variant === "fillBlank")),
+      );
+
+      const hasTarget = content.some(
+        (b) =>
+          b.type === "interactive" &&
+          b.variant === "simulation" &&
+          b.data?.some((d) => d.key === "sim" && d.value === spec.simId),
+      );
+      if (hasTarget) {
+        skipped += 1;
+        continue;
+      }
+
+      const simBlock: ContentBlock = {
+        type: "interactive",
+        variant: "simulation",
+        data: [
+          { key: "sim", value: spec.simId },
+          { key: "title", value: SIM_TITLES[spec.simId] ?? "Interactive" },
+        ],
+      };
+
+      const kpIdx = content.findIndex((b) => b.type === "keyPoints");
+      const insertAt = kpIdx >= 0 ? kpIdx + 1 : content.length;
+      content = [...content.slice(0, insertAt), simBlock, ...content.slice(insertAt)];
+
+      await ctx.db.patch(lesson._id, { content, updatedAt: Date.now() });
+      upgraded += 1;
+    }
+
+    return { upgraded, skipped, total: ELECTRICITY_SIM_UPGRADES.length };
   },
 });

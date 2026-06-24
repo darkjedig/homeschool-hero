@@ -1,5 +1,5 @@
 import type { SubjectCurriculum } from "./types";
-import { sim, match, cloze } from "./types";
+import { sim } from "./types";
 
 export const science: SubjectCurriculum = {
   slug: "science",
@@ -272,13 +272,7 @@ export const science: SubjectCurriculum = {
             "Resistance measured in ohms (Ω).",
           ],
         },
-        match(
-          ["Current", "Flow of electrons (amps)"],
-          ["Voltage", "The electrical push (volts)"],
-          ["Resistance", "Opposes the flow (ohms)"],
-          ["Electron", "Tiny particle that moves"],
-          ["Watt", "Unit of electrical power"],
-        ),
+        sim("electronFlow", "Electron Flow"),
         {
           type: "interactive",
           variant: "reveal",
@@ -376,13 +370,7 @@ export const science: SubjectCurriculum = {
             "Insulators protect us from shocks.",
           ],
         },
-        match(
-          ["Copper wire core", "Conducts the current"],
-          ["Plastic wire coat", "Insulates to keep us safe"],
-          ["Metal plug pins", "Conduct into the socket"],
-          ["Rubber plug case", "Insulates your hand"],
-          ["Brass lamp holder", "Conducts inside the lamp"],
-        ),
+        sim("conductorTester", "Conductor or Insulator?"),
         {
           type: "interactive",
           variant: "flashcards",
@@ -429,13 +417,7 @@ export const science: SubjectCurriculum = {
             "Standard symbols help everyone read them.",
           ],
         },
-        match(
-          ["Long/short lines", "Battery"],
-          ["Circle with an X", "Bulb"],
-          ["Straight line", "Wire"],
-          ["A break in the line", "Open switch"],
-          ["Lines joined in a loop", "Complete circuit"],
-        ),
+        sim("switchLab", "Switch & Symbol Lab"),
         {
           type: "interactive",
           variant: "reveal",
@@ -484,13 +466,7 @@ export const science: SubjectCurriculum = {
             "Switch off and unplug if smoking/burning.",
           ],
         },
-        cloze(
-          ["Never poke anything into a ___.", "socket"],
-          ["Keep electrical devices away from ___.", "water"],
-          ["A frayed ___ must not be used.", "cable"],
-          ["If something smokes, switch it ___ and unplug.", "off"],
-          ["Never touch switches with ___ hands.", "wet"],
-        ),
+        sim("hazardSpotter", "Spot the Hazards"),
         {
           type: "interactive",
           variant: "reveal",

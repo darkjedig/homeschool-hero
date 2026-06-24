@@ -183,7 +183,12 @@ export function sim(
     | "lungs"
     | "skeleton"
     | "digestive"
-    | "brain",
+    | "brain"
+    | "electronFlow"
+    | "conductorTester"
+    | "seriesParallel"
+    | "switchLab"
+    | "hazardSpotter",
   title?: string,
 ): Block {
   const data: { key: string; value: string }[] = [{ key: "sim", value: simId }];
