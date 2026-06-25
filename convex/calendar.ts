@@ -80,6 +80,49 @@ function inHoliday(date: Date, holidays: { name: string; start: string; end: str
 }
 
 /**
+ * The standard weekly rotation. Maths, English and Science each appear exactly
+ * 3×/week (not daily) so the calendar doesn't lean too hard on IXL labels:
+ *   Mon: Maths, English, Science
+ *   Tue: Maths, English, History, AI&CS
+ *   Wed: Science, Geography, History
+ *   Thu: Maths, English, Homemaking
+ *   Fri: Science, GameDev, Building
+ * Missing subjects are filtered out, so it works even before all exist.
+ */
+async function buildStandardRotation(
+  ctx: MutationCtx,
+): Promise<{ dayOfWeek: number; subjectIds: Id<"subjects">[] }[]> {
+  const bySlug = async (slug: string) =>
+    (
+      await ctx.db
+        .query("subjects")
+        .withIndex("by_slug", (q) => q.eq("slug", slug))
+        .unique()
+    )?._id;
+  const f = (arr: (Id<"subjects"> | undefined)[]) =>
+    arr.filter((x): x is Id<"subjects"> => x !== undefined);
+  const [maths, english, science, history, aics, gamedev, homemaking, building, geography] =
+    await Promise.all([
+      bySlug(SUBJECT_SLUGS.maths),
+      bySlug(SUBJECT_SLUGS.english),
+      bySlug(SUBJECT_SLUGS.science),
+      bySlug(SUBJECT_SLUGS.history),
+      bySlug(SUBJECT_SLUGS.aics),
+      bySlug(SUBJECT_SLUGS.gamedev),
+      bySlug(SUBJECT_SLUGS.homemaking),
+      bySlug(SUBJECT_SLUGS.building),
+      bySlug(SUBJECT_SLUGS.geography),
+    ]);
+  return [
+    { dayOfWeek: 1, subjectIds: f([maths, english, science]) },
+    { dayOfWeek: 2, subjectIds: f([maths, english, history, aics]) },
+    { dayOfWeek: 3, subjectIds: f([science, geography, history]) },
+    { dayOfWeek: 4, subjectIds: f([maths, english, homemaking]) },
+    { dayOfWeek: 5, subjectIds: f([science, gamedev, building]) },
+  ];
+}
+
+/**
  * Generate the calendar entries for the school year. Idempotent per call:
  * clears existing entries, then walks each school day (Mon–Fri, skipping
  * weekends + holidays), assigning the next lesson per subject per the rotation.
@@ -93,24 +136,12 @@ export const generateYear = mutation({
     let year = await ctx.db.query("schoolYear").first();
     if (!year) throw new Error("No school year configured. Seed one first.");
 
-    // Ensure Geography is in the Wed rotation (maths, english, science, geography).
-    const geoSubject = await ctx.db
-      .query("subjects")
-      .withIndex("by_slug", (q) => q.eq("slug", SUBJECT_SLUGS.geography))
-      .unique();
-    if (geoSubject) {
-      let patched = false;
-      const rotation = year.rotation.map((r) => {
-        if (r.dayOfWeek === 3 && !r.subjectIds.includes(geoSubject._id)) {
-          patched = true;
-          return { ...r, subjectIds: [...r.subjectIds, geoSubject._id] };
-        }
-        return r;
-      });
-      if (patched) {
-        await ctx.db.patch(year._id, { rotation, updatedAt: Date.now() });
-        year = { ...year, rotation };
-      }
+    // Enforce the standard rotation: Maths/English/Science each max 3×/week
+    // (not daily) so the calendar doesn't lean too hard on IXL labels.
+    const rotation = await buildStandardRotation(ctx);
+    if (JSON.stringify(rotation) !== JSON.stringify(year.rotation)) {
+      await ctx.db.patch(year._id, { rotation, updatedAt: Date.now() });
+      year = { ...year, rotation };
     }
 
     const subjects = await ctx.db.query("subjects").take(50);
@@ -194,17 +225,16 @@ export const seedDefaultYear = mutation({
     const homemaking = await bySlug(SUBJECT_SLUGS.homemaking);
     const building = await bySlug(SUBJECT_SLUGS.building);
     const geography = await bySlug(SUBJECT_SLUGS.geography);
-    const core = [maths, english].filter(Boolean) as Id<"subjects">[];
+    const f = (arr: (Id<"subjects"> | undefined)[]) =>
+      arr.filter((x): x is Id<"subjects"> => x !== undefined);
 
+    // Maths/English/Science each 3×/week (not daily).
     const rotation = [
-      { dayOfWeek: 1, subjectIds: [...core, science].filter(Boolean) as Id<"subjects">[] },
-      { dayOfWeek: 2, subjectIds: [...core, history, aics].filter(Boolean) as Id<"subjects">[] },
-      {
-        dayOfWeek: 3,
-        subjectIds: [...core, science, geography].filter(Boolean) as Id<"subjects">[],
-      },
-      { dayOfWeek: 4, subjectIds: [...core, history, gamedev].filter(Boolean) as Id<"subjects">[] },
-      { dayOfWeek: 5, subjectIds: [...core, homemaking, building].filter(Boolean) as Id<"subjects">[] },
+      { dayOfWeek: 1, subjectIds: f([maths, english, science]) },
+      { dayOfWeek: 2, subjectIds: f([maths, english, history, aics]) },
+      { dayOfWeek: 3, subjectIds: f([science, geography, history]) },
+      { dayOfWeek: 4, subjectIds: f([maths, english, homemaking]) },
+      { dayOfWeek: 5, subjectIds: f([science, gamedev, building]) },
     ];
 
     const now = Date.now();

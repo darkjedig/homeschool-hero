@@ -93,6 +93,12 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
   - Varied interactives per lesson (NO match pile-ups): sims, arena (maths), code (CS/gamedev), match/ord/cloze/fc/mcq spread out. Standing rule still: one lesson-specific interactive, never stack the same type in a topic.
   - Commands: `npx convex dev --once` → `seedRichCurriculum` (52 created) → `calendar:generateYear` (716 entries). Topics auto-created.
 
+- Phase 9h — **3×/week core rotation + big content batch (Sep–Mar fill)**:
+  - **Calendar rotation fixed**: Maths/English/Science now appear EXACTLY 3×/week each (was daily → far too many IXL labels). New layout enforced by `buildStandardRotation()` in `calendar.ts` (used by both `generateYear` + `seedDefaultYear`): Mon maths/english/science · Tue maths/english/history/aics · Wed science/geography/history · Thu maths/english/homemaking · Fri science/gamedev/building. generateYear auto-patches the stored rotation if it differs (so every regenerate enforces it). Calendar dropped 716→602 entries (fewer core slots).
+  - **+44 robust new lessons** (no duplicate topics): Maths +14 (Written Methods, 3D Shapes & Volume, Coordinates & Graphs, Probability), English +12 (Story Writing, Word Building, Advanced Grammar), Science +10 (Animals & Habitats, Materials & Properties, Earth & Environment, Scientific Enquiry), History +4 (The Tudors), Geography +4 (South America). Each ~heading+text+example+keyPoints+1 varied interactive (match/ord/cloze/arena/fc/mcq) + 5Q.
+  - Commands: `npx convex dev --once` → `seedRichCurriculum` (44 created) → `calendar:generateYear` (602 entries, rotation auto-patched).
+  - **Note**: full Sep–Mar fill of every daily maths/english slot needs more batches (still ~3×/week × 30 weeks ≈ 90 slots per core subject). This batch meaningfully extends coverage; repeat for the cores to finish.
+
 ### STANDING RULE — duplicate lessons
 When two lessons cover the same ground (e.g. an old text-only seedLessons title vs a rich curriculum title — "How the Heart Pumps Blood" vs "The Heart & Blood"), the one **WITHOUT** an interactive is the one changed into something NEW/unique (different angle), keeping its `_id`/`topicId` stable. `enrichLessons:replaceDuplicateLessons` did this for 4 science dups → "Blood Vessels…", "Series & Parallel Circuits", "Density…", "Measuring Forces". Apply the same rule to other subjects as duplicates are found.
 
