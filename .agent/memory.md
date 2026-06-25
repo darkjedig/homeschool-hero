@@ -99,6 +99,12 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
   - Commands: `npx convex dev --once` → `seedRichCurriculum` (44 created) → `calendar:generateYear` (602 entries, rotation auto-patched).
   - **Note**: full Sep–Mar fill of every daily maths/english slot needs more batches (still ~3×/week × 30 weeks ≈ 90 slots per core subject). This batch meaningfully extends coverage; repeat for the cores to finish.
 
+- Phase 9i — **Non-core fill (Feb–Apr "soon" clear); NO new maths/english/science**:
+  - Per user: DO NOT add more maths/english/science lessons — those use IXL. Only the other subjects. Maths/English/Science stay capped at 3×/week each (already enforced by buildStandardRotation).
+  - **+46 non-core lessons** (no duplicate topics): History +24 (Ancient Greece, Ancient Rome, The Vikings, The Victorians, The Aztecs, Age of Exploration), Geography +8 (Africa, Australia & Oceania), Building +8 (Plumbing Basics, Outdoor Projects), GameDev +6 (Game Audio, Level Design). Each ~heading+text+example+keyPoints+1 varied interactive + 5Q.
+  - Non-core counts now cover through April (History 74 @2/wk; Geography 39, Building 42, GameDev 41 @1/wk). AI&CS 41 + Homemaking 41 already covered the year (untouched).
+  - Commands: `npx convex dev --once` → `seedRichCurriculum` (46 created) → `calendar:generateYear` (602 entries).
+
 ### STANDING RULE — duplicate lessons
 When two lessons cover the same ground (e.g. an old text-only seedLessons title vs a rich curriculum title — "How the Heart Pumps Blood" vs "The Heart & Blood"), the one **WITHOUT** an interactive is the one changed into something NEW/unique (different angle), keeping its `_id`/`topicId` stable. `enrichLessons:replaceDuplicateLessons` did this for 4 science dups → "Blood Vessels…", "Series & Parallel Circuits", "Density…", "Measuring Forces". Apply the same rule to other subjects as duplicates are found.
 
