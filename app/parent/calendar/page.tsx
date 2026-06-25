@@ -110,7 +110,9 @@ export default function ParentCalendarPage() {
                   const rgb = hexToRgb(e.subjectColor);
                   return (
                     <div key={e._id} className="rounded px-1 py-0.5 text-[10px]" style={{ backgroundColor: `rgba(${rgb},0.12)`, borderLeft: `2px solid ${e.subjectColor}` }}>
-                      <span className="truncate block font-medium text-white">{e.lessonTitle ?? e.subjectName}</span>
+                      <span className="truncate block font-medium text-white">
+                        {e.lessonTitle ?? e.label ?? e.subjectName}
+                      </span>
                     </div>
                   );
                 })}

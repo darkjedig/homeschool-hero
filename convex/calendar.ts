@@ -15,7 +15,19 @@ const SUBJECT_SLUGS = {
   gamedev: "game-development",
   homemaking: "homemaking",
   building: "building-and-construction",
+  geography: "geography",
 } as const;
+
+/** Core subjects completed on IXL (uk.ixl.com) — calendar gaps show a note, not "soon". */
+const IXL_SLUGS = new Set<string>([
+  SUBJECT_SLUGS.maths,
+  SUBJECT_SLUGS.english,
+  SUBJECT_SLUGS.science,
+]);
+
+function ixlLabel(subjectName: string): string {
+  return `IXL ${subjectName} Lesson`;
+}
 
 function toISO(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -78,8 +90,31 @@ export const generateYear = mutation({
   handler: async (ctx) => {
     // TODO(Phase 10 RBAC): requireParent — currently ungated for CLI setup;
     // parent calendar UI is protected by the ParentGate component.
-    const year = await ctx.db.query("schoolYear").first();
+    let year = await ctx.db.query("schoolYear").first();
     if (!year) throw new Error("No school year configured. Seed one first.");
+
+    // Ensure Geography is in the Wed rotation (maths, english, science, geography).
+    const geoSubject = await ctx.db
+      .query("subjects")
+      .withIndex("by_slug", (q) => q.eq("slug", SUBJECT_SLUGS.geography))
+      .unique();
+    if (geoSubject) {
+      let patched = false;
+      const rotation = year.rotation.map((r) => {
+        if (r.dayOfWeek === 3 && !r.subjectIds.includes(geoSubject._id)) {
+          patched = true;
+          return { ...r, subjectIds: [...r.subjectIds, geoSubject._id] };
+        }
+        return r;
+      });
+      if (patched) {
+        await ctx.db.patch(year._id, { rotation, updatedAt: Date.now() });
+        year = { ...year, rotation };
+      }
+    }
+
+    const subjects = await ctx.db.query("subjects").take(50);
+    const subjectById = new Map(subjects.map((s) => [s._id, s]));
 
     const lessonsBySubject = await orderedLessonsBySubject(ctx);
     const pointer = new Map<string, number>();
@@ -112,11 +147,19 @@ export const generateYear = mutation({
         const idx = pointer.get(subjectId) ?? 0;
         const lessonId = idx < list.length ? list[idx] : undefined;
         if (idx < list.length) pointer.set(subjectId, idx + 1);
+
+        const subject = subjectById.get(subjectId);
+        let label: string | undefined;
+        if (!lessonId && subject && IXL_SLUGS.has(subject.slug)) {
+          label = ixlLabel(subject.name);
+        }
+
         await ctx.db.insert("calendarEntries", {
           date,
           slotOrder: slot,
           subjectId,
           lessonId,
+          label,
           weekIndex,
         });
         slot += 1;
@@ -150,12 +193,16 @@ export const seedDefaultYear = mutation({
     const gamedev = await bySlug(SUBJECT_SLUGS.gamedev);
     const homemaking = await bySlug(SUBJECT_SLUGS.homemaking);
     const building = await bySlug(SUBJECT_SLUGS.building);
+    const geography = await bySlug(SUBJECT_SLUGS.geography);
     const core = [maths, english].filter(Boolean) as Id<"subjects">[];
 
     const rotation = [
       { dayOfWeek: 1, subjectIds: [...core, science].filter(Boolean) as Id<"subjects">[] },
       { dayOfWeek: 2, subjectIds: [...core, history, aics].filter(Boolean) as Id<"subjects">[] },
-      { dayOfWeek: 3, subjectIds: [...core, science].filter(Boolean) as Id<"subjects">[] },
+      {
+        dayOfWeek: 3,
+        subjectIds: [...core, science, geography].filter(Boolean) as Id<"subjects">[],
+      },
       { dayOfWeek: 4, subjectIds: [...core, history, gamedev].filter(Boolean) as Id<"subjects">[] },
       { dayOfWeek: 5, subjectIds: [...core, homemaking, building].filter(Boolean) as Id<"subjects">[] },
     ];
@@ -192,6 +239,7 @@ type EntryView = {
   subjectSlug: string;
   lessonId: string | null;
   lessonTitle: string | null;
+  label: string | null;
   completed: boolean;
   weekIndex: number;
 };
@@ -233,6 +281,7 @@ async function enrich(
       subjectSlug: subject?.slug ?? "",
       lessonId: e.lessonId ?? null,
       lessonTitle,
+      label: e.label ?? null,
       completed,
       weekIndex: e.weekIndex,
     });

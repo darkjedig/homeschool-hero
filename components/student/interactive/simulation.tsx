@@ -17,6 +17,12 @@ import {
   SwitchLab,
   HazardSpotter,
 } from "./electricity-sims";
+import {
+  LightRays,
+  SoundWaves,
+  PlantGrowth,
+  Orbit,
+} from "./science-sims";
 
 /** All supported simulation ids. */
 export type SimId =
@@ -31,7 +37,11 @@ export type SimId =
   | "conductorTester"
   | "seriesParallel"
   | "switchLab"
-  | "hazardSpotter";
+  | "hazardSpotter"
+  | "lightRays"
+  | "soundWaves"
+  | "plantGrowth"
+  | "orbit";
 
 const DEFAULT_TITLES: Record<SimId, string> = {
   circuit: "Build a Circuit",
@@ -46,6 +56,10 @@ const DEFAULT_TITLES: Record<SimId, string> = {
   seriesParallel: "Series vs Parallel",
   switchLab: "Switch & Symbol Lab",
   hazardSpotter: "Spot the Hazards",
+  lightRays: "Light Lab",
+  soundWaves: "Sound Wave Maker",
+  plantGrowth: "Grow a Plant",
+  orbit: "Solar System",
 };
 
 /** Dispatches to a specific science simulation by id. */
@@ -73,6 +87,10 @@ export function SimulationBlock({ data, onComplete }: InteractiveProps) {
       {sim === "seriesParallel" && <SeriesParallel {...childProps} />}
       {sim === "switchLab" && <SwitchLab {...childProps} />}
       {sim === "hazardSpotter" && <HazardSpotter {...childProps} />}
+      {sim === "lightRays" && <LightRays {...childProps} />}
+      {sim === "soundWaves" && <SoundWaves {...childProps} />}
+      {sim === "plantGrowth" && <PlantGrowth {...childProps} />}
+      {sim === "orbit" && <Orbit {...childProps} />}
     </div>
   );
 }

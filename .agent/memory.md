@@ -41,6 +41,11 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
   - Parent surfaces: dashboard "Recent interactive activity" panel + per-lesson "Interactive activity results" section on the parent lesson editor + interactive rows added to CSV/JSON export.
   - **Interactive coverage = 100%** (259/259 lessons). Shared pure derivation `convex/curriculum/derive.ts` (maths→topic-matched arena drill; others→flashcards/MCQ from the lesson's own quiz) is used by BOTH the seed (new lessons) and `enrichLessons:ensureInteractivePractice` (existing lessons: enriched the 38 that had no interactive). Re-runnable + idempotent.
   - **Fix**: code-sandbox preview iframe now `overflow-hidden` + `border-0` so the white frame has rounded corners matching the card (was cut off).
+- Phase 9f — **Calendar fill (IXL + Geography + 53 lessons)**:
+  - **IXL labels**: `calendar:generateYear` sets `label: "IXL Maths/English/Science Lesson"` when no in-app lesson remains for those subjects (existing assigned lessons preserved). Student calendar shows the label instead of "· soon".
+  - **Geography** added to Wed rotation (auto-patched on regenerate). `convex/curriculum/geography.ts` — 19 new lessons; user's existing Western Europe lesson kept. Registered in `seedRichCurriculum`. `lib/subjects.ts` includes Globe icon.
+  - **+53 lessons** seeded: History +12 (Ancient Civ + Source Analysis), AI&CS +6 (Loops/Functions), GameDev +6 (Collision/Scoring labs), Homemaking +6, Building +6, Geography +19. **716 calendar entries**; Oct–Nov 2026 fully filled (app lessons + IXL notes, 0 "soon").
+  - Commands: `npx convex dev --once` → `seedRichCurriculum` → `calendar:generateYear`.
 - Phase 9d — **Learning simulations (animated, attention-grabbing)**:
   - Clarified two interactive families: **(1) learning simulations** (movement, cause-and-effect — particles, circuits, body systems) vs **(2) practice games** (arena, match, MCQ, flashcards). Documented when to use each in `docs/curriculum-plan.md`.
   - Built 5 human-body animated sims in `components/student/interactive/body-sims.tsx`: `heart` (pulsing circulation loop + BPM slider), `lungs` (expand/contract + O₂/CO₂), `skeleton` (elbow flex + opposing muscles), `digestive` (food stages auto-play), `brain` (reflex nerve pulse). Wired in `simulation.tsx`; extended `sim()` builder with 7 sim ids.
@@ -70,6 +75,8 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 ## Next Steps (Phase 10)
 
 ### Curriculum follow-ups (optional polish)
+- **IXL**: Maths/English/Science daily slots use IXL labels when in-app content runs out — student completes on uk.ixl.com. Do not add more in-app maths/english lessons unless replacing IXL workflow.
+- Late-year calendar gaps (~March 2027) in History/Geography until more units authored — see `docs/curriculum-plan.md`.
 - 4 lessons skipped in the rich seed (title overlap with original text-only seedLessons, e.g. "What Is a Fraction?", "Finding the Main Idea"). They still render fine via `lessonNotes` fallback, but lack rich `content` blocks. Patch by renaming/deleting the old text-only versions or adding content to them.
 - To add MORE lessons: edit the relevant `convex/curriculum/<subject>.ts`, then `npx convex dev --once` (push), then `npx convex run seedRichCurriculum:seedRichCurriculum` (idempotent — now auto-derives an interactive for any new lesson lacking one) + `npx convex run calendar:generateYear`. If older lessons ever end up without an interactive, re-run `npx convex run enrichLessons:ensureInteractivePractice` (idempotent; reports coverage %).
 - Interactive content authoring: builders `mcq/fc/ord/tl` + new `code/arena/match/cloze/sim` live in `convex/curriculum/types.ts`. Reveal = `{key:"question"|"option_0..3"|"answer"|"explanation"}`. Activity lessons set `kind:"activity"` and may have `questions: []` (no quiz).
@@ -79,6 +86,12 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 
 ### Remaining work
 - Phase 10: Full RBAC audit, Playwright + Vitest, mobile polish, error boundaries, README.
+
+- Phase 9g — **Big content batch + 4 new science sims (reduce IXL / fill "soon")**:
+  - New science simulations in `components/student/interactive/science-sims.tsx` (wired into `simulation.tsx` + `sim()`): `lightRays` (mirror tilt → reflection; prism → rainbow), `soundWaves` (frequency↔pitch, amplitude↔volume animated wave), `plantGrowth` (seed→sprout→seedling→flower stages), `orbit` (clickable planets + speed slider). SimId union now 16 ids.
+  - **+52 new lessons** (IXL reducers + "soon" fillers, each with a varied interactive): Science +12 (Light/Sound/Space/Plants using the new sims), Maths +9 (Statistics, Time & Money, Patterns & Sequences), English +9 (Persuasive, Poetry, Letters & Reports), History +4 (Ancient Egypt), Geography +6 (North America, Asia), AI&CS +3 (Strings/Arrays/if-else code labs), GameDev +3 (Health/Lives, Scoring, Feedback code labs), Homemaking +3 (Money & Budgeting), Building +3 (Finishing & Painting).
+  - Varied interactives per lesson (NO match pile-ups): sims, arena (maths), code (CS/gamedev), match/ord/cloze/fc/mcq spread out. Standing rule still: one lesson-specific interactive, never stack the same type in a topic.
+  - Commands: `npx convex dev --once` → `seedRichCurriculum` (52 created) → `calendar:generateYear` (716 entries). Topics auto-created.
 
 ### STANDING RULE — duplicate lessons
 When two lessons cover the same ground (e.g. an old text-only seedLessons title vs a rich curriculum title — "How the Heart Pumps Blood" vs "The Heart & Blood"), the one **WITHOUT** an interactive is the one changed into something NEW/unique (different angle), keeping its `_id`/`topicId` stable. `enrichLessons:replaceDuplicateLessons` did this for 4 science dups → "Blood Vessels…", "Series & Parallel Circuits", "Density…", "Measuring Forces". Apply the same rule to other subjects as duplicates are found.

@@ -188,7 +188,11 @@ export function sim(
     | "conductorTester"
     | "seriesParallel"
     | "switchLab"
-    | "hazardSpotter",
+    | "hazardSpotter"
+    | "lightRays"
+    | "soundWaves"
+    | "plantGrowth"
+    | "orbit",
   title?: string,
 ): Block {
   const data: { key: string; value: string }[] = [{ key: "sim", value: simId }];

@@ -127,10 +127,31 @@ returns a coverage %).
 
 ---
 
+## Calendar & IXL (live)
+
+**Maths, English, Science** are completed on [IXL](https://uk.ixl.com) — the school calendar keeps those daily slots but when no in-app lesson is assigned, `generateYear` stores `label: "IXL Maths Lesson"` (etc.) instead of leaving a bare "· soon" chip. Existing in-app science/maths/english lessons already on the calendar are preserved in order; IXL labels fill only the gaps.
+
+**Geography** is on the Wed rotation (maths, english, science, geography). `generateYear` auto-patches an existing school year to add Geography to Wed if missing.
+
+**App-subject focus** (History, AI&CS, Game Dev, Homemaking, Building, Geography): Oct–Nov 2026 now show real lessons on every slot (0 "· soon"). Late-year gaps may still appear in History/Geography (~March 2027) until more units are authored.
+
+---
+
+## Phase 9f — Calendar fill + Geography (+53 lessons, Jun 2026)
+
+- **Geography** (`convex/curriculum/geography.ts`): 19 new lessons (Maps, Continents, UK, Climate, Rivers/Landforms, Western Europe) — user's existing "Western Europe: Countries and Geography 1" kept.
+- **History +12**: Ancient Civilisations (6) + Source Analysis (4) + activity.
+- **AI&CS +6**: Loops, Functions, Arrays, Debugging + 2 code labs.
+- **Game Dev +6**: Collision, Scoring, Tile maps, Game states + 2 code labs.
+- **Homemaking +6**: Nutrition, labels, meal planning, storage, laundry, safety activity.
+- **Building +6**: Load/stability, joints, measuring, elevations, scale models, fastener activity.
+- Calendar regenerated: **716 entries** / 41 weeks. Oct 2026: all slots filled (72 lessons + 12 IXL). Nov 2026: 31 lessons + 40 IXL, 0 soon.
+
+---
+
 ## Interactive Expansion — Authored Now (45 new lessons)
 
-Fills the first ~2 school months (Aug 25 → ~Oct 21) with no bare calendar chips;
-remaining days render a friendly "· soon" placeholder.
+Fills the first ~2 school months; **Phase 9f** extended coverage through Oct–Nov with IXL labels for core subjects.
 
 ### Maths (+21)
 - Decimals (4): Tenths & Hundredths · Comparing & Ordering · Adding & Subtracting · Decimals, Money & Rounding

@@ -7,6 +7,7 @@ import { aics } from "./curriculum/aics";
 import { gamedev } from "./curriculum/gamedev";
 import { homemaking } from "./curriculum/homemaking";
 import { building } from "./curriculum/building";
+import { geography } from "./curriculum/geography";
 import type { Block, Question, SubjectCurriculum } from "./curriculum/types";
 import { deriveInteractive } from "./curriculum/derive";
 
@@ -31,6 +32,7 @@ const CURRICULA: SubjectCurriculum[] = [
   gamedev,
   homemaking,
   building,
+  geography,
 ];
 
 export const seedRichCurriculum = mutation({

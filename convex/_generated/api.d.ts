@@ -22,6 +22,7 @@ import type * as curriculum_building from "../curriculum/building.js";
 import type * as curriculum_derive from "../curriculum/derive.js";
 import type * as curriculum_english from "../curriculum/english.js";
 import type * as curriculum_gamedev from "../curriculum/gamedev.js";
+import type * as curriculum_geography from "../curriculum/geography.js";
 import type * as curriculum_history from "../curriculum/history.js";
 import type * as curriculum_homemaking from "../curriculum/homemaking.js";
 import type * as curriculum_maths from "../curriculum/maths.js";
@@ -69,6 +70,7 @@ declare const fullApi: ApiFromModules<{
   "curriculum/derive": typeof curriculum_derive;
   "curriculum/english": typeof curriculum_english;
   "curriculum/gamedev": typeof curriculum_gamedev;
+  "curriculum/geography": typeof curriculum_geography;
   "curriculum/history": typeof curriculum_history;
   "curriculum/homemaking": typeof curriculum_homemaking;
   "curriculum/maths": typeof curriculum_maths;

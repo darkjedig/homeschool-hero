@@ -1,0 +1,939 @@
+import type { SubjectCurriculum } from "./types";
+import { fc, match, ord, tl, mcq } from "./types";
+
+export const geography: SubjectCurriculum = {
+  slug: "geography",
+  topics: [
+    { name: "Maps & Skills", description: "Read maps, use scale, and find places.", difficulty: "beginner" },
+    { name: "Continents & Oceans", description: "The major landmasses and seas of Earth.", difficulty: "beginner" },
+    { name: "UK Geography", description: "Countries, capitals, and landscapes of the United Kingdom.", difficulty: "beginner" },
+    { name: "Climate & Weather", description: "How weather works and why climates differ.", difficulty: "intermediate" },
+    { name: "Rivers & Landforms", description: "Rivers, coasts, mountains, and how land is shaped.", difficulty: "intermediate" },
+    { name: "Western Europe", description: "Countries, features, and connections in Western Europe.", difficulty: "beginner" },
+    { name: "North America", description: "Countries, capitals, and landscapes of North America.", difficulty: "intermediate" },
+    { name: "Asia", description: "The largest continent: countries, climates and features.", difficulty: "intermediate" },
+  ],
+  lessons: [
+    // ===================== MAPS & SKILLS (4) =====================
+    {
+      topic: "Maps & Skills",
+      title: "What Is a Map?",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Maps are simplified drawings of places that show where things are and how to get from one place to another.",
+      blocks: [
+        { type: "heading", text: "Pictures of Places" },
+        {
+          type: "text",
+          text: "A map is a drawing of an area seen from above. It shows where towns, rivers, roads, and mountains are. Maps help us plan journeys, understand distances, and compare places.\n\nEvery map is a model — it leaves out detail so the important things stand out. A world map shows continents; a city map shows streets. The map you choose depends on what you need to know.",
+        },
+        {
+          type: "example",
+          text: "A tourist map of London shows museums and tube stations. A weather map shows where rain is falling. Same city, different purpose.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Maps show places from above.",
+            "They simplify reality to highlight what matters.",
+            "Different maps serve different purposes.",
+            "Maps help with travel and comparison.",
+          ],
+        },
+        fc(
+          ["Map", "A drawing of a place from above"],
+          ["Scale", "How much real distance each map unit represents"],
+          ["Legend", "Explains symbols and colours on a map"],
+          ["Compass rose", "Shows which way is north"],
+        ),
+      ],
+      questions: [
+        { q: "A map shows a place from…", options: ["above", "inside", "underground only", "the side only"], answer: "above", explain: "Bird's-eye view." },
+        { q: "Maps simplify reality to…", options: ["highlight important features", "hide all towns", "remove all rivers", "show every leaf"], answer: "highlight important features", explain: "Models leave out clutter." },
+        { q: "A legend on a map…", options: ["explains symbols", "is a story book", "measures weight", "shows the weather"], answer: "explains symbols", explain: "Key to map symbols." },
+        { q: "Which map would help you find tube stations?", options: ["A city tourist map", "A world population map", "A star chart", "A recipe card"], answer: "A city tourist map", explain: "Purpose-specific." },
+        { q: "Maps are useful for…", options: ["planning journeys", "cooking soup", "playing music", "measuring temperature only"], answer: "planning journeys", explain: "Navigation and planning." },
+      ],
+    },
+    {
+      topic: "Maps & Skills",
+      title: "Compass Directions & Grid References",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "North, east, south, and west help you orient a map; grid references pin-point exact squares.",
+      blocks: [
+        { type: "heading", text: "Finding Your Way" },
+        {
+          type: "text",
+          text: "Compass directions split the world into north (N), east (E), south (S), and west (W). On most maps, north is at the top. Between them come north-east (NE), south-west (SW), and so on.\n\nOrdnance Survey maps use a grid of lines. A four-figure grid reference (e.g. 1234) names one 1 km square: read eastings first, then northings. Six figures zoom in further.",
+        },
+        {
+          type: "example",
+          text: "If a church is in square 3456, you read along to 34, then up to 56. Always 'along the corridor, then up the stairs'.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "N, E, S, W — north is usually map-top.",
+            "Intercardinal: NE, SE, SW, NW.",
+            "Grid refs: eastings then northings.",
+            "Four figures = 1 km square.",
+          ],
+        },
+        ord(["Read the easting (along)", "Read the northing (up)", "Pin-point the feature in that square"]),
+      ],
+      questions: [
+        { q: "On most maps, which direction is at the top?", options: ["North", "South", "East", "West"], answer: "North", explain: "Standard orientation." },
+        { q: "NE stands for…", options: ["North-east", "Near-east", "New-England", "No-east"], answer: "North-east", explain: "Between N and E." },
+        { q: "Grid references read…first.", options: ["eastings (along)", "northings (up)", "colours", "names"], answer: "eastings (along)", explain: "Along then up." },
+        { q: "A four-figure grid reference covers about…", options: ["1 km square", "1 m square", "whole country", "whole world"], answer: "1 km square", explain: "Standard OS grid." },
+        { q: "Compass directions help you…", options: ["orient the map", "cook food", "measure weight", "predict lottery numbers"], answer: "orient the map", explain: "Know which way is which." },
+      ],
+    },
+    {
+      topic: "Maps & Skills",
+      title: "Scale & Distance",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Map scale tells you how much real ground each centimetre on the map represents.",
+      blocks: [
+        { type: "heading", text: "Shrinking the World" },
+        {
+          type: "text",
+          text: "Scale shows the relationship between map distance and real distance. A scale of 1:50,000 means 1 cm on the map = 50,000 cm (500 m) on the ground. Large-scale maps show small areas in detail (street maps); small-scale maps show huge areas with less detail (world maps).\n\nTo measure a route: use a ruler on the map, convert using the scale, or use the map's scale bar.",
+        },
+        {
+          type: "example",
+          text: "1:25,000 — 4 cm on the map = 1 km real distance (4 × 250 m). Good for walking routes.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Scale = map distance : real distance.",
+            "1:50,000 → 1 cm = 500 m.",
+            "Large scale = more detail, smaller area.",
+            "Small scale = less detail, bigger area.",
+          ],
+        },
+        match(
+          ["1:25,000", "Large scale — lots of detail"],
+          ["1:500,000", "Small scale — whole region"],
+          ["Scale bar", "Visual ruler on the map"],
+          ["1 cm = 500 m", "Example of 1:50,000 scale"],
+        ),
+      ],
+      questions: [
+        { q: "1:50,000 means 1 cm on the map equals…", options: ["500 m on the ground", "50 m", "5 km", "50 km"], answer: "500 m on the ground", explain: "50,000 cm = 500 m." },
+        { q: "A large-scale map shows…", options: ["a small area in detail", "the whole world only", "no towns", "only oceans"], answer: "a small area in detail", explain: "More detail, smaller area." },
+        { q: "A small-scale map is good for…", options: ["seeing a whole country", "finding one street", "reading one house number", "measuring a room"], answer: "seeing a whole country", explain: "Broad overview." },
+        { q: "A scale bar helps you…", options: ["measure distance visually", "find north", "name rivers", "draw clouds"], answer: "measure distance visually", explain: "Built-in ruler." },
+        { q: "Scale tells you…", options: ["map distance vs real distance", "the weather", "population only", "history dates"], answer: "map distance vs real distance", explain: "Ratio of sizes." },
+      ],
+    },
+    {
+      topic: "Maps & Skills",
+      title: "Map Symbols & Relief",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Standard symbols show roads, water, and buildings; contour lines show hills and valleys.",
+      blocks: [
+        { type: "heading", text: "Reading the Landscape" },
+        {
+          type: "text",
+          text: "Maps use symbols so they stay clear. Blue lines = rivers; blue areas = lakes/sea. Brown contour lines join points of equal height — close lines mean steep slopes; wide gaps mean gentle land.\n\nSpot heights (triangles with a number) show exact summit heights. Woodlands, marshes, and railways each have their own symbol in the legend.",
+        },
+        {
+          type: "example",
+          text: "Contour lines forming tight circles = hilltop. V-shaped contours pointing uphill = valley with a stream.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Blue = water features.",
+            "Brown contours = height.",
+            "Close contours = steep.",
+            "Check the legend for all symbols.",
+          ],
+        },
+        match(
+          ["Blue line", "River or stream"],
+          ["Contour lines", "Equal height above sea level"],
+          ["Close contours", "Steep slope"],
+          ["Spot height △", "Exact summit elevation"],
+        ),
+      ],
+      questions: [
+        { q: "On OS maps, blue usually shows…", options: ["water", "roads only", "forests only", "cities only"], answer: "water", explain: "Rivers, lakes, sea." },
+        { q: "Contour lines show…", options: ["height above sea level", "temperature", "population", "road names"], answer: "height above sea level", explain: "Relief." },
+        { q: "Close contour lines mean…", options: ["steep ground", "flat ground", "deep ocean", "no hills"], answer: "steep ground", explain: "Height changes quickly." },
+        { q: "A spot height marks…", options: ["exact elevation of a point", "a bus stop", "a shop", "rainfall"], answer: "exact elevation of a point", explain: "Summit or trig point." },
+        { q: "The legend tells you…", options: ["what symbols mean", "tomorrow's weather", "history dates", "recipes"], answer: "what symbols mean", explain: "Map key." },
+      ],
+    },
+
+    // ===================== CONTINENTS & OCEANS (3) =====================
+    {
+      topic: "Continents & Oceans",
+      title: "The Seven Continents",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Earth's land is split into seven continents — Africa, Antarctica, Asia, Australia, Europe, North America, and South America.",
+      blocks: [
+        { type: "heading", text: "Our Planet's Landmasses" },
+        {
+          type: "text",
+          text: "A continent is a huge area of land. There are seven: Africa, Antarctica, Asia, Australia, Europe, North America, and South America. Asia is the largest by area and population; Australia is the smallest continent (sometimes grouped with nearby islands as Oceania).\n\nContinents drift slowly over millions of years — a idea called plate tectonics — which is why coastlines of Africa and South America look like puzzle pieces.",
+        },
+        {
+          type: "example",
+          text: "Africa has the Sahara Desert and the Nile. Asia has the Himalayas and huge cities like Tokyo. Antarctica is covered in ice year-round.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Seven continents on Earth.",
+            "Asia = largest; Australia = smallest.",
+            "Continents move slowly (plate tectonics).",
+            "Each has distinct climates and peoples.",
+          ],
+        },
+        fc(
+          ["Africa", "Second-largest continent; Sahara + Nile"],
+          ["Asia", "Largest continent; Himalayas"],
+          ["Europe", "Western part of Eurasia; many historic cities"],
+          ["Antarctica", "Ice-covered continent at the South Pole"],
+        ),
+      ],
+      questions: [
+        { q: "How many continents are there?", options: ["7", "5", "12", "3"], answer: "7", explain: "Standard count." },
+        { q: "Which is the largest continent?", options: ["Asia", "Australia", "Europe", "Antarctica"], answer: "Asia", explain: "By area and population." },
+        { q: "Which continent is mostly covered in ice?", options: ["Antarctica", "Africa", "Australia", "Europe"], answer: "Antarctica", explain: "South Pole region." },
+        { q: "Continents move because of…", options: ["plate tectonics", "wind only", "the Moon", "maps"], answer: "plate tectonics", explain: "Slow drift over millions of years." },
+        { q: "The Nile River is in…", options: ["Africa", "Antarctica", "Australia", "Europe only"], answer: "Africa", explain: "Major African river." },
+      ],
+    },
+    {
+      topic: "Continents & Oceans",
+      title: "The Five Oceans",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Earth's oceans — Pacific, Atlantic, Indian, Southern, and Arctic — cover most of the planet and drive weather and trade.",
+      blocks: [
+        { type: "heading", text: "The World of Water" },
+        {
+          type: "text",
+          text: "About 71% of Earth is ocean. The five oceans are the Pacific (largest and deepest), Atlantic (between Americas and Europe/Africa), Indian (south of Asia), Southern (around Antarctica), and Arctic (around the North Pole).\n\nOceans store heat, produce rain through evaporation, and carry ships on trade routes. They are home to coral reefs, whales, and food chains we depend on.",
+        },
+        {
+          type: "example",
+          text: "The Pacific Ocean is so vast that all continents could fit inside it with room to spare.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Five named oceans.",
+            "Pacific = largest and deepest.",
+            "Oceans drive weather and trade.",
+            "71% of Earth is water.",
+          ],
+        },
+        match(
+          ["Pacific", "Largest ocean"],
+          ["Atlantic", "Between Europe/Africa and the Americas"],
+          ["Arctic", "Cold ocean at the North Pole"],
+          ["Southern", "Waters around Antarctica"],
+        ),
+      ],
+      questions: [
+        { q: "Roughly what % of Earth is ocean?", options: ["71%", "10%", "50%", "99%"], answer: "71%", explain: "Mostly water planet." },
+        { q: "The largest ocean is the…", options: ["Pacific", "Arctic", "Indian", "Southern"], answer: "Pacific", explain: "Covers more area than all land." },
+        { q: "The Atlantic lies between…", options: ["Europe/Africa and the Americas", "Asia and Australia only", "Antarctica and Mars", "UK counties only"], answer: "Europe/Africa and the Americas", explain: "Major trade route." },
+        { q: "Evaporation from oceans helps create…", options: ["rain and clouds", "mountains", "deserts only", "maps"], answer: "rain and clouds", explain: "Water cycle." },
+        { q: "The Arctic Ocean is near the…", options: ["North Pole", "South Pole", "Equator only", "Moon"], answer: "North Pole", explain: "Cold northern ocean." },
+      ],
+    },
+    {
+      topic: "Continents & Oceans",
+      title: "Activity: Continents & Oceans Match-Up",
+      difficulty: "beginner",
+      minutes: 8,
+      points: 80,
+      summary: "Match each continent or ocean to its key fact.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Match the World" },
+        {
+          type: "text",
+          text: "Tap a continent or ocean, then tap the fact that best describes it. Knowing where major features are helps you read news, history, and weather reports.",
+        },
+        match(
+          ["Asia", "Contains Mount Everest and huge populations"],
+          ["Africa", "Home to the Sahara and the Nile"],
+          ["Pacific Ocean", "Largest body of water on Earth"],
+          ["Atlantic Ocean", "Linked Europe to the Americas for centuries"],
+          ["Antarctica", "No permanent residents; covered in ice"],
+          ["Australia", "Smallest continent; unique wildlife"],
+        ),
+      ],
+      questions: [],
+    },
+
+    // ===================== UK GEOGRAPHY (4) =====================
+    {
+      topic: "UK Geography",
+      title: "The Four Countries of the UK",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "The United Kingdom is made up of England, Scotland, Wales, and Northern Ireland — each with its own capital and character.",
+      blocks: [
+        { type: "heading", text: "One Kingdom, Four Nations" },
+        {
+          type: "text",
+          text: "The UK (United Kingdom) includes four countries: England (capital London), Scotland (Edinburgh), Wales (Cardiff), and Northern Ireland (Belfast). Great Britain is the island containing England, Scotland, and Wales — not Northern Ireland.\n\nEach nation has its own landscapes, languages or dialects, and traditions, but they share one monarch, parliament (with devolved assemblies), and many institutions.",
+        },
+        {
+          type: "example",
+          text: "London is the capital of both England and the whole UK. Edinburgh hosts Scotland's parliament at Holyrood.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Four countries: England, Scotland, Wales, NI.",
+            "Capitals: London, Edinburgh, Cardiff, Belfast.",
+            "Great Britain = island without NI.",
+            "UK = all four countries together.",
+          ],
+        },
+        fc(
+          ["England", "Capital: London"],
+          ["Scotland", "Capital: Edinburgh; Highlands and lochs"],
+          ["Wales", "Capital: Cardiff; mountains in the north"],
+          ["Northern Ireland", "Capital: Belfast; part of the UK"],
+        ),
+      ],
+      questions: [
+        { q: "How many countries make up the UK?", options: ["4", "2", "7", "50"], answer: "4", explain: "England, Scotland, Wales, NI." },
+        { q: "Capital of Scotland?", options: ["Edinburgh", "London", "Cardiff", "Dublin"], answer: "Edinburgh", explain: "Not London." },
+        { q: "Great Britain is…", options: ["England + Scotland + Wales", "all of Europe", "only England", "Ireland only"], answer: "England + Scotland + Wales", explain: "Excludes Northern Ireland." },
+        { q: "Capital of Wales?", options: ["Cardiff", "Belfast", "Manchester", "Glasgow"], answer: "Cardiff", explain: "South Wales." },
+        { q: "Capital of Northern Ireland?", options: ["Belfast", "London", "Edinburgh", "Liverpool"], answer: "Belfast", explain: "NI capital." },
+      ],
+    },
+    {
+      topic: "UK Geography",
+      title: "UK Landscapes: Mountains, Rivers & Coasts",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "The UK has highlands in Scotland and Wales, long rivers like the Thames and Severn, and thousands of miles of coastline.",
+      blocks: [
+        { type: "heading", text: "Varied Terrain" },
+        {
+          type: "text",
+          text: "Scotland's Highlands and Ben Nevis (1,345 m — UK's highest peak) contrast with England's rolling lowlands. Wales has Snowdonia; Northern Ireland has the Mourne Mountains.\n\nMajor rivers include the Thames (London), Severn (longest), and Trent. The UK coastline is over 12,000 km — cliffs in Cornwall, estuaries in Essex, and beaches in Devon attract visitors and support fishing.",
+        },
+        {
+          type: "example",
+          text: "Ben Nevis near Fort William is the tallest mountain in the UK. The Severn flows through Wales and England to the Bristol Channel.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Ben Nevis = UK's highest peak (Scotland).",
+            "Severn = longest river in the UK.",
+            "Thames flows through London.",
+            "Long, varied coastline.",
+          ],
+        },
+        match(
+          ["Ben Nevis", "Highest mountain in the UK"],
+          ["River Severn", "Longest UK river"],
+          ["River Thames", "Flows through London"],
+          ["Snowdonia", "Mountain region in Wales"],
+        ),
+      ],
+      questions: [
+        { q: "UK's highest mountain is…", options: ["Ben Nevis", "Snowdon", "Scafell Pike", "Mount Everest"], answer: "Ben Nevis", explain: "In Scotland." },
+        { q: "Longest river in the UK?", options: ["Severn", "Thames", "Amazon", "Nile"], answer: "Severn", explain: "Wales and England." },
+        { q: "The Thames flows through…", options: ["London", "Edinburgh only", "Cardiff only", "Paris"], answer: "London", explain: "Major English river." },
+        { q: "Snowdonia is in…", options: ["Wales", "Scotland only", "Antarctica", "London"], answer: "Wales", explain: "Welsh mountains." },
+        { q: "The UK has a long…", options: ["coastline", "desert", "rainforest", "volcano chain"], answer: "coastline", explain: "Island nation." },
+      ],
+    },
+    {
+      topic: "UK Geography",
+      title: "UK Cities & Regions",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Major UK cities are hubs for trade, culture, and industry — from Birmingham and Manchester to Glasgow and Belfast.",
+      blocks: [
+        { type: "heading", text: "Where People Live and Work" },
+        {
+          type: "text",
+          text: "Most UK people live in cities and towns. London is by far the largest (finance, culture, government). Birmingham is the second-largest in the UK. Manchester and Liverpool grew during the Industrial Revolution; Glasgow was Scotland's industrial heart.\n\nRegions like the Midlands, Yorkshire, and the South West each have distinct economies — from farming to tech to tourism.",
+        },
+        {
+          type: "example",
+          text: "Manchester's canals and mills tell the story of textile industry history. Today it is a media and tech hub.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "London = largest city and capital.",
+            "Birmingham = 2nd largest UK city.",
+            "Industrial heritage in the North and Midlands.",
+            "Regions have different economies.",
+          ],
+        },
+        tl(
+          ["1760s", "Industrial Revolution begins — mills and canals"],
+          ["1800s", "Cities like Manchester and Glasgow grow rapidly"],
+          ["Today", "London, Birmingham, Edinburgh lead in jobs and culture"],
+        ),
+      ],
+      questions: [
+        { q: "Largest city in the UK?", options: ["London", "Cardiff", "York", "Bath"], answer: "London", explain: "Capital and biggest." },
+        { q: "Second-largest city in the UK?", options: ["Birmingham", "Oxford", "St Davids", "Wells"], answer: "Birmingham", explain: "Midlands hub." },
+        { q: "Manchester grew during the…", options: ["Industrial Revolution", "Roman Empire only", "Ice Age", "Space Age only"], answer: "Industrial Revolution", explain: "Textiles and canals." },
+        { q: "Glasgow is a major city in…", options: ["Scotland", "Wales only", "Northern Ireland only", "France"], answer: "Scotland", explain: "Scottish city." },
+        { q: "UK regions differ in…", options: ["economy and landscape", "number of oceans", "being on Mars", "having no people"], answer: "economy and landscape", explain: "Diverse regions." },
+      ],
+    },
+    {
+      topic: "UK Geography",
+      title: "UK Climate & Seasons",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "The UK has a mild, wet climate with four seasons — influenced by the Atlantic Ocean and the Gulf Stream.",
+      blocks: [
+        { type: "heading", text: "Mild and Changeable" },
+        {
+          type: "text",
+          text: "The UK's climate is temperate maritime — mild winters, cool summers, and rain spread through the year. The Gulf Stream (a warm ocean current) stops Britain from being as cold as places at the same latitude (like Canada).\n\nWest coasts are wetter (relief rainfall from Atlantic winds hitting mountains). East coasts are drier. Spring, summer, autumn, and winter each bring different farming and wildlife patterns.",
+        },
+        {
+          type: "example",
+          text: "Snow is more common on Scottish mountains than in central London. Cornwall gets more rain than East Anglia.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Temperate maritime climate.",
+            "Gulf Stream warms the UK.",
+            "West = wetter; east = drier.",
+            "Four distinct seasons.",
+          ],
+        },
+        ord(["Atlantic winds pick up moisture", "Air rises over western mountains", "Rain falls on west coast", "East receives less rain"]),
+      ],
+      questions: [
+        { q: "The Gulf Stream makes the UK…", options: ["milder than similar latitudes", "a desert", "tropical always", "covered in ice"], answer: "milder than similar latitudes", explain: "Warm ocean current." },
+        { q: "UK climate type is best described as…", options: ["temperate maritime", "polar desert", "tropical monsoon", "arctic tundra"], answer: "temperate maritime", explain: "Mild and wet." },
+        { q: "Which coast is usually wetter?", options: ["West", "East", "Neither", "North Pole"], answer: "West", explain: "Atlantic rainfall." },
+        { q: "How many seasons does the UK experience?", options: ["4", "1", "2", "12"], answer: "4", explain: "Spring, summer, autumn, winter." },
+        { q: "Relief rainfall happens when air…", options: ["rises over mountains", "stays at sea level only", "freezes instantly", "avoids clouds"], answer: "rises over mountains", explain: "Cools and condenses." },
+      ],
+    },
+
+    // ===================== CLIMATE & WEATHER (3) =====================
+    {
+      topic: "Climate & Weather",
+      title: "Weather vs Climate",
+      difficulty: "beginner",
+      minutes: 10,
+      points: 60,
+      summary: "Weather is what happens today; climate is the average pattern over decades.",
+      blocks: [
+        { type: "heading", text: "Today vs the Long Term" },
+        {
+          type: "text",
+          text: "Weather is the day-to-day state of the atmosphere — rain, sunshine, wind, temperature right now. Climate is the average weather over 30+ years in a place. 'It's raining today' is weather; 'London is mild and wet' is climate.\n\nClimate zones (tropical, desert, polar, temperate) describe long-term patterns that affect what crops grow and how people dress.",
+        },
+        {
+          type: "example",
+          text: "A heatwave in the UK is weather. The fact that the UK rarely hits 40 °C in summer is climate.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Weather = short term.",
+            "Climate = long-term average.",
+            "Climate zones describe global patterns.",
+            "Both matter for planning.",
+          ],
+        },
+        fc(
+          ["Weather", "Conditions right now or this week"],
+          ["Climate", "Average pattern over decades"],
+          ["Tropical climate", "Hot, wet, near the Equator"],
+          ["Polar climate", "Very cold, ice-covered"],
+        ),
+      ],
+      questions: [
+        { q: "Weather describes…", options: ["today's conditions", "30-year averages", "only ancient history", "map symbols only"], answer: "today's conditions", explain: "Short term." },
+        { q: "Climate describes…", options: ["long-term average weather", "one thunderstorm", "a single hour", "yesterday only"], answer: "long-term average weather", explain: "Decades of data." },
+        { q: "The Equator has mostly…", options: ["tropical climate", "polar climate", "no climate", "ice always"], answer: "tropical climate", explain: "Hot and wet." },
+        { q: "'It snowed this morning' is about…", options: ["weather", "climate", "geology", "population"], answer: "weather", explain: "Daily event." },
+        { q: "Climate affects…", options: ["what crops can grow", "yesterday's lunch", "map colours only", "compass north"], answer: "what crops can grow", explain: "Long-term patterns." },
+      ],
+    },
+    {
+      topic: "Climate & Weather",
+      title: "The Water Cycle",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Water evaporates, forms clouds, falls as rain or snow, and flows back to the sea — a continuous cycle powered by the Sun.",
+      blocks: [
+        { type: "heading", text: "Water on the Move" },
+        {
+          type: "text",
+          text: "The water cycle moves water between ocean, sky, and land. The Sun heats water → evaporation into water vapour → condensation into clouds → precipitation (rain, snow) → runoff into rivers → back to the sea.\n\nPlants also release water vapour (transpiration). This cycle refreshes freshwater supplies and shapes climates worldwide.",
+        },
+        {
+          type: "example",
+          text: "Puddle on a sunny day → disappears (evaporates) → later clouds form → rain fills the puddle again.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Sun drives the cycle.",
+            "Evaporation → condensation → precipitation.",
+            "Rivers return water to oceans.",
+            "Transpiration from plants adds vapour.",
+          ],
+        },
+        ord([
+          "Sun heats water; evaporation occurs",
+          "Water vapour rises and cools",
+          "Clouds form (condensation)",
+          "Rain or snow falls (precipitation)",
+          "Water flows via rivers to the sea",
+        ]),
+      ],
+      questions: [
+        { q: "What powers the water cycle?", options: ["The Sun", "The Moon", "Compass north", "Maps"], answer: "The Sun", explain: "Provides heat energy." },
+        { q: "Evaporation turns liquid water into…", options: ["water vapour", "rocks", "ice only forever", "soil"], answer: "water vapour", explain: "Gas in the air." },
+        { q: "Rain is a form of…", options: ["precipitation", "evaporation", "transpiration only", "mining"], answer: "precipitation", explain: "Water falling from clouds." },
+        { q: "Transpiration is water vapour from…", options: ["plants", "volcanoes only", "cars only", "mountains only"], answer: "plants", explain: "Leaves release moisture." },
+        { q: "Rivers eventually carry water to…", options: ["the sea", "space", "the Moon", "deserts only"], answer: "the sea", explain: "Completes the cycle." },
+      ],
+    },
+    {
+      topic: "Climate & Weather",
+      title: "Climate Zones of the World",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "From tropical rainforests near the Equator to polar tundra near the poles — latitude and altitude shape climate zones.",
+      blocks: [
+        { type: "heading", text: "Zones Around the Globe" },
+        {
+          type: "text",
+          text: "Near the Equator, the Sun's rays are strong year-round → tropical climates (hot, wet rainforests or savannas). Mid-latitudes have temperate climates with seasons. Deserts (like the Sahara) are dry because little rain falls. Near poles, polar climates are cold and icy.\n\nAltitude matters too: mountain tops can be snowy even near the Equator (e.g. Kilimanjaro).",
+        },
+        {
+          type: "example",
+          text: "Amazon Basin = tropical rainforest. Sahara = hot desert. Arctic = polar tundra.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Equator → tropical zones.",
+            "Mid-latitudes → temperate seasons.",
+            "Deserts = very dry.",
+            "Poles → polar climates.",
+          ],
+        },
+        match(
+          ["Tropical rainforest", "Hot, wet, near Equator — e.g. Amazon"],
+          ["Hot desert", "Very dry — e.g. Sahara"],
+          ["Temperate", "Four seasons — e.g. UK"],
+          ["Polar tundra", "Cold, icy — near Arctic/Antarctic"],
+        ),
+      ],
+      questions: [
+        { q: "Tropical rainforests are found near the…", options: ["Equator", "North Pole only", "Moon", "bottom of oceans only"], answer: "Equator", explain: "Strong sunlight year-round." },
+        { q: "The Sahara is an example of…", options: ["hot desert climate", "polar climate", "tropical rainforest", "UK weather"], answer: "hot desert climate", explain: "Very dry." },
+        { q: "The UK has a…", options: ["temperate climate", "tropical climate", "polar climate", "no climate"], answer: "temperate climate", explain: "Mild with seasons." },
+        { q: "High mountains can be cold because…", options: ["altitude — air is cooler higher up", "they are near the Moon", "maps say so", "oceans freeze them"], answer: "altitude — air is cooler higher up", explain: "Lapse rate." },
+        { q: "Polar climates are found near…", options: ["the Arctic and Antarctic", "the Equator only", "every city", "deserts only"], answer: "the Arctic and Antarctic", explain: "Far north and south." },
+      ],
+    },
+
+    // ===================== RIVERS & LANDFORMS (4) =====================
+    {
+      topic: "Rivers & Landforms",
+      title: "How Rivers Shape the Land",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Rivers erode, transport, and deposit material — carving valleys, waterfalls, and fertile floodplains.",
+      blocks: [
+        { type: "heading", text: "Nature's Sculptors" },
+        {
+          type: "text",
+          text: "Rivers have three jobs: erosion (wearing away rock and soil), transportation (carrying sediment), and deposition (dropping sediment when the river slows). Fast upper courses cut V-shaped valleys and waterfalls. Middle courses meander. Lower courses deposit silt on floodplains — rich farmland.\n\nHuman settlements often grew on rivers for water, transport, and farming.",
+        },
+        {
+          type: "example",
+          text: "The Nile's annual floods deposited fertile mud — ancient Egypt's farming depended on it.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Erosion, transport, deposition.",
+            "Upper course = steep, V-shaped valleys.",
+            "Lower course = floodplains.",
+            "Rivers attract settlements.",
+          ],
+        },
+        ord([
+          "River erodes rock in the upper course",
+          "River transports sediment downstream",
+          "River slows and deposits silt on floodplain",
+          "Fertile farmland forms beside the river",
+        ]),
+      ],
+      questions: [
+        { q: "Rivers erode, transport, and…", options: ["deposit sediment", "create stars", "freeze oceans", "move continents daily"], answer: "deposit sediment", explain: "Three river processes." },
+        { q: "V-shaped valleys form in the…", options: ["upper course", "air only", "ocean floor only", "desert only"], answer: "upper course", explain: "Steep, fast water." },
+        { q: "Floodplains are often good for…", options: ["farming", "skiing", "deep-sea fishing", "space launches"], answer: "farming", explain: "Fertile deposited soil." },
+        { q: "When a river slows, it…", options: ["deposits sediment", "erodes more", "disappears", "becomes salt"], answer: "deposits sediment", explain: "Drops its load." },
+        { q: "Ancient Egypt relied on the Nile for…", options: ["fertile flood mud", "ice", "volcanoes", "maps"], answer: "fertile flood mud", explain: "Annual floods." },
+      ],
+    },
+    {
+      topic: "Rivers & Landforms",
+      title: "Coasts & Erosion",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Waves, wind, and tides reshape coastlines — creating cliffs, beaches, headlands, and bays.",
+      blocks: [
+        { type: "heading", text: "Where Land Meets Sea" },
+        {
+          type: "text",
+          text: "Coasts are battle zones between land and sea. Hydraulic action (wave power), abrasion (sand and pebbles grinding cliffs), and corrosion (chemical weathering) erode rock. Soft rock erodes faster than hard rock, forming headlands and bays.\n\nBeaches form where sediment is deposited. Spits and bars are ridges of sand linked to the coast. Managing erosion with sea walls and groynes is a major challenge for coastal towns.",
+        },
+        {
+          type: "example",
+          text: "Durdle Door (Dorset) — hard limestone arch left after softer rock eroded away.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Waves erode and deposit sediment.",
+            "Soft rock → bays; hard rock → headlands.",
+            "Beaches = deposited material.",
+            "Coastal management protects towns.",
+          ],
+        },
+        match(
+          ["Hydraulic action", "Wave power forcing air into cracks"],
+          ["Abrasion", "Pebbles grinding the cliff face"],
+          ["Headland", "Hard rock sticking out into the sea"],
+          ["Bay", "Softer rock eroded into an inlet"],
+        ),
+      ],
+      questions: [
+        { q: "Abrasion on coasts is…", options: ["pebbles grinding rock", "only chemical rust", "volcanoes", "earthquakes only"], answer: "pebbles grinding rock", explain: "Physical erosion." },
+        { q: "Soft rock coasts often form…", options: ["bays", "taller mountains", "deserts", "polar ice"], answer: "bays", explain: "Erodes faster than hard rock." },
+        { q: "Beaches are made of…", options: ["deposited sand and pebbles", "solid granite only", "ice", "metal"], answer: "deposited sand and pebbles", explain: "Wave deposition." },
+        { q: "Groynes are built to…", options: ["trap sand and reduce erosion", "catch fish", "measure rain", "grow trees"], answer: "trap sand and reduce erosion", explain: "Coastal management." },
+        { q: "Headlands are made of…", options: ["harder rock that erodes slowly", "water only", "clouds", "sand only"], answer: "harder rock that erodes slowly", explain: "Stick out into the sea." },
+      ],
+    },
+    {
+      topic: "Rivers & Landforms",
+      title: "Mountains & Plate Tectonics",
+      difficulty: "intermediate",
+      minutes: 14,
+      points: 90,
+      summary: "Mountains form where Earth's tectonic plates collide, pull apart, or slide — building ranges like the Himalayas and Andes.",
+      blocks: [
+        { type: "heading", text: "When Plates Collide" },
+        {
+          type: "text",
+          text: "Earth's crust is split into tectonic plates that move slowly. When plates collide, crust crumples into fold mountains (Himalayas). When an ocean plate dives under a continent, volcanoes and earthquakes occur (Pacific Ring of Fire).\n\nMountains affect climate (rain shadows), travel, and where people can live. The Himalayas are still rising as India pushes into Asia.",
+        },
+        {
+          type: "example",
+          text: "Mount Everest (8,849 m) sits in the Himalayas — formed by the collision of the Indian and Eurasian plates.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Plates move on the mantle.",
+            "Collisions build fold mountains.",
+            "Earthquakes and volcanoes at plate boundaries.",
+            "Mountains affect weather patterns.",
+          ],
+        },
+        tl(
+          ["Millions of years ago", "Indian plate moves north toward Eurasia"],
+          ["Collision", "Crust crumples — Himalayas begin to rise"],
+          ["Today", "Everest still growing slightly each year"],
+        ),
+      ],
+      questions: [
+        { q: "Fold mountains form when plates…", options: ["collide", "vanish", "turn to water", "stop moving forever"], answer: "collide", explain: "Crust crumples." },
+        { q: "Everest is in the…", options: ["Himalayas", "Andes only", "UK", "Atlantic Ocean"], answer: "Himalayas", explain: "Asia." },
+        { q: "Earthquakes often occur at…", options: ["plate boundaries", "map legends", "only deserts", "the Equator only"], answer: "plate boundaries", explain: "Stress release." },
+        { q: "A rain shadow means…", options: ["dry area behind a mountain range", "rain inside caves", "ocean tides", "polar ice"], answer: "dry area behind a mountain range", explain: "Moisture blocked." },
+        { q: "Tectonic plates move…", options: ["slowly over millions of years", "every second visibly", "never", "only in maps"], answer: "slowly over millions of years", explain: "Centimetres per year." },
+      ],
+    },
+    {
+      topic: "Rivers & Landforms",
+      title: "Activity: Landform Match-Up",
+      difficulty: "beginner",
+      minutes: 8,
+      points: 80,
+      summary: "Match each landform to how it was formed.",
+      kind: "activity",
+      blocks: [
+        { type: "heading", text: "Shape of the Land" },
+        { type: "text", text: "Connect each landform to the process that created it." },
+        match(
+          ["V-shaped valley", "River erosion in the upper course"],
+          ["Floodplain", "River deposition in the lower course"],
+          ["Headland", "Hard rock resisting coastal erosion"],
+          ["Fold mountain", "Tectonic plate collision"],
+          ["Beach", "Waves depositing sand and pebbles"],
+          ["Waterfall", "River eroding different rock layers"],
+        ),
+      ],
+      questions: [],
+    },
+
+    // ===================== WESTERN EUROPE (2 more — user has lesson 1) =====================
+    {
+      topic: "Western Europe",
+      title: "Western Europe: Major Countries & Capitals",
+      difficulty: "beginner",
+      minutes: 12,
+      points: 70,
+      summary: "France, Germany, Spain, Italy, and neighbours — capitals, languages, and why the region matters for trade and travel.",
+      blocks: [
+        { type: "heading", text: "Heart of Europe" },
+        {
+          type: "text",
+          text: "Western Europe includes countries like France (Paris), Germany (Berlin), Spain (Madrid), Italy (Rome), Netherlands (Amsterdam), Belgium (Brussels), and Portugal (Lisbon). The region is densely populated and wealthy, with strong trade links.\n\nThe European Union helps many of these countries trade without border checks. The Channel Tunnel links the UK to France by rail.",
+        },
+        {
+          type: "example",
+          text: "Paris is France's capital and a global centre for art and culture. Brussels hosts EU institutions.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "France — Paris; Germany — Berlin.",
+            "Spain — Madrid; Italy — Rome.",
+            "Dense population and strong economy.",
+            "EU simplifies trade between members.",
+          ],
+        },
+        fc(
+          ["France", "Capital: Paris; Alps and Mediterranean coast"],
+          ["Germany", "Capital: Berlin; Europe's largest economy"],
+          ["Spain", "Capital: Madrid; Pyrenees mountains"],
+          ["Italy", "Capital: Rome; boot-shaped peninsula"],
+        ),
+      ],
+      questions: [
+        { q: "Capital of France?", options: ["Paris", "Berlin", "Rome", "London"], answer: "Paris", explain: "Major European city." },
+        { q: "Capital of Germany?", options: ["Berlin", "Madrid", "Lisbon", "Dublin"], answer: "Berlin", explain: "Reunified capital." },
+        { q: "The Channel Tunnel connects the UK to…", options: ["France", "Spain", "Iceland", "Italy"], answer: "France", explain: "Under the English Channel." },
+        { q: "Capital of Italy?", options: ["Rome", "Paris", "Vienna", "Oslo"], answer: "Rome", explain: "Historic capital." },
+        { q: "Many Western European countries belong to the…", options: ["European Union", "Pacific Ocean", "Antarctic Treaty only", "Moon Alliance"], answer: "European Union", explain: "Trade and cooperation." },
+      ],
+    },
+    {
+      topic: "Western Europe",
+      title: "Western Europe: Landscapes & Trade",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "From the Alps to the Rhine — rivers, mountains, and ports connect Western Europe to the world.",
+      blocks: [
+        { type: "heading", text: "Connected by Land and Water" },
+        {
+          type: "text",
+          text: "The Alps stretch across France, Switzerland, Italy, and Austria — a barrier and a tourist destination. The Rhine is a major shipping route from Switzerland to the North Sea. Ports like Rotterdam (Netherlands) and Hamburg (Germany) handle huge volumes of trade.\n\nHigh-speed rail and motorways link cities. Agriculture in France and Spain feeds Europe; Germany leads in manufacturing.",
+        },
+        {
+          type: "example",
+          text: "Rotterdam's port is one of the busiest in the world — goods arrive by ship and travel by river, road, and rail across Europe.",
+        },
+        {
+          type: "keyPoints",
+          items: [
+            "Alps = major mountain barrier.",
+            "Rhine = key trade river.",
+            "Rotterdam = huge port.",
+            "Rail and road networks link cities.",
+          ],
+        },
+        match(
+          ["Alps", "Mountain range — skiing and tourism"],
+          ["Rhine River", "Major trade route to the North Sea"],
+          ["Rotterdam", "One of Europe's busiest ports"],
+          ["Pyrenees", "Mountains between France and Spain"],
+        ),
+      ],
+      questions: [
+        { q: "The Alps are found in…", options: ["Central/Western Europe", "Antarctica only", "The Pacific", "The Moon"], answer: "Central/Western Europe", explain: "France, Switzerland, etc." },
+        { q: "The Rhine is important for…", options: ["shipping and trade", "space travel", "desert farming", "polar research only"], answer: "shipping and trade", explain: "Major waterway." },
+        { q: "Rotterdam is a major port in the…", options: ["Netherlands", "UK", "Australia", "Brazil"], answer: "Netherlands", explain: "Gateway to Europe." },
+        { q: "The Pyrenees separate France and…", options: ["Spain", "Germany", "Russia", "Egypt"], answer: "Spain", explain: "Southern border mountains." },
+        { q: "Western Europe trades heavily because…", options: ["ports, rivers, and rail connect it", "it has no people", "it avoids the sea", "maps forbid trade"], answer: "ports, rivers, and rail connect it", explain: "Transport networks." },
+      ],
+    },
+
+    // ===================== NORTH AMERICA (3) =====================
+    {
+      topic: "North America",
+      title: "Countries of North America",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "North America has three large countries (Canada, USA, Mexico) plus Caribbean and Central American nations.",
+      blocks: [
+        { type: "heading", text: "Three Big Neighbours" },
+        { type: "text", text: "North America stretches from the Arctic to the tropics. Its three biggest countries sit in a row: CANADA (north, cold, famous for forests and lakes), the UNITED STATES (the middle, 50 states), and MEXICO (south, warmer, Spanish-speaking).\n\nSouth of Mexico lies Central America (small countries like Guatemala, Panama) and the Caribbean islands (Cuba, Jamaica). Each region has its own climate, language and culture." },
+        { type: "example", text: "Drive from Canada through the USA to Mexico and you cross freezing tundra, temperate forests, hot deserts and tropical jungle — all on one continent." },
+        { type: "keyPoints", items: ["Big three: Canada, USA, Mexico.", "Plus Central America + Caribbean.", "Canada = cold/north; Mexico = warmer/south.", "Many languages, mainly English + Spanish."] },
+        match(["Canada", "Northernmost, cold"], ["USA", "50 states in the middle"], ["Mexico", "South, Spanish-speaking"], ["Cuba", "A Caribbean island"]),
+      ],
+      questions: [
+        { q: "Which is the NORTHERN big country?", options: ["Canada", "Mexico", "Brazil", "Cuba"], answer: "Canada", explain: "North = cold." },
+        { q: "The USA has how many states?", options: ["50", "13", "100", "10"], answer: "50", explain: "Fifty states." },
+        { q: "Mexico mainly speaks…", options: ["Spanish", "French", "Portuguese", "English"], answer: "Spanish", explain: "Spanish-speaking." },
+        { q: "Cuba and Jamaica are in the…", options: ["Caribbean", "Arctic", "Alps", "Sahara"], answer: "Caribbean", explain: "Caribbean islands." },
+        { q: "South of Mexico lies…", options: ["Central America", "Canada", "Greenland", "Europe"], answer: "Central America", explain: "Connecting to South America." },
+      ],
+    },
+    {
+      topic: "North America",
+      title: "Landscapes of the USA",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "The USA has deserts, mountains (Rockies), plains, forests and swamps — hugely varied landscapes.",
+      blocks: [
+        { type: "heading", text: "Land of Variety" },
+        { type: "text", text: "The USA packs deserts, huge mountains, flat plains, dense forests and wet swamps into one country. The ROCKY MOUNTAINS run down the west; the older APPALACHIANS lie in the east. Between them spread the GREAT PLAINS, the farming heartland.\n\nIn the west, deserts like the Mojave and wonders like the GRAND CANYON (carved by the Colorado River) draw millions. Alaska (far north) has glaciers; Florida (south-east) has steamy swamps called the Everglades." },
+        { type: "example", text: "The Grand Canyon is over 1.5 km deep in places — carved by the Colorado River over millions of years." },
+        { type: "keyPoints", items: ["Rocky Mountains (west), Appalachians (east).", "Great Plains between = farmland.", "Mojave desert + Grand Canyon (west).", "Alaska glaciers; Florida Everglades."] },
+        mcq("The Grand Canyon was carved by…", ["the Colorado River", "a volcano", "glaciers only", "wind only"], "the Colorado River", "Over millions of years."),
+      ],
+      questions: [
+        { q: "Which mountains run down the WEST of the USA?", options: ["The Rockies", "The Alps", "The Himalayas", "The Andes"], answer: "The Rockies", explain: "Western range." },
+        { q: "The Grand Canyon was carved by…", options: ["the Colorado River", "a meteor", "glaciers", "an earthquake"], answer: "the Colorado River", explain: "Over millions of years." },
+        { q: "The Great Plains are famous for…", options: ["farming", "deserts", "glaciers", "volcanoes"], answer: "farming", explain: "Flat, fertile farmland." },
+        { q: "Florida's wet swamps are called the…", options: ["Everglades", "Mojave", "Tundra", "Sahara"], answer: "Everglades", explain: "Steamy wetlands." },
+        { q: "Alaska is known for…", options: ["glaciers", "deserts", "rainforest only", "canyons"], answer: "glaciers", explain: "Far north, icy." },
+      ],
+    },
+    {
+      topic: "North America",
+      title: "Cities & Capitals",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Ottawa, Washington D.C. and Mexico City are the capitals; big cities include New York and LA.",
+      blocks: [
+        { type: "heading", text: "Where People Live" },
+        { type: "text", text: "North America's capital cities are OTTAWA (Canada), WASHINGTON, D.C. (USA) and MEXICO CITY (Mexico). Capitals are where the government sits — but they're not always the biggest city.\n\nThe USA's biggest cities include NEW YORK (finance and culture, famous for the Statue of Liberty), LOS ANGELES (filmmaking, Hollywood) and CHICAGO. Toronto is Canada's biggest city; Mexico City is one of the largest, busiest cities on Earth." },
+        { type: "example", text: "Washington, D.C. is the USA's capital (where the President lives), but New York is its biggest city." },
+        { type: "keyPoints", items: ["Canada's capital = Ottawa.", "USA's capital = Washington, D.C.", "Mexico's capital = Mexico City.", "Biggest ≠ capital sometimes."] },
+        match(["Canada", "Ottawa"], ["USA", "Washington, D.C."], ["Mexico", "Mexico City"], ["Statue of Liberty", "New York"]),
+      ],
+      questions: [
+        { q: "What is the capital of the USA?", options: ["Washington, D.C.", "New York", "Los Angeles", "Chicago"], answer: "Washington, D.C.", explain: "Seat of government." },
+        { q: "What is the capital of Canada?", options: ["Ottawa", "Toronto", "Vancouver", "Montreal"], answer: "Ottawa", explain: "Canada's capital." },
+        { q: "Hollywood filmmaking is in…", options: ["Los Angeles", "Ottawa", "Chicago", "Miami"], answer: "Los Angeles", explain: "LA = movies." },
+        { q: "The Statue of Liberty is in…", options: ["New York", "Washington", "Texas", "Alaska"], answer: "New York", explain: "NYC harbour." },
+        { q: "Mexico's capital is…", options: ["Mexico City", "Cancun", "Havana", "Lima"], answer: "Mexico City", explain: "One of the world's biggest." },
+      ],
+    },
+
+    // ===================== ASIA (3) =====================
+    {
+      topic: "Asia",
+      title: "The Largest Continent",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Asia is the biggest and most populous continent, holding China, India, Russia, Japan and more.",
+      blocks: [
+        { type: "heading", text: "A Giant Land" },
+        { type: "text", text: "Asia is the largest continent on Earth and home to more people than all the others combined. It holds huge countries like CHINA and INDIA (each over a billion people), RUSSIA (which stretches across the north into Europe), and JAPAN (a country made of thousands of islands).\n\nAsia has every landscape: the freezing Siberian tundra in Russia, the towering HIMALAYA mountains (home of Mount Everest), the vast Gobi Desert, and the hot monsoon lands of South-East Asia." },
+        { type: "example", text: "Mount Everest, the world's tallest mountain at 8,848 m, sits in the Himalaya between Nepal and China." },
+        { type: "keyPoints", items: ["Asia = biggest + most populous.", "China + India each > 1 billion.", "Russia spans into Europe.", "Himalaya + Everest; Gobi desert."] },
+        mcq("The world's tallest mountain, Everest, is in…", ["the Himalaya (Asia)", "the Alps", "the Rockies", "Africa"], "the Himalaya (Asia)", "8,848 m tall."),
+      ],
+      questions: [
+        { q: "Which is the LARGEST continent?", options: ["Asia", "Europe", "Australia", "Antarctica"], answer: "Asia", explain: "Biggest by area." },
+        { q: "Mount Everest is in the…", options: ["Himalaya", "Alps", "Andes", "Rockies"], answer: "Himalaya", explain: "Asia." },
+        { q: "Which two Asian countries each have over 1 billion people?", options: ["China and India", "Japan and Korea", "Russia and Mongolia", "India and Nepal"], answer: "China and India", explain: "Both huge populations." },
+        { q: "Russia spans…", options: ["Asia and Europe", "only Asia", "only Europe", "Africa and Asia"], answer: "Asia and Europe", explain: "Across the north." },
+        { q: "Japan is made of many…", options: ["islands", "deserts", "lakes", "canyons"], answer: "islands", explain: "Thousands of them." },
+      ],
+    },
+    {
+      topic: "Asia",
+      title: "Climate & Monsoons",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Asia's climates range from freezing Siberia to tropical monsoons that bring wet and dry seasons.",
+      blocks: [
+        { type: "heading", text: "From Freezing to Tropical" },
+        { type: "text", text: "Asia is so huge it holds nearly every climate. Northern Russia (SIBERIA) is bitterly cold, with winter temperatures below −40°C. The middle has dry deserts like the Gobi. South and South-East Asia are tropical — hot all year.\n\nMany tropical parts of Asia have a MONSOON climate: a seasonal wind that brings heavy rain in the wet season and dry weather the rest of the year. Farmers rely on the monsoon rains to water rice crops." },
+        { type: "example", text: "Mumbai, India gets huge monsoon rains from June to September — then stays dry through winter. The timing of the rains can make or break a harvest." },
+        { type: "keyPoints", items: ["Siberia = bitterly cold.", "Gobi and central areas = deserts.", "South Asia = tropical.", "Monsoon = seasonal wet/dry winds."] },
+        match(["Siberia", "Below −40°C winters"], ["Gobi", "A cold desert"], ["Monsoon", "Seasonal wet/dry winds"], ["Tropical south", "Hot all year"]),
+      ],
+      questions: [
+        { q: "Siberia is famous for being…", options: ["very cold", "a rainforest", "a desert", "tropical"], answer: "very cold", explain: "Below −40°C." },
+        { q: "A monsoon brings…", options: ["seasonal heavy rain", "snow all year", "no rain", "volcanoes"], answer: "seasonal heavy rain", explain: "Wet then dry seasons." },
+        { q: "The Gobi is a…", options: ["desert", "mountain", "river", "city"], answer: "desert", explain: "In central Asia." },
+        { q: "South-East Asia is mostly…", options: ["tropical", "frozen", "desert", "alpine"], answer: "tropical", explain: "Hot all year." },
+        { q: "Monsoon rains are important for…", options: ["watering rice crops", "cooling cities", "making deserts", "freezing rivers"], answer: "watering rice crops", explain: "Farmers rely on them." },
+      ],
+    },
+    {
+      topic: "Asia",
+      title: "Great Cities of Asia",
+      difficulty: "intermediate",
+      minutes: 12,
+      points: 80,
+      summary: "Asia hosts megacities like Tokyo, Beijing, Delhi and Mumbai — huge, busy and fast-growing.",
+      blocks: [
+        { type: "heading", text: "Megacities" },
+        { type: "text", text: "Asia is home to some of the biggest cities on Earth. TOKYO (Japan) is the world's largest metropolitan area — millions of people, fast bullet trains, bright neon. BEIJING is China's capital (its biggest city is Shanghai). DELHI and MUMBAI are giant Indian cities; MUMBAI is famous for Bollywood films.\n\nThese MEGACITIES grow fast as people move from the countryside for work. They mix ancient temples with towering skyscrapers." },
+        { type: "example", text: "Tokyo has over 30 million people in its greater area — more than the population of many whole countries." },
+        { type: "keyPoints", items: ["Tokyo = world's biggest metro area.", "Beijing = China's capital.", "Mumbai = India's film (Bollywood) hub.", "Megacities mix old + new."] },
+        match(["Tokyo", "Japan's huge capital"], ["Beijing", "China's capital"], ["Mumbai", "India's Bollywood hub"], ["Delhi", "Giant Indian city"]),
+      ],
+      questions: [
+        { q: "Which is Japan's largest city?", options: ["Tokyo", "Beijing", "Delhi", "Seoul"], answer: "Tokyo", explain: "World's biggest metro area." },
+        { q: "China's capital is…", options: ["Beijing", "Shanghai", "Tokyo", "Mumbai"], answer: "Beijing", explain: "(Shanghai is bigger but not the capital.)" },
+        { q: "Mumbai is famous for…", options: ["Bollywood films", "ice festivals", "the Sahara", "bullfighting"], answer: "Bollywood films", explain: "India's film hub." },
+        { q: "A 'megacity' is…", options: ["a huge, fast-growing city", "a small town", "a desert", "a kind of monsoon"], answer: "a huge, fast-growing city", explain: "10+ million people." },
+        { q: "Why do Asian megacities grow fast?", options: ["People move for work", "People leave them", "They shrink", "They freeze"], answer: "People move for work", explain: "Rural-to-urban migration." },
+      ],
+    },
+  ],
+};

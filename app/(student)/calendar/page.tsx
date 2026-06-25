@@ -132,16 +132,17 @@ export default function CalendarPage() {
                   // No authored lesson yet (e.g. months beyond the current
                   // content) → friendly, non-clickable placeholder chip.
                   if (!e.lessonId) {
+                    const display = e.label ?? `${e.subjectName} · soon`;
                     return (
                       <div
                         key={e._id}
                         className="block rounded border border-dashed border-white/10 px-1 py-0.5 text-[10px]"
-                        title={`${e.subjectName}: more lessons coming soon`}
+                        title={e.label ? `${e.subjectName}: complete on IXL` : `${e.subjectName}: more lessons coming soon`}
                       >
                         <div className="flex items-center gap-0.5">
                           <Circle size={9} className="shrink-0 text-muted-foreground/40" />
                           <span className="truncate font-medium text-muted-foreground/60">
-                            {e.subjectName} · soon
+                            {display}
                           </span>
                         </div>
                       </div>

@@ -8,6 +8,7 @@ import {
   Gamepad2,
   ChefHat,
   Hammer,
+  Globe,
   Rocket,
 } from "lucide-react";
 
@@ -19,7 +20,8 @@ export type SubjectSlug =
   | "ai-and-computer-science"
   | "game-development"
   | "homemaking"
-  | "building-and-construction";
+  | "building-and-construction"
+  | "geography";
 
 export type SubjectMeta = {
   slug: string;
@@ -90,6 +92,13 @@ export const SUBJECTS: Record<string, SubjectMeta> = {
     shortName: "Building",
     color: "#d97706",
     icon: Hammer,
+  },
+  geography: {
+    slug: "geography",
+    name: "Geography",
+    shortName: "Geography",
+    color: "#14b8a6",
+    icon: Globe,
   },
 };
 
