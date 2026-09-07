@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import {
   Rocket,
   Home,
@@ -78,55 +80,70 @@ export function StudentSidebar() {
 }
 
 function ProfileCard() {
+  const overview = useQuery(api.dashboard.studentOverview);
+  const profile = useQuery(api.userProfiles.getMine);
+  const name = profile?.displayName ?? "Student";
+  const rank = overview?.levelTitle ?? "Rookie";
+  const xpInto = overview?.xpIntoLevel;
+  const xpFor = overview?.xpForLevel ?? 250;
+  const progress = overview?.levelProgress ?? 0;
+
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
       <div className="flex items-center gap-3">
         <div className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-sm font-bold text-white">
-          H
+          {name.charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-white">Hudson</p>
-          <p className="truncate text-xs text-muted-foreground">Explorer</p>
+          <p className="truncate text-sm font-semibold text-white">{name}</p>
+          <p className="truncate text-xs text-muted-foreground">{rank}</p>
         </div>
         <span className="ml-auto rounded-lg bg-purple-500/20 px-2 py-0.5 text-xs font-bold text-purple-300">
-          Lv 12
+          Lv {overview?.level ?? "—"}
         </span>
       </div>
       <div className="mt-3">
         <div className="mb-1 flex justify-between text-[11px] text-muted-foreground">
-          <span>2,350 XP</span>
-          <span>3,000 XP</span>
+          <span>{xpInto !== undefined ? `${xpInto.toLocaleString()} XP` : "—"}</span>
+          <span>{xpFor.toLocaleString()} XP</span>
         </div>
-        <Progress value={78} className="h-2" />
+        <Progress value={progress} className="h-2" />
       </div>
     </div>
   );
 }
 
 function StreakTracker() {
+  const overview = useQuery(api.dashboard.studentOverview);
+  const streak = overview?.streak ?? 0;
+  const activity = overview?.weekActivity;
+  const todayIdx = overview?.weekTodayIndex;
+
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
       <div className="mb-2 flex items-center gap-2">
         <Flame size={16} className="text-orange-400" />
-        <span className="text-sm font-semibold text-white">7 Day Streak!</span>
+        <span className="text-sm font-semibold text-white">
+          {streak} Day{streak === 1 ? "" : "s"} Streak!
+        </span>
       </div>
       <div className="flex justify-between">
         {DAYS.map((d, i) => {
-          const done = i < 4;
-          const today = i === 4;
+          const hasActivity = activity?.[i] === true;
+          const isToday = todayIdx === i;
           return (
             <div
               key={i}
               className={
                 "grid h-7 w-7 place-items-center rounded-full text-[10px] font-semibold " +
-                (today
+                (isToday
                   ? "bg-orange-500/30 text-orange-300 shadow-[0_0_12px_rgba(249,115,22,0.4)]"
-                  : done
+                  : hasActivity
                     ? "bg-green-500/25 text-green-300"
                     : "bg-white/5 text-muted-foreground")
               }
             >
-              {done ? "✓" : d}
+              {hasActivity ? "✓" : d}
             </div>
           );
         })}

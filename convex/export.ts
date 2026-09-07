@@ -6,10 +6,22 @@ import { internal } from "./_generated/api";
 type DataBag = {
   subjects: { _id: string; name: string; slug: string; color: string; active: boolean }[];
   lessons: { _id: string; title: string; status: string; pointsAwarded: number; estimatedMinutes: number }[];
-  attempts: { _id: string; quizId: string; correctAnswers: number; totalQuestions: number; percentage: number; pointsEarned: number }[];
-  videoProgress: { _id: string; lessonId: string; percentageWatched: number; completed: boolean; secondsWatched: number }[];
+  attempts: {
+    _id: string;
+    userId: string;
+    title: string;
+    lessonTitle: string | null;
+    subjectName: string | null;
+    type: string;
+    correctAnswers: number;
+    totalQuestions: number;
+    percentage: number;
+    pointsEarned: number;
+    completedAt: number;
+  }[];
+  videoProgress: { _id: string; userId: string; lessonTitle: string; percentageWatched: number; completed: boolean; secondsWatched: number }[];
   points: { _id: string; sourceType: string; points: number; description: string }[];
-  redemptions: { _id: string; rewardId: string; pointsSpent: number; status: string }[];
+  redemptions: { _id: string; userId: string; rewardTitle: string; pointsSpent: number; status: string; createdAt: number }[];
   interactiveResults: {
     _id: string;
     lessonId: string;
@@ -25,6 +37,10 @@ function esc(v: unknown): string {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
+function iso(ms: number): string {
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
 function toCSV(d: DataBag): string {
   const rows: string[][] = [
     ["section", "id", "field1", "field2", "field3", "field4"],
@@ -34,15 +50,22 @@ function toCSV(d: DataBag): string {
   for (const l of d.lessons)
     rows.push(["lesson", l._id, l.title, l.status, `${l.pointsAwarded}pts`, `${l.estimatedMinutes}min`]);
   for (const a of d.attempts)
-    rows.push(["quizAttempt", a._id, a.quizId, `${a.correctAnswers}/${a.totalQuestions}`, `${a.percentage}%`, `${a.pointsEarned}pts`]);
+    rows.push([
+      "quizAttempt",
+      a._id,
+      a.title,
+      a.subjectName ?? a.lessonTitle ?? "—",
+      `${a.correctAnswers}/${a.totalQuestions}`,
+      `${a.percentage}%`,
+    ]);
   for (const v of d.videoProgress)
-    rows.push(["videoProgress", v._id, v.lessonId, `${v.percentageWatched}%`, v.completed ? "completed" : "in-progress", `${v.secondsWatched}s`]);
+    rows.push(["videoProgress", v._id, v.lessonTitle, `${v.percentageWatched}%`, v.completed ? "completed" : "in-progress", `${v.secondsWatched}s`]);
   for (const p of d.points)
     rows.push(["points", p._id, p.sourceType, `${p.points}`, p.description, ""]);
   for (const r of d.redemptions)
-    rows.push(["redemption", r._id, r.rewardId, `${r.pointsSpent}pts`, r.status, ""]);
+    rows.push(["redemption", r._id, r.rewardTitle, `${r.pointsSpent}pts`, r.status, iso(r.createdAt)]);
   for (const a of d.interactiveResults)
-    rows.push(["interactive", a._id, a.lessonId, `${a.title} (${a.variant})`, a.percentage !== undefined ? `${a.percentage}%` : "—", a.detail]);
+    rows.push(["interactive", a._id, `${a.title} (${a.variant})`, a.percentage !== undefined ? `${a.percentage}%` : "—", a.detail, ""]);
   return rows.map((r) => r.map(esc).join(",")).join("\n");
 }
 

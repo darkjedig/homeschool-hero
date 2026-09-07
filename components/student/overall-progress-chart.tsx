@@ -2,18 +2,27 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-const DATA = [
-  { name: "Lessons", value: 72, color: "#3b82f6" },
-  { name: "Quizzes", value: 68, color: "#a855f7" },
-  { name: "Challenges", value: 60, color: "#22c55e" },
-  { name: "Badges", value: 75, color: "#f97316" },
-];
+export type OverallProgressChartProps = {
+  lessons?: number;
+  quizzes?: number;
+  challenges?: number;
+  badges?: number;
+};
 
-/** Overall progress donut (Recharts) with legend. */
-export function OverallProgressChart() {
-  const overall = Math.round(
-    DATA.reduce((s, d) => s + d.value, 0) / DATA.length,
-  );
+/** Overall progress donut (Recharts) with legend. Values are live %. */
+export function OverallProgressChart({
+  lessons = 0,
+  quizzes = 0,
+  challenges = 0,
+  badges = 0,
+}: OverallProgressChartProps) {
+  const DATA = [
+    { name: "Lessons", value: lessons, color: "#3b82f6" },
+    { name: "Quizzes", value: quizzes, color: "#a855f7" },
+    { name: "Challenges", value: challenges, color: "#22c55e" },
+    { name: "Badges", value: badges, color: "#f97316" },
+  ];
+  const overall = Math.round(DATA.reduce((s, d) => s + d.value, 0) / DATA.length);
   return (
     <section className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md">
       <h3 className="mb-3 text-sm font-semibold text-muted-foreground">

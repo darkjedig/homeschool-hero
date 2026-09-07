@@ -117,7 +117,7 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 **Step 3 — Quiz insights (parent)** ✅
 - [x] `quizzes.listAll` returns `attemptsCount` + `bestPercentage` + `latestPercentage` per quiz
 - [x] Parent `/parent/quizzes` shows "Best: X%" or "Not taken" badge + attempt count per quiz
-- [ ] Attempt detail page `/parent/quizzes/[id]` (per-question breakdown)
+- [x] Per-question attempt breakdown via `quizzes.attemptDetail` + clickable "Recent quiz attempts" dialog on the parent dashboard (score + each Q: their answer vs correct + explanation; works for lesson + Friday). `dashboard.overview` recentAttempts now enriched with quiz/lesson/subject names (was showing raw quiz id).
 
 **Step 4 — Full-year hand-authored curriculum** ⏳
 - [x] 39 text lessons + 78 quiz questions seeded (Phase 2 catch-up via `seedLessons.ts`)
@@ -149,12 +149,37 @@ Gamified, cloud-backed homeschool platform: student portal (video lessons, quizz
 - [x] Fix: code-sandbox preview iframe rounded corners (`overflow-hidden` + `border-0`)
 - [x] Verified: typecheck 0 errors, lint 0 new errors, enrichment reports 100% coverage
 
+**Step 8 — Parent & Student UX Improvements** ✅
+- [x] Parent Lessons + Quizzes pages: collapsible per-subject sections (reusable `components/parent/collapsible-subject-section.tsx`) — collapsed by default, no more endless scrolling
+- [x] Parent Lessons: sorted by topic within each subject (`lessons.listAllWithSubject` joins topic + sorts subject→topic order→created) and rendered under topic sub-headings
+- [x] Calendar editing system (`convex/calendar.ts`): drag-and-drop lesson swap between days (`moveLesson`, native HTML5 DnD), add/remove lessons per slot (`assignLesson`/`clearEntry` + `pickerLessons`), add a break that auto-shifts all lessons past it preserving per-subject order (`addBreak`/`relayFrom`/`removeBreak`/`regenerateFrom`). Parent `/parent/calendar` rewritten with draggable cards + slot editor + break dialog
+- [x] Export reads as names, not ids (`exportData.allData` joins quiz/video/redemption → lesson/subject/reward titles)
+- [x] Student quizzes landing (`/quiz`): subject jump cards (was `ComingSoon`) with subject glow/hover + per-card progress + best score, backed by `quizzes.subjectCards`; cards link to `/subjects/[slug]`
+- [x] Blog consolidated to a 5-post series (old Parts 3+4 → Part 3; old Parts 5+6 → Part 4)
+- [x] Verified: tsc 0 errors, lint 0 errors; deployed to `oceanic-crane-853` (schema unchanged)
+
 **Step 5 — Docs** ⏳
 - [x] `docs/curriculum-plan.md` — interactive system, authored expansion, + full remaining-year build-out list
 - [ ] Design skill: calendar page styling guidance
 - [ ] Update README
 
-### Phase 10 — Security, Testing, Polish  ⏳
+### Phase 10 — Student Dashboard: Wire Everything Live  ✅ COMPLETE
+Goal: every number/widget on the student dashboard reads from the database (per-student) — no placeholder values. Curriculum + content are complete, so this is the final product phase.
+
+- [x] **Layout fix — Friday/Parent Insights overlap**: Friday Challenge card (middle-right) was overlapping the Parent Insights card below it — `0_0_30px` purple glow bled past the `space-y-6` section gap. Contained glow to `0_0_18px` + bumped dashboard section spacing to `space-y-8`.
+- [x] **Layout fix — Core Subjects redesign**: tiles were a cramped 4-column widget with truncated "long-pill" names. Moved Core Subjects into its own full-width band with larger `CoreSubjectCard` tiles (icon + full non-truncating name + progress bar + subject glow + hover lift) in `grid-cols-2 sm:grid-cols-3 lg:grid-cols-4`. Bottom row is now 3 widgets (Overall Progress | Recent Achievements | Parent Insights).
+- [x] **Single aggregation query** `dashboard.studentOverview` (points + this week, level/XP/rank, streak + best, weekly goal, continue-learning, Friday title, per-subject %, overall donut; null when not authed). `calendar.enrich` also now returns `points` + `progress` + `subjectIcon`.
+- [x] **Stat cards**: Points (`pointsLedger`), Current Streak (consecutive activity days), Level/XP (`floor(points/250)+1` + rank), Weekly Goal (this week's planned lessons completed)
+- [x] **Today's Missions**: from `calendar.getToday` with real lesson title/points/watch progress; links to `/lessons/[id]`
+- [x] **Continue Learning**: last-watched incomplete lesson from `videoProgress` with real lesson number/total/progress
+- [x] **Friday Challenge card**: title/subtitle from the current week's `fridayQuizzes`
+- [x] **Core Subjects progress**: real per-subject completion % via `overview.subjectProgress`
+- [x] **Overall Progress donut**: real lessons/quizzes/challenges/badges % via `overview.overall`
+- [x] Header first name from `userProfiles.getMine`; "Placeholder values shown" footer removed
+- [x] Verified: tsc 0 errors, lint 0 errors; deployed to `oceanic-crane-853`
+
+
+### Phase 11 — Security, Testing, Polish  ⏳
 - [ ] RBAC audit on every Convex function + route group
 - [ ] Playwright smoke + Vitest unit tests
 - [ ] Mobile polish, error boundaries, optimistic updates

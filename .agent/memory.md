@@ -20,7 +20,7 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - Source of truth: `.cursor/skills/design/SKILL.md`. Applied in `app/globals.css` (`:root` permanent dark theme) + `tailwind.config.ts` (reference).
 - Tailwind v4: tokens live in CSS `@theme`. Note: design skill's `text-primary`/`text-secondary` map to shadcn `text-foreground` (#fff) / `text-muted-foreground` (#94a3b8) to avoid clobbering shadcn component tokens. Subject + accent utilities available (`bg-maths`, `text-accent-purple`, etc.).
 
-## Recent Progress — Phases 1–8 COMPLETE, Phase 9 COMPLETE (rich curriculum shipped)
+## Recent Progress — Phases 1–8 COMPLETE, Phase 9 COMPLETE (rich curriculum shipped), Phase 10 COMPLETE (student dashboard fully live)
 - Phases 1–6: foundation, schema, student portal, parent console, Friday Challenge, adaptive learning.
 - Phase 7: AI lesson builder (OpenRouter BYOK). Settings, AI Builder, draft lifecycle, transactional approve.
 - Phase 8: Framer Motion staggered reveals + confetti + sonner toasts + badges engine (`convex/badges.ts`: 6 seeded badges, `checkAndAward` wired into quiz submissions + lesson completion). Dashboard achievements wired to real `badges.mine`. Hover scale on cards.
@@ -41,6 +41,7 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
   - Parent surfaces: dashboard "Recent interactive activity" panel + per-lesson "Interactive activity results" section on the parent lesson editor + interactive rows added to CSV/JSON export.
   - **Interactive coverage = 100%** (259/259 lessons). Shared pure derivation `convex/curriculum/derive.ts` (maths→topic-matched arena drill; others→flashcards/MCQ from the lesson's own quiz) is used by BOTH the seed (new lessons) and `enrichLessons:ensureInteractivePractice` (existing lessons: enriched the 38 that had no interactive). Re-runnable + idempotent.
   - **Fix**: code-sandbox preview iframe now `overflow-hidden` + `border-0` so the white frame has rounded corners matching the card (was cut off).
+- **Calendar start delay (10 Sep 2026)**: First lessons now begin **Thursday 10 September 2026**, not 25 August. 25 Aug–9 Sep is a "Late start" holiday (no lesson chips). Every previously scheduled lesson was re-laid in the same per-subject order onto remaining school days; year `endDate` extended to **2027-06-30** so nothing dropped off the end. Mutation: `calendar:delayStartTo`.
 - Phase 9f — **Calendar fill (IXL + Geography + 53 lessons)**:
   - **IXL labels**: `calendar:generateYear` sets `label: "IXL Maths/English/Science Lesson"` when no in-app lesson remains for those subjects (existing assigned lessons preserved). Student calendar shows the label instead of "· soon".
   - **Geography** added to Wed rotation (auto-patched on regenerate). `convex/curriculum/geography.ts` — 19 new lessons; user's existing Western Europe lesson kept. Registered in `seedRichCurriculum`. `lib/subjects.ts` includes Globe icon.
@@ -51,7 +52,7 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
   - Built 5 human-body animated sims in `components/student/interactive/body-sims.tsx`: `heart` (pulsing circulation loop + BPM slider), `lungs` (expand/contract + O₂/CO₂), `skeleton` (elbow flex + opposing muscles), `digestive` (food stages auto-play), `brain` (reflex nerve pulse). Wired in `simulation.tsx`; extended `sim()` builder with 7 sim ids.
   - Added sim blocks to all 5 Human Body science lessons in `convex/curriculum/science.ts` (alongside existing flashcards/MCQ/ordering). Patched live DB via `enrichLessons:attachBodySimulations` (5/5 patched).
 - **Convex plugin demo**: MCP `status` connected to deployment; applied query-optimization rule — added `by_topic_and_status` + `by_subject_and_status` compound indexes and updated `lessons.ts` + `calendar.ts` to stop post-index `.filter()` scans on published lessons (~206 rows today, scales as curriculum grows).
-- Blog Parts 1–7 written (`blog/` dir).
+- Blog: 5-post series in `blog/` (consolidated from the original Parts 1–7 — see Phase 9j; old 3+4 → Part 3, old 5+6 → Part 4).
 
 ## Next.js routing note
 - Route groups `(name)` do NOT create URL segments. Student routes use `(student)` → top-level URLs (`/dashboard`); parent routes MUST use a real `parent` segment (`app/parent/**` → `/parent/...`) to avoid colliding with same-named student routes.
@@ -72,10 +73,10 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - **Convex MCP**: `status` tool works (finds `oceanic-crane-853` dev + prod). `insights`/`run` require interactive login via `npx convex dev` in a terminal (deploy-key CLI works separately). Re-enable in Cursor MCP settings if disabled.
 - **GitHub**: repo `darkjedig/homeschool-hero` created (public). Fine-grained PAT now has Contents:Write. Push works via `git push "https://x-access-token:<PAT>@github.com/darkjedig/homeschool-hero.git" main:main`.
 
-## Next Steps (Phase 10)
+## Next Steps (Phase 11 = security/testing/polish)
 
 ### Curriculum follow-ups (optional polish)
-- **IXL**: Maths/English/Science daily slots use IXL labels when in-app content runs out — student completes on uk.ixl.com. Do not add more in-app maths/english lessons unless replacing IXL workflow.
+- **Calendar**: live year starts lessons **Thu 10 Sep 2026** (Late start break 25 Aug–9 Sep). `endDate` is 2027-06-30. Do not run `generateYear` unless intending a full rebuild; Late start holiday is persisted so regenerate still skips Aug 25–Sep 9.
 - Late-year calendar gaps (~March 2027) in History/Geography until more units authored — see `docs/curriculum-plan.md`.
 - 4 lessons skipped in the rich seed (title overlap with original text-only seedLessons, e.g. "What Is a Fraction?", "Finding the Main Idea"). They still render fine via `lessonNotes` fallback, but lack rich `content` blocks. Patch by renaming/deleting the old text-only versions or adding content to them.
 - To add MORE lessons: edit the relevant `convex/curriculum/<subject>.ts`, then `npx convex dev --once` (push), then `npx convex run seedRichCurriculum:seedRichCurriculum` (idempotent — now auto-derives an interactive for any new lesson lacking one) + `npx convex run calendar:generateYear`. If older lessons ever end up without an interactive, re-run `npx convex run enrichLessons:ensureInteractivePractice` (idempotent; reports coverage %).
@@ -85,7 +86,8 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - New simulation ids can be added in `components/student/interactive/simulation.tsx` (currently `circuit`, `particles`, `heart`, `lungs`, `skeleton`, `digestive`, `brain`); future: `forces`, `lightRays`, `soundWaves`, `plantGrowth`.
 
 ### Remaining work
-- Phase 10: Full RBAC audit, Playwright + Vitest, mobile polish, error boundaries, README.
+- Phase 10 COMPLETE — student dashboard fully live (see Phase 10 COMPLETE note below).
+- Phase 11: Full RBAC audit, Playwright + Vitest, mobile polish, error boundaries, README.
 
 - Phase 9g — **Big content batch + 4 new science sims (reduce IXL / fill "soon")**:
   - New science simulations in `components/student/interactive/science-sims.tsx` (wired into `simulation.tsx` + `sim()`): `lightRays` (mirror tilt → reflection; prism → rainbow), `soundWaves` (frequency↔pitch, amplitude↔volume animated wave), `plantGrowth` (seed→sprout→seedling→flower stages), `orbit` (clickable planets + speed slider). SimId union now 16 ids.
@@ -112,3 +114,20 @@ When two lessons cover the same ground (e.g. an old text-only seedLessons title 
   - `attachElectricityActivities` mutation (idempotent) added rich interactives to the 5 Electricity lessons: match (electrical quantities), `circuit` sim (Simple Circuits), match (conductor/insulator real-world parts), match (circuit symbols), cloze (safety). Source of truth also updated in `convex/curriculum/science.ts` (imported `match`/`cloze`).
   - `replaceDuplicateLessons` mutation (idempotent) replaced the 4 old text-only science duplicates IN PLACE (stable IDs/topicIds, rebuilt quizzes) with unique lessons: Human Body → "Blood Vessels: Arteries, Veins & Capillaries"; Electricity → "Series & Parallel Circuits"; States of Matter → "Density: Why Things Float or Sink"; Forces → "Measuring Forces". Each has rich content + a match interactive + fresh 5Q quiz.
   - Commands: `npx convex dev --once` → `npx convex run enrichLessons:attachElectricityActivities` → `npx convex run enrichLessons:replaceDuplicateLessons` → `npx convex run calendar:generateYear`.
+
+- Phase 9j — **Parent UX + calendar editing + quiz drill-down (deployed)**:
+  - **Quiz names + results**: `dashboard.overview` now returns enriched `recentAttempts` (quiz/lesson title + subject + `attemptId`) — was rendering raw `quizId.slice(-8)` in the table. New `quizzes.attemptDetail` query = full per-question breakdown (their answer vs correct + explanation; works for lesson + Friday). Parent dashboard "Recent quiz attempts" rows are clickable → results dialog (score, per-Q correct/incorrect, explanations).
+  - **Calendar editing system** (`convex/calendar.ts`): `moveLesson` (drag/drop swap between same-subject slots via native HTML5 DnD — no new dep), `addBreak` (persist holiday + `relayFrom` re-lays every lesson from that date onto the remaining school days, preserving per-subject order so a WW1-style unit shifts past the break intact), `removeBreak` (close gap), `regenerateFrom`, `pickerLessons`, internal `relayFrom` (mirrors generateYear rotation/weekIndex; queries `by_date` gte range, deletes + reinserts the tail; entries before the break are untouched). Calendar page rewritten: draggable cards (card-to-card swap, same-subject only), click a slot → change/remove lesson via picker, "Add break" dialog (date + days + name) + per-break remove chips.
+  - **Export named joins**: `exportData.allData` now joins quiz→lesson→subject, video→lesson, redemption→reward so CSV/JSON shows names, not bare ids (previously did `void quizzes;`). `export.ts` CSV rows updated to match.
+  - **Parent list UX**: reusable `components/parent/collapsible-subject-section.tsx` (accordion per subject, collapsed by default) — applied to Lessons + Quizzes pages so long lists don't force endless scrolling. `lessons.listAllWithSubject` now joins topic + sorts subject → topic order → created; the lessons page renders topic sub-headings within each subject dropdown.
+  - **Student quizzes landing** (`app/(student)/quiz/page.tsx`): was `ComingSoon` → subject jump cards (glass + subject glow + hover scale + framer-motion stagger + per-card progress/best%), backed by new student-facing `quizzes.subjectCards` query (per-subject quiz totals + taken count + best %). Cards link to `/subjects/[slug]`.
+  - **Blog consolidation**: 7 posts → 5-post series (old 3+4 → Part 3 "Parent Console + Friday Challenge"; old 5+6 → Part 4 "Adaptive + AI Builder"); 4 source files removed.
+  - Verified: tsc 0 errors (convex + app), lint 0 errors; schema unchanged (no migration). Deployed via `npx convex deploy --typecheck enable` → `oceanic-crane-853`. **Deploy note**: `convex deploy` reads `.env.local` (CONVEX_DEPLOY_KEY) automatically; omit `--cmd` to skip a frontend build. Use this for backend-only changes.
+
+- **Phase 10 COMPLETE** — student dashboard fully live. Curriculum + content were already complete; this phase wired every widget to real per-student data (no placeholders remain). Security/testing/polish moved to **Phase 11**.
+  - New `dashboard.studentOverview` query = single aggregation returning: points (+this week), level/XP (`level = floor(points/250)+1`, rank title by tier, level progress %), streak (consecutive activity days from completed lessons + quiz attempts; best streak), weekly goal (this week's planned calendar lessons completed / planned), continue-learning (last-watched incomplete lesson with lesson number + subject lesson totals + watch %), Friday card title (matched from `fridayQuizzes.weekStartDate`), per-subject completion %, and overall donut (lessons/quizzes/challenges/badges %). Returns null when not authed.
+  - `calendar.enrich` now also returns `points` + `progress` + `subjectIcon` per entry (additive) so Today's Missions show real lesson points + watch % + correct subject icon.
+  - Dashboard wired live: 4 stat cards (points/streak/level/weekly goal), Today's Missions (`calendar.getToday` → MissionCard with real lesson title/points/progress, links to `/lessons/[id]`), Continue Learning (`overview.continueLearning`), Friday card title/subtitle (`overview.friday`), Core Subjects (`overview.subjectProgress` live %), Overall Progress donut (`overview.overall` live %), header first name (`userProfiles.getMine`). Placeholder footer removed.
+  - **NOTE — Friday/Parent Insights overlap (fixed)**: the Friday Challenge card sits middle-right, directly above the Parent Insights card; its `0_0_30px` purple glow bled past the `space-y-6` section gap and overlapped the card below. Fix = contained glow to `0_0_18px` (`components/student/friday-challenge-card.tsx`) + bumped the dashboard `StaggerGroup` spacing to `space-y-8`.
+  - **NOTE — Core Subjects redesign (fixed)**: tiles were a cramped 4-column widget with truncated "long-pill" subject names. Fix = moved Core Subjects into its own **full-width band** with a new larger `CoreSubjectCard` (icon + full non-truncating name + progress bar + subject glow + hover lift), responsive `grid-cols-2 sm:grid-cols-3 lg:grid-cols-4`; bottom row is now 3 widgets (Overall Progress | Recent Achievements | Parent Insights).
+  - Verified: tsc 0 errors, lint 0 errors; deployed to `oceanic-crane-853`.

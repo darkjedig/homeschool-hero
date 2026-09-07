@@ -49,7 +49,7 @@ export function FridayChallengeCard({
   }, []);
 
   return (
-    <section className="flex h-full flex-col rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-600/20 via-purple-900/20 to-transparent p-5 shadow-[0_0_30px_rgba(168,85,247,0.18)]">
+    <section className="flex flex-1 flex-col rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-600/20 via-purple-900/20 to-transparent p-5 shadow-[0_0_18px_rgba(168,85,247,0.16)]">
       <div className="mb-3 grid h-11 w-11 place-items-center rounded-xl bg-purple-500/25">
         <Gamepad2 size={22} className="text-purple-300" />
       </div>
@@ -80,7 +80,7 @@ export function FridayChallengeCard({
       </div>
       <Link
         href="/friday-quiz"
-        className="mt-4 block w-full rounded-xl bg-purple-500 px-4 py-2.5 text-center font-semibold text-white shadow-[0_0_18px_rgba(168,85,247,0.45)] transition hover:bg-purple-400"
+        className="mt-auto block w-full rounded-xl bg-purple-500 px-4 py-2.5 text-center font-semibold text-white shadow-[0_0_18px_rgba(168,85,247,0.45)] transition hover:bg-purple-400"
       >
         Get Ready!
       </Link>

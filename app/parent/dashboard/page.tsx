@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { LucideIcon } from "lucide-react";
@@ -10,6 +11,8 @@ import {
   Coins,
   Trophy,
   Gamepad2,
+  Check,
+  X,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -25,6 +28,21 @@ import {
 } from "recharts";
 import { subjectMeta, hexToRgb } from "@/lib/subjects";
 import Link from "next/link";
+import type { Id } from "@/convex/_generated/dataModel";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
+function formatDate(ms: number): string {
+  return new Date(ms).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
 
 // Shared Recharts tooltip — light text on dark glass so it's readable.
 const TOOLTIP_STYLE = {
@@ -45,6 +63,9 @@ export default function ParentDashboardPage() {
   const stats = useQuery(api.dashboard.overview);
   const subjects = useQuery(api.subjects.list);
   const interactive = useQuery(api.interactiveResults.recentForParents, { limit: 12 });
+  const [selectedAttemptId, setSelectedAttemptId] = useState<
+    Id<"quizAttempts"> | null
+  >(null);
 
   const lessonsBySubject = (subjects ?? []).map((s) => ({
     name: subjectMeta(s.slug).shortName,
@@ -55,7 +76,7 @@ export default function ParentDashboardPage() {
   const scoreOverTime = (stats?.recentAttempts ?? [])
     .slice()
     .reverse()
-    .map((a, i) => ({ name: `#${i + 1}`, score: a.percentage }));
+    .map((a, i) => ({ name: `#${i + 1}`, score: a.percentage, title: a.title }));
 
   return (
     <div className="space-y-6">
@@ -114,44 +135,70 @@ export default function ParentDashboardPage() {
         </Panel>
       </section>
 
-      <Panel title="Recent quiz attempts" subtitle="Latest activity in real time" accent="#a855f7">
+      <Panel title="Recent quiz attempts" subtitle="Latest activity in real time — click a row for full results" accent="#a855f7">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="pb-3 pr-4 font-medium">Quiz</th>
+                <th className="pb-3 pr-4 font-medium">Date</th>
                 <th className="pb-3 pr-4 font-medium">Score</th>
                 <th className="pb-3 pr-4 font-medium">Result</th>
                 <th className="pb-3 font-medium">Points</th>
               </tr>
             </thead>
             <tbody>
-              {(stats?.recentAttempts ?? []).map((a) => (
-                <tr key={a._id} className="border-t border-white/5">
-                  <td className="py-3 pr-4 font-mono text-xs text-muted-foreground">
-                    {a.quizId ? a.quizId.slice(-8) : "Friday"}
-                  </td>
-                  <td className="py-3 pr-4 text-white">
-                    {a.correctAnswers}/{a.totalQuestions}
-                  </td>
-                  <td className="py-3 pr-4">
-                    <span
-                      className={
-                        "rounded-full px-2 py-0.5 text-xs font-semibold " +
-                        (a.percentage >= 60
-                          ? "bg-green-500/15 text-green-300"
-                          : "bg-orange-500/15 text-orange-300")
-                      }
-                    >
-                      {a.percentage}%
-                    </span>
-                  </td>
-                  <td className="py-3 text-yellow-300">+{a.pointsEarned}</td>
-                </tr>
-              ))}
+              {(stats?.recentAttempts ?? []).map((a) => {
+                const accent = a.isFriday
+                  ? "#a855f7"
+                  : a.subjectColor ?? "#3b82f6";
+                return (
+                  <tr
+                    key={a.attemptId}
+                    onClick={() => setSelectedAttemptId(a.attemptId)}
+                    className="cursor-pointer border-t border-white/5 transition hover:bg-white/[0.04]"
+                  >
+                    <td className="py-3 pr-4">
+                      <div className="flex items-center gap-2.5">
+                        <span
+                          className="h-2.5 w-2.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: accent, boxShadow: `0 0 8px ${accent}` }}
+                        />
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-white">{a.title}</p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {a.isFriday
+                              ? "Friday Challenge"
+                              : [a.subjectName, a.subtitle].filter(Boolean).join(" · ") || "Quiz"}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 pr-4 text-xs text-muted-foreground">
+                      {formatDate(a.completedAt)}
+                    </td>
+                    <td className="py-3 pr-4 text-white">
+                      {a.correctAnswers}/{a.totalQuestions}
+                    </td>
+                    <td className="py-3 pr-4">
+                      <span
+                        className={
+                          "rounded-full px-2 py-0.5 text-xs font-semibold " +
+                          (a.percentage >= 60
+                            ? "bg-green-500/15 text-green-300"
+                            : "bg-orange-500/15 text-orange-300")
+                        }
+                      >
+                        {a.percentage}%
+                      </span>
+                    </td>
+                    <td className="py-3 text-yellow-300">+{a.pointsEarned}</td>
+                  </tr>
+                );
+              })}
               {(stats?.recentAttempts ?? []).length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-10 text-center text-sm text-muted-foreground">
+                  <td colSpan={5} className="py-10 text-center text-sm text-muted-foreground">
                     No quiz attempts yet. Once lessons are published and quizzes are
                     taken, results appear here in real time.
                   </td>
@@ -214,6 +261,141 @@ export default function ParentDashboardPage() {
           )}
         </div>
       </Panel>
+
+      <AttemptDetailDialog
+        attemptId={selectedAttemptId}
+        onClose={() => setSelectedAttemptId(null)}
+      />
+    </div>
+  );
+}
+
+function AttemptDetailDialog({
+  attemptId,
+  onClose,
+}: {
+  attemptId: Id<"quizAttempts"> | null;
+  onClose: () => void;
+}) {
+  const detail = useQuery(
+    api.quizzes.attemptDetail,
+    attemptId ? { attemptId } : "skip",
+  );
+
+  return (
+    <Dialog open={attemptId !== null} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            {detail?.isFriday && (
+              <span className="rounded-full bg-purple-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-purple-300">
+                Friday
+              </span>
+            )}
+            {detail?.title ?? "Quiz results"}
+          </DialogTitle>
+          <DialogDescription>
+            {detail
+              ? [detail.subjectName, detail.subtitle].filter(Boolean).join(" · ") ||
+                "Quiz results"
+              : "Loading…"}
+          </DialogDescription>
+        </DialogHeader>
+
+        {!detail ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">Loading…</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <ScoreStat
+                label="Score"
+                value={`${detail.attempt.percentage}%`}
+                color={detail.attempt.percentage >= 60 ? "#22c55e" : "#f97316"}
+              />
+              <ScoreStat
+                label="Correct"
+                value={`${detail.attempt.correctAnswers}/${detail.attempt.totalQuestions}`}
+              />
+              <ScoreStat
+                label="Points"
+                value={`+${detail.attempt.pointsEarned}`}
+                color="#eab308"
+              />
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Completed {formatDate(detail.attempt.completedAt)}
+            </p>
+
+            <div className="space-y-2">
+              {detail.questions.map((q, i) => (
+                <div
+                  key={i}
+                  className={
+                    "rounded-xl border p-3 " +
+                    (q.correct
+                      ? "border-green-500/20 bg-green-500/[0.04]"
+                      : "border-orange-500/20 bg-orange-500/[0.04]")
+                  }
+                >
+                  <div className="flex items-start gap-2">
+                    {q.correct ? (
+                      <Check size={15} className="mt-0.5 shrink-0 text-green-400" />
+                    ) : (
+                      <X size={15} className="mt-0.5 shrink-0 text-orange-400" />
+                    )}
+                    <p className="text-sm font-medium text-white">
+                      {i + 1}. {q.questionText}
+                    </p>
+                  </div>
+                  <div className="mt-2 space-y-1 pl-7 text-xs">
+                    {q.available ? (
+                      <>
+                        <p className="text-orange-300">
+                          Their answer:{" "}
+                          <span className="font-medium">{q.selectedAnswer || "—"}</span>
+                        </p>
+                        {!q.correct && (
+                          <p className="text-green-300">
+                            Correct answer:{" "}
+                            <span className="font-medium">{q.correctAnswer}</span>
+                          </p>
+                        )}
+                        {q.explanation && (
+                          <p className="text-muted-foreground">{q.explanation}</p>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-muted-foreground">{q.questionText}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ScoreStat({
+  label,
+  value,
+  color = "#ffffff",
+}: {
+  label: string;
+  value: string;
+  color?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2">
+      <p className="text-lg font-bold" style={{ color }}>
+        {value}
+      </p>
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
     </div>
   );
 }

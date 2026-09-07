@@ -31,7 +31,7 @@ export function MissionCard({
   return (
     <Link
       href={href}
-      className="block rounded-2xl border bg-gradient-to-b from-white/[0.06] to-transparent p-4 transition hover:-translate-y-0.5 hover:scale-[1.02]"
+      className="flex h-full flex-col rounded-2xl border bg-gradient-to-b from-white/[0.06] to-transparent p-4 transition hover:-translate-y-0.5 hover:scale-[1.02]"
       style={{
         borderColor: `${accent}4d`,
         boxShadow: `0 0 24px rgba(${rgb},0.15)`,
@@ -49,12 +49,14 @@ export function MissionCard({
           <p className="truncate text-xs text-muted-foreground">{subTopic}</p>
         </div>
       </div>
-      <Progress value={progress} className="h-2" />
-      <div className="mt-2 flex justify-between text-[11px] text-muted-foreground">
-        <span>{progress}%</span>
-        <span className="rounded-full bg-yellow-400/15 px-2 py-0.5 font-semibold text-yellow-300">
-          {points} pts
-        </span>
+      <div className="mt-auto">
+        <Progress value={progress} className="h-2" />
+        <div className="mt-2 flex justify-between text-[11px] text-muted-foreground">
+          <span>{progress}%</span>
+          <span className="rounded-full bg-yellow-400/15 px-2 py-0.5 font-semibold text-yellow-300">
+            {points} pts
+          </span>
+        </div>
       </div>
     </Link>
   );

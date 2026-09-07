@@ -39,6 +39,67 @@ export const getForLesson = query({
   },
 });
 
+/**
+ * Per-subject quiz summary for the student quizzes landing page. Returns each
+ * active subject with how many lesson-quizzes it has and the student's taken
+ * count + best score, so the page can render informative jump cards.
+ */
+export const subjectCards = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    const [subjects, quizzes, attempts] = await Promise.all([
+      ctx.db.query("subjects").withIndex("by_active_order").take(50),
+      ctx.db.query("quizzes").take(500),
+      userId
+        ? ctx.db
+            .query("quizAttempts")
+            .withIndex("by_user", (q) => q.eq("userId", userId))
+            .take(500)
+        : Promise.resolve([]),
+    ]);
+
+    const quizzesBySubject = new Map<Id<"subjects">, Id<"quizzes">[]>();
+    for (const q of quizzes) {
+      if (q.type !== "lesson") continue;
+      const arr = quizzesBySubject.get(q.subjectId) ?? [];
+      arr.push(q._id);
+      quizzesBySubject.set(q.subjectId, arr);
+    }
+    const bestByQuiz = new Map<Id<"quizzes">, number>();
+    const takenQuizzes = new Set<Id<"quizzes">>();
+    for (const a of attempts) {
+      if (!a.quizId) continue;
+      takenQuizzes.add(a.quizId);
+      const cur = bestByQuiz.get(a.quizId);
+      if (cur === undefined || a.percentage > cur) bestByQuiz.set(a.quizId, a.percentage);
+    }
+
+    return subjects.map((s) => {
+      const quizIds = quizzesBySubject.get(s._id) ?? [];
+      let taken = 0;
+      let best: number | null = null;
+      for (const qid of quizIds) {
+        if (takenQuizzes.has(qid)) {
+          taken += 1;
+          const b = bestByQuiz.get(qid);
+          if (b !== undefined && (best === null || b > best)) best = b;
+        }
+      }
+      return {
+        _id: s._id,
+        name: s.name,
+        slug: s.slug,
+        color: s.color,
+        icon: s.icon,
+        total: quizIds.length,
+        taken,
+        best,
+      };
+    });
+  },
+});
+
 /** Submit a quiz attempt and record points. Auth required. */
 export const submitAttempt = mutation({
   args: {
@@ -159,6 +220,74 @@ export const getEditable = query({
       .withIndex("by_quiz_and_order", (q) => q.eq("quizId", quiz._id))
       .take(50);
     return { quiz, questions };
+  },
+});
+
+/**
+ * Full results for one quiz attempt (parent). Returns the score plus every
+ * question with the student's selected answer, the correct answer, and the
+ * explanation — works for both lesson quizzes and Friday Challenges.
+ */
+export const attemptDetail = query({
+  args: { attemptId: v.id("quizAttempts") },
+  handler: async (ctx, args) => {
+    await requireParent(ctx);
+    const attempt = await ctx.db.get(args.attemptId);
+    if (!attempt) return null;
+
+    let title = "Quiz";
+    let subtitle: string | null = null;
+    let subjectName: string | null = null;
+    let subjectColor: string | null = null;
+    let isFriday = false;
+
+    if (attempt.fridayQuizId) {
+      isFriday = true;
+      const fq = await ctx.db.get(attempt.fridayQuizId);
+      title = fq?.title ?? "Friday Challenge";
+      subtitle = "Weekly review";
+    } else if (attempt.quizId) {
+      const quiz = await ctx.db.get(attempt.quizId);
+      if (quiz) {
+        title = quiz.title;
+        const lesson = await ctx.db.get(quiz.lessonId);
+        subtitle = lesson?.title ?? null;
+        const subj = await ctx.db.get(quiz.subjectId);
+        subjectName = subj?.name ?? null;
+        subjectColor = subj?.color ?? null;
+      }
+    }
+
+    const questions = [];
+    for (const ans of attempt.answers) {
+      const q = await ctx.db.get(ans.questionId);
+      questions.push({
+        available: q !== null,
+        questionText: q?.questionText ?? "This question has been removed.",
+        options: q?.options ?? [],
+        correctAnswer: q?.correctAnswer ?? "",
+        explanation: q?.explanation ?? "",
+        selectedAnswer: ans.selectedAnswer,
+        correct: ans.correct,
+      });
+    }
+
+    return {
+      attempt: {
+        attemptId: attempt._id,
+        completedAt: attempt.completedAt,
+        percentage: attempt.percentage,
+        correctAnswers: attempt.correctAnswers,
+        totalQuestions: attempt.totalQuestions,
+        pointsEarned: attempt.pointsEarned,
+      },
+      title,
+      subtitle,
+      subjectName,
+      subjectColor,
+      isFriday,
+      questions,
+    };
   },
 });
 

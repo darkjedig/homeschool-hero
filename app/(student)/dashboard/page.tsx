@@ -8,7 +8,9 @@ import { MissionCard } from "@/components/student/mission-card";
 import { ContinueLearningCard } from "@/components/student/continue-learning-card";
 import { FridayChallengeCard } from "@/components/student/friday-challenge-card";
 import { OverallProgressChart } from "@/components/student/overall-progress-chart";
-import { SubjectTile } from "@/components/student/subject-tile";
+import Link from "next/link";
+import { SubjectIcon } from "@/components/shared/subject-icon";
+import { hexToRgb, subjectMeta } from "@/lib/subjects";
 import { AchievementBadge } from "@/components/student/achievement-badge";
 import { RewardShopStrip } from "@/components/student/reward-shop-strip";
 import { HintCard } from "@/components/student/hint-card";
@@ -20,40 +22,27 @@ import {
   Flame,
   Shield,
   Target,
-  Trophy,
+  Coffee,
   FlaskConical,
   ListChecks,
   Sunrise,
   LineChart,
 } from "lucide-react";
-import type { Doc } from "@/convex/_generated/dataModel";
-
-const MISSION_TOPICS: Record<string, string> = {
-  maths: "Fractions",
-  english: "Grammar",
-  science: "Solar System",
-  history: "World War II",
-};
-
-const SUBJECT_PROGRESS: Record<string, number> = {
-  maths: 72,
-  english: 58,
-  science: 64,
-  history: 45,
-  "ai-and-computer-science": 38,
-  "game-development": 51,
-  homemaking: 30,
-  "building-and-construction": 22,
-};
 
 export default function DashboardPage() {
-  const subjects = useQuery(api.subjects.list);
+  const overview = useQuery(api.dashboard.studentOverview);
+  const today = useQuery(api.calendar.getToday);
   const myBadges = useQuery(api.badges.mine);
-  const firstFour = (subjects ?? []).slice(0, 4);
+  const profile = useQuery(api.userProfiles.getMine);
+
+  const missions = (today ?? []).slice(0, 4);
+  const subjectProgress = overview?.subjectProgress ?? [];
+  const cont = overview?.continueLearning ?? null;
+  const firstName = (profile?.displayName ?? "there").split(" ")[0];
 
   return (
-    <StaggerGroup className="space-y-6">
-      <DashboardHeader name="Hudson" />
+    <StaggerGroup className="space-y-8">
+      <DashboardHeader name={firstName} />
 
       {/* Top row — 4 stat cards */}
       <StaggerItem>
@@ -64,32 +53,40 @@ export default function DashboardPage() {
           <StatCard
           icon={Coins}
           iconColor="#eab308"
-          value="2,450"
+          value={overview ? overview.points.toLocaleString() : "—"}
           label="Points"
-          sub="+150 this week"
+          sub={overview ? `+${overview.pointsThisWeek} this week` : undefined}
           subColor="green"
         />
         <StatCard
           icon={Flame}
           iconColor="#f97316"
-          value="7 Days"
+          value={
+            overview
+              ? `${overview.streak} ${overview.streak === 1 ? "Day" : "Days"}`
+              : "—"
+          }
           label="Current Streak"
-          sub="Best: 12 days"
+          sub={overview ? `Best: ${overview.bestStreak} days` : undefined}
         />
         <StatCard
           icon={Shield}
           iconColor="#a855f7"
-          value="12"
-          label="Level · Explorer"
-          progress={78}
+          value={overview ? String(overview.level) : "—"}
+          label={overview ? `Level · ${overview.levelTitle}` : "Level"}
+          progress={overview?.levelProgress}
         />
         <StatCard
           icon={Target}
           iconColor="#3b82f6"
-          value="72%"
+          value={overview ? `${overview.weeklyGoalPct}%` : "—"}
           label="Weekly Goal"
-          sub="5 of 7 missions"
-          progress={72}
+          sub={
+            overview
+              ? `${overview.weeklyDone} of ${overview.weeklyPlanned} missions`
+              : undefined
+          }
+          progress={overview?.weeklyGoalPct}
         />
       </section>
       </StaggerItem>
@@ -102,75 +99,101 @@ export default function DashboardPage() {
             Today&apos;s Missions
           </h2>
           <div className="grid grid-cols-2 gap-3">
-            {firstFour.map((s, i) => (
+            {missions.map((m) => (
               <MissionCard
-                key={s._id}
-                subjectSlug={s.slug}
-                title={s.name}
-                subTopic={MISSION_TOPICS[s.slug] ?? s.description}
-                progress={[68, 52, 74, 48][i] ?? 50}
-                points={[120, 100, 150, 130][i] ?? 100}
-                href={`/subjects/${s.slug}`}
-                iconName={s.icon}
-                color={s.color}
+                key={m._id}
+                subjectSlug={m.subjectSlug}
+                title={m.subjectName}
+                subTopic={m.lessonTitle ?? m.label ?? "Practice"}
+                progress={m.completed ? 100 : m.progress ?? 0}
+                points={m.points ?? 0}
+                href={m.lessonId ? `/lessons/${m.lessonId}` : `/subjects/${m.subjectSlug}`}
+                iconName={m.subjectIcon ?? undefined}
+                color={m.subjectColor}
               />
             ))}
-            {firstFour.length === 0 &&
+            {today === undefined &&
               Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
                   className="h-36 animate-pulse rounded-2xl border border-white/10 bg-white/5"
                 />
               ))}
+            {today !== undefined && missions.length === 0 && (
+              <div className="col-span-2 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
+                <Coffee size={24} className="text-orange-300" />
+                <p className="text-sm font-medium text-white">
+                  No missions scheduled for today
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Enjoy the break — or pick something to learn from your subjects.
+                </p>
+                <Link
+                  href="/subjects"
+                  className="mt-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10"
+                >
+                  Browse subjects
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="xl:col-span-5">
+        <div className="flex flex-col xl:col-span-5">
           <h2 className="mb-3 text-lg font-semibold text-white">
             Continue Learning
           </h2>
           <ContinueLearningCard
-            title="The Solar System"
-            subject="Science"
-            lessonNumber={4}
-            totalLessons={8}
-            progress={62}
-            href="/subjects/science"
+            title={cont?.title ?? "Pick a lesson"}
+            subject={cont?.subject ?? "—"}
+            lessonNumber={cont?.lessonNumber ?? 0}
+            totalLessons={cont?.totalLessons ?? 0}
+            progress={cont?.progress ?? 0}
+            href={cont?.href ?? "/subjects"}
           />
         </div>
 
-        <div className="xl:col-span-3">
+        <div className="flex flex-col xl:col-span-3">
           <h2 className="mb-3 text-lg font-semibold text-white">
             Friday Challenge
           </h2>
-          <FridayChallengeCard />
+          <FridayChallengeCard
+            title={overview?.friday?.title ?? "Friday Challenge"}
+            subtitle={overview?.friday?.subtitle ?? "Weekly boss battle · 2× points"}
+          />
         </div>
       </section>
       </StaggerItem>
 
-      {/* Bottom row — 4 widgets */}
+      {/* Core subjects — full-width band of larger tiles */}
       <StaggerItem>
-      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
-        <OverallProgressChart />
-
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md">
-          <h3 className="mb-3 text-sm font-semibold text-muted-foreground">
-            Core Subjects
-          </h3>
-          <div className="grid grid-cols-4 gap-2">
-            {(subjects ?? []).map((s: Doc<"subjects">) => (
-              <SubjectTile
+        <section aria-label="Core subjects">
+          <h2 className="mb-3 text-lg font-semibold text-white">Core Subjects</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {subjectProgress.map((s) => (
+              <CoreSubjectCard
                 key={s._id}
                 slug={s.slug}
                 name={s.name}
-                progress={SUBJECT_PROGRESS[s.slug] ?? 40}
+                progress={s.pct}
                 href={`/subjects/${s.slug}`}
                 iconName={s.icon}
                 color={s.color}
               />
             ))}
           </div>
-        </div>
+        </section>
+      </StaggerItem>
+
+      {/* Bottom row — 3 widgets */}
+      <StaggerItem>
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <OverallProgressChart
+          lessons={overview?.overall.lessonsPct}
+          quizzes={overview?.overall.quizzesPct}
+          challenges={overview?.overall.challengesPct}
+          badges={overview?.overall.badgesPct}
+        />
 
         <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md">
           <h3 className="mb-4 text-sm font-semibold text-muted-foreground">
@@ -226,12 +249,51 @@ export default function DashboardPage() {
         <HintCard />
       </section>
       </StaggerItem>
-
-      <div className="flex items-center gap-2 pt-2 text-xs text-muted-foreground">
-        <Trophy size={14} className="text-yellow-400" />
-        Placeholder values shown — live stats connect when the student account
-        is active.
-      </div>
     </StaggerGroup>
+  );
+}
+
+/** Larger, non-truncating subject card for the Core Subjects band. */
+function CoreSubjectCard({
+  slug,
+  name,
+  progress,
+  href,
+  iconName,
+  color,
+}: {
+  slug: string;
+  name: string;
+  progress: number;
+  href: string;
+  iconName?: string;
+  color?: string;
+}) {
+  const meta = subjectMeta(slug);
+  const accent = color || meta.color;
+  const rgb = hexToRgb(accent);
+  return (
+    <Link
+      href={href}
+      className="group flex h-full flex-col rounded-2xl border bg-gradient-to-b from-white/[0.07] to-transparent p-4 backdrop-blur-md transition duration-200 hover:-translate-y-1 hover:scale-[1.02]"
+      style={{ borderColor: `${accent}40`, boxShadow: `0 0 22px rgba(${rgb},0.12)` }}
+    >
+      <div
+        className="mb-3 grid h-11 w-11 place-items-center rounded-xl"
+        style={{ backgroundColor: `${accent}22`, boxShadow: `0 0 14px ${accent}55` }}
+      >
+        <SubjectIcon slug={slug} iconName={iconName} color={accent} size={22} />
+      </div>
+      <p className="text-sm font-semibold leading-snug text-white">{name}</p>
+      <p className="mt-0.5 text-[11px] text-muted-foreground">{progress}% complete</p>
+      <div className="mt-auto pt-3">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+          <div
+            className="h-full rounded-full transition-all"
+            style={{ width: `${progress}%`, backgroundColor: accent, boxShadow: `0 0 8px ${accent}` }}
+          />
+        </div>
+      </div>
+    </Link>
   );
 }

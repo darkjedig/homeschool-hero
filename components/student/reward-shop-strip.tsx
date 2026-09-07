@@ -1,33 +1,54 @@
+"use client";
+
 import Link from "next/link";
-import { Rocket, Headphones, Sparkles } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Gift } from "lucide-react";
 
-export type Reward = { title: string; cost: number; icon: LucideIcon };
+/** Reward Shop strip — row of LIVE reward chips from the parent-managed shop. */
+export function RewardShopStrip() {
+  const rewards = useQuery(api.rewards.listActive);
+  const list = (rewards ?? []).slice(0, 6);
 
-const DEFAULTS: Reward[] = [
-  { title: "Neon Rocket", cost: 500, icon: Rocket },
-  { title: "Galaxy Headset", cost: 800, icon: Headphones },
-  { title: "Hero Cape", cost: 1200, icon: Sparkles },
-];
-
-/** Reward Shop strip — row of reward chips (matches dashboard footer). */
-export function RewardShopStrip({ rewards = DEFAULTS }: { rewards?: Reward[] }) {
   return (
     <section className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
-      <h3 className="mb-3 text-sm font-semibold text-white">Reward Shop</h3>
-      <div className="flex flex-wrap gap-2">
-        {rewards.map((r) => (
-          <Link
-            key={r.title}
-            href="/rewards"
-            className="flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-xs text-white transition hover:border-yellow-400/40"
-          >
-            <r.icon size={14} className="text-yellow-300" />
-            {r.title}
-            <span className="font-semibold text-yellow-300">⭐ {r.cost}</span>
-          </Link>
-        ))}
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-white">Reward Shop</h3>
+        <Link
+          href="/rewards"
+          className="text-xs font-medium text-yellow-300/80 transition hover:text-yellow-300"
+        >
+          View all
+        </Link>
       </div>
+
+      {rewards !== undefined && list.length === 0 ? (
+        <div className="flex items-center gap-2 rounded-xl border border-dashed border-white/10 bg-white/[0.02] px-3 py-3 text-xs text-muted-foreground">
+          <Gift size={14} className="text-yellow-300/70" />
+          No rewards in the shop yet — check back soon!
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {list.map((r) => (
+            <Link
+              key={r._id}
+              href="/rewards"
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-xs text-white transition hover:border-yellow-400/40"
+            >
+              <Gift size={14} className="text-yellow-300" />
+              {r.title}
+              <span className="font-semibold text-yellow-300">⭐ {r.pointsCost}</span>
+            </Link>
+          ))}
+          {rewards === undefined &&
+            Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-7 w-28 animate-pulse rounded-full border border-white/10 bg-white/5"
+              />
+            ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -185,11 +185,16 @@ export const listAllWithSubject = query({
   handler: async (ctx) => {
     const lessons = await ctx.db.query("lessons").take(300);
     const subjectIds = [...new Set(lessons.map((l) => l.subjectId))];
-    const subjects = await Promise.all(subjectIds.map((id) => ctx.db.get(id)));
-    const subjectById = new Map(subjects.map((s) => (s ? [s._id, s] : [null, null])));
+    const [subjectResults, topics] = await Promise.all([
+      Promise.all(subjectIds.map((id) => ctx.db.get(id))),
+      ctx.db.query("topics").take(500),
+    ]);
+    const subjectById = new Map(subjectResults.map((s) => (s ? [s._id, s] : [null, null])));
+    const topicById = new Map(topics.map((t) => [t._id, t]));
     return lessons
       .map((l) => {
         const subject = subjectById.get(l.subjectId);
+        const topic = topicById.get(l.topicId);
         return {
           _id: l._id,
           title: l.title,
@@ -201,13 +206,18 @@ export const listAllWithSubject = query({
           subjectName: subject?.name ?? "Unknown",
           subjectSlug: subject?.slug ?? "",
           subjectColor: subject?.color ?? "#3b82f6",
+          topicId: l.topicId,
+          topicName: topic?.name ?? "Uncategorised",
+          topicOrder: topic?.order ?? Number.MAX_SAFE_INTEGER,
           createdAt: l._creationTime,
         };
       })
-      .sort((a, b) =>
-        a.subjectName === b.subjectName
-          ? a.createdAt - b.createdAt
-          : a.subjectName.localeCompare(b.subjectName),
-      );
+      .sort((a, b) => {
+        if (a.subjectName !== b.subjectName) {
+          return a.subjectName.localeCompare(b.subjectName);
+        }
+        if (a.topicOrder !== b.topicOrder) return a.topicOrder - b.topicOrder;
+        return a.createdAt - b.createdAt;
+      });
   },
 });

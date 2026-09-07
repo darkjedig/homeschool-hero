@@ -267,10 +267,13 @@ type EntryView = {
   subjectName: string;
   subjectColor: string;
   subjectSlug: string;
+  subjectIcon: string | null;
   lessonId: string | null;
   lessonTitle: string | null;
   label: string | null;
   completed: boolean;
+  points: number | null;
+  progress: number | null;
   weekIndex: number;
 };
 
@@ -288,9 +291,12 @@ async function enrich(
     const subject = subjectById.get(e.subjectId);
     let lessonTitle: string | null = null;
     let completed = false;
+    let points: number | null = null;
+    let progress: number | null = null;
     if (e.lessonId) {
       const lesson = await ctx.db.get(e.lessonId);
       lessonTitle = lesson?.title ?? null;
+      points = lesson?.pointsAwarded ?? null;
       if (userId && lesson) {
         const vp = await ctx.db
           .query("videoProgress")
@@ -299,6 +305,7 @@ async function enrich(
           )
           .unique();
         completed = !!vp?.completed;
+        progress = vp ? (vp.completed ? 100 : Math.round(vp.percentageWatched)) : null;
       }
     }
     out.push({
@@ -309,10 +316,13 @@ async function enrich(
       subjectName: subject?.name ?? "Subject",
       subjectColor: subject?.color ?? "#3b82f6",
       subjectSlug: subject?.slug ?? "",
+      subjectIcon: subject?.icon ?? null,
       lessonId: e.lessonId ?? null,
       lessonTitle,
       label: e.label ?? null,
       completed,
+      points,
+      progress,
       weekIndex: e.weekIndex,
     });
   }
@@ -398,5 +408,297 @@ export const clearEntry = mutation({
   handler: async (ctx, args) => {
     await requireParent(ctx);
     await ctx.db.patch(args.entryId, { lessonId: undefined });
+  },
+});
+
+/**
+ * Re-lay every calendar entry from `startDate` onward onto the remaining
+ * school days (skipping weekends + all holidays), preserving each subject's
+ * current lesson order. Used by addBreak/removeBreak/regenerateFrom so a break
+ * shifts lessons past it instead of deleting them — keeping each subject's
+ * sequence (e.g. a WW1 unit) intact. Entries before `startDate` are untouched.
+ *
+ * Mirrors generateYear's rotation + weekIndex logic but pulls lessons from the
+ * existing calendar order rather than the curriculum order.
+ */
+async function relayFrom(ctx: MutationCtx, startDate: string): Promise<void> {
+  let year = await ctx.db.query("schoolYear").first();
+  if (!year) throw new Error("No school year configured. Seed one first.");
+
+  // Force the standard rotation (same as generateYear) for consistency.
+  const rotation = await buildStandardRotation(ctx);
+  if (JSON.stringify(rotation) !== JSON.stringify(year.rotation)) {
+    await ctx.db.patch(year._id, { rotation, updatedAt: Date.now() });
+    year = { ...year, rotation };
+  }
+
+  const subjects = await ctx.db.query("subjects").take(50);
+  const subjectById = new Map(subjects.map((s) => [s._id, s]));
+
+  // Gather the entries we are about to move, grouped per subject in their
+  // current display order (date, then slotOrder) so per-subject sequence is
+  // preserved exactly.
+  const affected = await ctx.db
+    .query("calendarEntries")
+    .withIndex("by_date", (q) => q.gte("date", startDate))
+    .take(5000);
+  const ordered = affected
+    .slice()
+    .sort((a, b) =>
+      a.date === b.date ? a.slotOrder - b.slotOrder : a.date < b.date ? -1 : 1,
+    );
+  const queues = new Map<
+    Id<"subjects">,
+    { lessonId?: Id<"lessons">; label?: string }[]
+  >();
+  for (const e of ordered) {
+    const q = queues.get(e.subjectId) ?? [];
+    q.push({ lessonId: e.lessonId, label: e.label });
+    queues.set(e.subjectId, q);
+  }
+  for (const e of affected) await ctx.db.delete(e._id);
+
+  const queuesRemaining = () => {
+    for (const q of queues.values()) {
+      if (q.length > 0) return true;
+    }
+    return false;
+  };
+
+  // Walk the whole year so weekIndex stays consistent with generateYear, but
+  // only re-insert entries on/after startDate (earlier entries are untouched).
+  // If a break pushed lessons past the original end date, keep walking school
+  // days until every queued lesson is placed — never drop curriculum.
+  const weekdays = new Set(year.weekdays);
+  const firstWeekday = Math.min(...year.weekdays);
+  const start = parseISO(year.startDate);
+  const origEnd = parseISO(year.endDate);
+  const hardCap = new Date(origEnd);
+  hardCap.setUTCDate(origEnd.getUTCDate() + 90);
+  let weekIndex = 0;
+  let seenAnySchoolDay = false;
+  let lastPlaced = year.endDate;
+
+  for (let d = new Date(start); d <= hardCap; d.setUTCDate(d.getUTCDate() + 1)) {
+    const pastOrigEnd = d > origEnd;
+    if (pastOrigEnd && !queuesRemaining()) break;
+
+    const dow = d.getUTCDay();
+    if (!weekdays.has(dow)) continue;
+    if (inHoliday(d, year.holidays)) continue;
+    if (dow === firstWeekday && seenAnySchoolDay) weekIndex += 1;
+    seenAnySchoolDay = true;
+
+    const date = toISO(d);
+    if (date < startDate) continue;
+
+    const rot = year.rotation.find((r) => r.dayOfWeek === dow);
+    if (!rot) continue;
+    let slot = 0;
+    for (const subjectId of rot.subjectIds) {
+      const queue = queues.get(subjectId);
+      const next = queue?.shift();
+      if (next) {
+        await ctx.db.insert("calendarEntries", {
+          date,
+          slotOrder: slot,
+          subjectId,
+          lessonId: next.lessonId,
+          label: next.label,
+          weekIndex,
+        });
+        lastPlaced = date;
+      } else if (!pastOrigEnd) {
+        // Subject ran out of lessons: keep an IXL placeholder for core subjects
+        // (matches generateYear) so the slot reads as a planned day, not empty.
+        const subject = subjectById.get(subjectId);
+        if (subject && IXL_SLUGS.has(subject.slug)) {
+          await ctx.db.insert("calendarEntries", {
+            date,
+            slotOrder: slot,
+            subjectId,
+            lessonId: undefined,
+            label: ixlLabel(subject.name),
+            weekIndex,
+          });
+        }
+      }
+      slot += 1;
+    }
+  }
+
+  if (lastPlaced > year.endDate) {
+    await ctx.db.patch(year._id, { endDate: lastPlaced, updatedAt: Date.now() });
+  }
+}
+
+/**
+ * Delay the first lesson day without deleting any scheduled lessons. Marks
+ * `year.startDate` through the day before `firstLessonDate` as a "Late start"
+ * break, then re-lays every existing calendar lesson onto remaining school
+ * days in the same per-subject order (so WWI still comes before WWII, etc.).
+ * Extends `endDate` if the shift would otherwise drop lessons off the year.
+ * Idempotent if the late-start holiday already exists. Ungated for CLI setup.
+ */
+export const delayStartTo = mutation({
+  args: { firstLessonDate: v.string() },
+  handler: async (ctx, args) => {
+    const year = await ctx.db.query("schoolYear").first();
+    if (!year) throw new Error("No school year configured. Seed one first.");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(args.firstLessonDate)) {
+      throw new Error("firstLessonDate must be yyyy-mm-dd.");
+    }
+    if (args.firstLessonDate <= year.startDate) {
+      throw new Error("firstLessonDate must be after the school-year start.");
+    }
+
+    const lateEnd = (() => {
+      const d = parseISO(args.firstLessonDate);
+      d.setUTCDate(d.getUTCDate() - 1);
+      return toISO(d);
+    })();
+
+    const holidays = year.holidays.filter((h) => h.name !== "Late start");
+    holidays.push({
+      name: "Late start",
+      start: year.startDate,
+      end: lateEnd,
+    });
+    await ctx.db.patch(year._id, { holidays, updatedAt: Date.now() });
+
+    await relayFrom(ctx, year.startDate);
+
+    const updated = await ctx.db.get(year._id);
+    return {
+      firstLessonDate: args.firstLessonDate,
+      lateStart: { start: year.startDate, end: lateEnd },
+      endDate: updated?.endDate ?? year.endDate,
+    };
+  },
+});
+
+/**
+ * Swap the lessons between two calendar entries (parent). Drag-and-drop: drop
+ * a lesson onto another day's slot and the two trade places. If the target slot
+ * was empty, the lesson simply moves there and the source is cleared.
+ */
+export const moveLesson = mutation({
+  args: {
+    sourceEntryId: v.id("calendarEntries"),
+    targetEntryId: v.id("calendarEntries"),
+  },
+  handler: async (ctx, args) => {
+    await requireParent(ctx);
+    const [src, tgt] = await Promise.all([
+      ctx.db.get(args.sourceEntryId),
+      ctx.db.get(args.targetEntryId),
+    ]);
+    if (!src || !tgt) throw new Error("Calendar entry not found.");
+    await ctx.db.patch(src._id, { lessonId: tgt.lessonId, label: tgt.label });
+    await ctx.db.patch(tgt._id, { lessonId: src.lessonId, label: src.label });
+  },
+});
+
+/**
+ * Block out a break (holiday). Persists the range on the school year, then
+ * re-lays every lesson from the break's start onward so the lessons that would
+ * have fallen in the break move past it in order, filling the remaining school
+ * days. Parent-only.
+ */
+export const addBreak = mutation({
+  args: {
+    startDate: v.string(),
+    days: v.number(),
+    name: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireParent(ctx);
+    if (args.days < 1) throw new Error("A break must be at least 1 day.");
+    const year = await ctx.db.query("schoolYear").first();
+    if (!year) throw new Error("No school year configured. Seed one first.");
+
+    const startD = parseISO(args.startDate);
+    const endD = new Date(startD);
+    endD.setUTCDate(startD.getUTCDate() + args.days - 1);
+    const end = toISO(endD);
+
+    const holidays = [
+      ...year.holidays,
+      { name: args.name?.trim() || "Break", start: args.startDate, end },
+    ];
+    await ctx.db.patch(year._id, { holidays, updatedAt: Date.now() });
+    await relayFrom(ctx, args.startDate);
+    return { start: args.startDate, end };
+  },
+});
+
+/**
+ * Remove a saved break/holiday by index, then close the gap by re-laying
+ * lessons from its start. Parent-only.
+ */
+export const removeBreak = mutation({
+  args: { index: v.number() },
+  handler: async (ctx, args) => {
+    await requireParent(ctx);
+    const year = await ctx.db.query("schoolYear").first();
+    if (!year) throw new Error("No school year configured. Seed one first.");
+    if (args.index < 0 || args.index >= year.holidays.length) {
+      throw new Error("Invalid break.");
+    }
+    const removed = year.holidays[args.index];
+    const holidays = year.holidays.filter((_, i) => i !== args.index);
+    await ctx.db.patch(year._id, { holidays, updatedAt: Date.now() });
+    await relayFrom(ctx, removed.start);
+    return removed;
+  },
+});
+
+/**
+ * Re-sort the calendar from a given date onward, preserving each subject's
+ * current lesson order. Useful after manual edits to re-tidy the tail without a
+ * full regenerate. Parent-only.
+ */
+export const regenerateFrom = mutation({
+  args: { startDate: v.string() },
+  handler: async (ctx, args) => {
+    await requireParent(ctx);
+    await relayFrom(ctx, args.startDate);
+  },
+});
+
+/**
+ * Published lessons grouped by subject, for the "add/change lesson" picker in
+ * the calendar editor. Parent-only.
+ */
+export const pickerLessons = query({
+  args: { subjectId: v.optional(v.id("subjects")) },
+  handler: async (ctx, args) => {
+    await requireParent(ctx);
+    const subjects = args.subjectId
+      ? [await ctx.db.get(args.subjectId)].filter(
+          (s): s is Doc<"subjects"> => s !== null,
+        )
+      : await ctx.db.query("subjects").take(50);
+    const out = [];
+    for (const s of subjects) {
+      const lessons = await ctx.db
+        .query("lessons")
+        .withIndex("by_subject_and_status", (q) =>
+          q.eq("subjectId", s._id).eq("status", "published"),
+        )
+        .take(300);
+      out.push({
+        subjectId: s._id,
+        subjectName: s.name,
+        subjectColor: s.color,
+        subjectSlug: s.slug,
+        lessons: lessons.map((l) => ({
+          _id: l._id,
+          title: l.title,
+          topicId: l.topicId,
+        })),
+      });
+    }
+    return out;
   },
 });
