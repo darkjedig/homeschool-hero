@@ -52,11 +52,19 @@ export const contentBlocks = v.array(contentBlock);
 export default defineSchema({
   ...authTables,
 
+  familyAccounts: defineTable({
+    role: v.union(v.literal("student"), v.literal("parent")),
+    userId: v.optional(v.id("users")),
+    failures: v.number(),
+    lockedUntil: v.number(),
+  }).index("by_role", ["role"]),
+
   // Application profile + role, keyed by the auth user id.
   userProfiles: defineTable({
     userId: v.id("users"),
     role: v.union(v.literal("parent"), v.literal("student")),
     displayName: v.string(),
+    reducedMotion: v.optional(v.boolean()),
     avatarId: v.optional(v.id("_storage")),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -121,7 +129,8 @@ export default defineSchema({
     .index("by_subject_and_status", ["subjectId", "status"])
     .index("by_status", ["status"])
     .index("by_slug", ["slug"])
-    .searchIndex("search_title", { searchField: "title" }),
+    .searchIndex("search_title", { searchField: "title" })
+    .searchIndex("published_title", { searchField: "title", filterFields: ["status", "subjectId"] }),
 
   quizzes: defineTable({
     lessonId: v.id("lessons"),

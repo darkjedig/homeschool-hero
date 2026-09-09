@@ -1,5 +1,6 @@
 "use client";
 
+import { AiMascot } from "@/components/student/ai-mascot";
 import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -79,12 +80,11 @@ export default function ParentDashboardPage() {
     .map((a, i) => ({ name: `#${i + 1}`, score: a.percentage, title: a.title }));
 
   return (
-    <div className="space-y-6">
-      <header className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600/15 via-purple-600/10 to-transparent p-6 backdrop-blur-md shadow-[0_0_30px_rgba(59,130,246,0.12)]">
-        <h1 className="text-2xl font-bold text-white">Parent Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Progress, content and engagement across all subjects.
-        </p>
+    <div className="parent-dashboard space-y-4">
+      <header className="dashboard-header flex flex-wrap items-center justify-between gap-4">
+        <div><p className="mb-2 text-xs font-semibold uppercase tracking-widest text-cyan-400">Your family’s learning journey</p><h1 className="text-2xl font-bold text-white">Parent <span className="text-cyan-400">Dashboard</span></h1><p className="mt-2 text-sm text-muted-foreground">Progress, content and engagement across all subjects.</p></div>
+        <AiMascot message="Big dreams start with small steps. Let's help them grow!" />
+        <Link href="/parent/lessons/new" className="rounded-xl border border-cyan-400/30 bg-gradient-to-b from-sky-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20">+ Create a lesson</Link>
       </header>
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-5">
@@ -95,7 +95,7 @@ export default function ParentDashboardPage() {
         <Stat icon={Coins} color="#eab308" value={stats ? stats.totalPoints.toLocaleString() : "—"} label="Points earned" href="/parent/history" />
       </section>
 
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Panel title="Lessons published per subject" subtitle="Distribution of live lessons" accent="#3b82f6">
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -414,7 +414,7 @@ function Panel({
   const rgb = hexToRgb(accent);
   return (
     <section
-      className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
+      className="space-panel"
       style={{ boxShadow: `0 0 24px rgba(${rgb},0.08)` }}
     >
       <div className="mb-5 flex items-center gap-3">
@@ -423,7 +423,7 @@ function Panel({
           style={{ backgroundColor: accent, boxShadow: `0 0 12px ${accent}` }}
         />
         <div>
-          <h3 className="text-base font-semibold text-white">{title}</h3>
+          <h3 className="text-base font-semibold text-cyan-300">{title}</h3>
           {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
         </div>
       </div>

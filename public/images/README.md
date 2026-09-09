@@ -1,0 +1,7 @@
+# Dashboard artwork
+
+`space-art.png` was generated using the built-in image generation tool. It contains three decorative panels consumed by `components/shared/space-art.tsx`: robot tutor, solar system, and game controller. All interface text, navigation, values, and controls remain HTML and use existing application data.
+
+## Generation prompt
+
+Use case: stylized-concept. Create a production web asset sheet, landscape 1536x1024. Three equal vertical columns with NO dividing lines, all on uniform very dark navy #031027 background. LEFT THIRD: one adorable polished 3D blue robot tutor with cyan luminous eyes, headphones and antenna, floating above a cyan holographic ring, centered within left third, full body, no cropping. MIDDLE THIRD: a beautiful miniature glowing solar system with golden sun, blue planets and elliptical cyan orbit trails, centered within middle third. RIGHT THIRD: a polished purple neon video game controller floating above a purple holographic ring with a few tiny glowing stars, centered within right third. Objects contained entirely in their own third with generous navy margin top and bottom. Style is premium children's space adventure game dashboard, rich saturated cyan and violet, glossy dimensional icons, soft bloom. No text, letters, UI, borders or watermark. Each third will be independently displayed with CSS background-position as decorative dashboard artwork.

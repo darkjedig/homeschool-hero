@@ -32,6 +32,7 @@ import type * as dashboard from "../dashboard.js";
 import type * as enrichLessons from "../enrichLessons.js";
 import type * as export_ from "../export.js";
 import type * as exportData from "../exportData.js";
+import type * as familyAccess from "../familyAccess.js";
 import type * as fridayQuiz from "../fridayQuiz.js";
 import type * as hello from "../hello.js";
 import type * as http from "../http.js";
@@ -80,6 +81,7 @@ declare const fullApi: ApiFromModules<{
   enrichLessons: typeof enrichLessons;
   export: typeof export_;
   exportData: typeof exportData;
+  familyAccess: typeof familyAccess;
   fridayQuiz: typeof fridayQuiz;
   hello: typeof hello;
   http: typeof http;

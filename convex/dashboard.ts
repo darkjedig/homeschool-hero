@@ -1,3 +1,4 @@
+import { requireParent } from "./authHelpers";
 import { query } from "./_generated/server";
 import type { QueryCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
@@ -75,6 +76,7 @@ async function enrichAttempts(
 export const overview = query({
   args: {},
   handler: async (ctx) => {
+    await requireParent(ctx);
     const [subjects, lessons, quizzes, attempts, rewards, redemptions, points] =
       await Promise.all([
         ctx.db.query("subjects").withIndex("by_active_order").take(50),

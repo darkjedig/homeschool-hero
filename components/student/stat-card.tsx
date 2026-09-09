@@ -22,17 +22,17 @@ export function StatCard({
   progress,
 }: StatCardProps) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md">
-      <div className="flex items-start justify-between">
+    <section className="hero-stat space-panel">
+      <div className="hero-stat-icon">
         <div
-          className="grid h-10 w-10 place-items-center rounded-xl"
+          className="grid h-16 w-16 place-items-center rounded-full border border-white/10"
           style={{ backgroundColor: `${iconColor}22` }}
         >
-          <Icon size={20} style={{ color: iconColor }} />
+          <Icon size={34} style={{ color: iconColor }} />
         </div>
       </div>
-      <p className="mt-4 text-3xl font-bold text-white xl:text-4xl">{value}</p>
-      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="hero-stat-value text-2xl font-bold text-white">{value}</p>
+      <p className="hero-stat-label text-xs text-blue-100">{label}</p>
       {sub && (
         <p
           className={

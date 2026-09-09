@@ -1,0 +1,24 @@
+.subjectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+  gap: 8px;
+}
+.card {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-rows: 1fr auto auto;
+  gap: 8px 10px;
+  min-width: 0;
+  height: 100%;
+  padding: 12px;
+  border: 1px solid;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #ffffff0d, #ffffff03);
+  transition: border-color 150ms, background 150ms;
+}
+.card:hover { background-color: #ffffff08; }
+.icon { grid-column: 1; grid-row: 1; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; }
+.name { grid-column: 2; grid-row: 1; min-width: 0; color: white; font-size: 11px; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
+.progressLabel { grid-column: 1 / -1; grid-row: 2; color: #a5b8d7; font-size: 11px; line-height: 1.4; white-space: nowrap; }
+.progress { grid-column: 1 / -1; grid-row: 3; height: 5px; width: 100%; overflow: hidden; border-radius: 99px; background: #ffffff15; }
+.progress > div { height: 100%; border-radius: inherit; }

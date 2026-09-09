@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Gamepad2 } from "lucide-react";
+import { SpaceArt } from "@/components/shared/space-art";
 
 type Remaining = { days: number; hours: number; mins: number; secs: number };
 
@@ -50,9 +50,7 @@ export function FridayChallengeCard({
 
   return (
     <section className="flex flex-1 flex-col rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-600/20 via-purple-900/20 to-transparent p-5 shadow-[0_0_18px_rgba(168,85,247,0.16)]">
-      <div className="mb-3 grid h-11 w-11 place-items-center rounded-xl bg-purple-500/25">
-        <Gamepad2 size={22} className="text-purple-300" />
-      </div>
+      <SpaceArt kind="controller" className="challenge-art h-28 w-full" />
       <p className="text-lg font-bold text-white">{title}</p>
       <p className="text-sm text-muted-foreground">{subtitle}</p>
       <p className="mt-1 text-[11px] uppercase tracking-wide text-purple-300/80">
@@ -80,7 +78,7 @@ export function FridayChallengeCard({
       </div>
       <Link
         href="/friday-quiz"
-        className="mt-auto block w-full rounded-xl bg-purple-500 px-4 py-2.5 text-center font-semibold text-white shadow-[0_0_18px_rgba(168,85,247,0.45)] transition hover:bg-purple-400"
+        className="mt-3 block w-full rounded-xl bg-gradient-to-b from-violet-500 to-violet-800 px-4 py-2.5 text-center font-semibold text-white shadow-[0_0_18px_rgba(168,85,247,0.45)] transition hover:bg-purple-400"
       >
         Get Ready!
       </Link>

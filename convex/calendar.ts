@@ -131,8 +131,7 @@ async function buildStandardRotation(
 export const generateYear = mutation({
   args: {},
   handler: async (ctx) => {
-    // TODO(Phase 10 RBAC): requireParent — currently ungated for CLI setup;
-    // parent calendar UI is protected by the ParentGate component.
+    await requireParent(ctx);
     let year = await ctx.db.query("schoolYear").first();
     if (!year) throw new Error("No school year configured. Seed one first.");
 
@@ -208,7 +207,7 @@ export const generateYear = mutation({
 export const seedDefaultYear = mutation({
   args: { startYear: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    // TODO(Phase 10 RBAC): requireParent — one-off seed, ungated for CLI setup.
+    await requireParent(ctx);
     const existing = await ctx.db.query("schoolYear").first();
     if (existing) return existing._id;
 
@@ -286,6 +285,8 @@ async function enrich(
   const subjectById = new Map<Id<"subjects">, Doc<"subjects">>(
     subjects.map((s) => [s._id, s]),
   );
+  const parentAccount = await ctx.db.query("familyAccounts").withIndex("by_role", q => q.eq("role", "parent")).unique();
+  const isParent = userId !== null && parentAccount?.userId === userId;
   const out: EntryView[] = [];
   for (const e of entries) {
     const subject = subjectById.get(e.subjectId);
@@ -295,6 +296,7 @@ async function enrich(
     let progress: number | null = null;
     if (e.lessonId) {
       const lesson = await ctx.db.get(e.lessonId);
+      if (!lesson || (lesson.status !== "published" && !isParent)) continue;
       lessonTitle = lesson?.title ?? null;
       points = lesson?.pointsAwarded ?? null;
       if (userId && lesson) {
@@ -543,6 +545,7 @@ async function relayFrom(ctx: MutationCtx, startDate: string): Promise<void> {
 export const delayStartTo = mutation({
   args: { firstLessonDate: v.string() },
   handler: async (ctx, args) => {
+    await requireParent(ctx);
     const year = await ctx.db.query("schoolYear").first();
     if (!year) throw new Error("No school year configured. Seed one first.");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(args.firstLessonDate)) {

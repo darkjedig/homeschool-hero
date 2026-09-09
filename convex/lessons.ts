@@ -1,3 +1,5 @@
+import { paginationOptsValidator } from "convex/server";
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireParent } from "./authHelpers";
@@ -32,7 +34,9 @@ export const listPublishedBySubject = query({
 export const get = query({
   args: { lessonId: v.id("lessons") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.lessonId);
+    const lesson = await ctx.db.get(args.lessonId);
+    if (lesson && lesson.status !== "published") await requireParent(ctx);
+    return lesson;
   },
 });
 
@@ -40,10 +44,9 @@ export const get = query({
 export const bySlug = query({
   args: { slug: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
-      .query("lessons")
-      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
-      .unique();
+    const lesson = await ctx.db.query("lessons").withIndex("by_slug", q => q.eq("slug", args.slug)).unique();
+    if (lesson && lesson.status !== "published") await requireParent(ctx);
+    return lesson;
   },
 });
 
@@ -65,6 +68,7 @@ const quizQuestion = v.object({
 export const listAll = query({
   args: {},
   handler: async (ctx) => {
+    await requireParent(ctx);
     return await ctx.db.query("lessons").withIndex("by_status").take(200);
   },
 });
@@ -183,6 +187,7 @@ export const update = mutation({
 export const listAllWithSubject = query({
   args: {},
   handler: async (ctx) => {
+    await requireParent(ctx);
     const lessons = await ctx.db.query("lessons").take(300);
     const subjectIds = [...new Set(lessons.map((l) => l.subjectId))];
     const [subjectResults, topics] = await Promise.all([
@@ -219,5 +224,31 @@ export const listAllWithSubject = query({
         if (a.topicOrder !== b.topicOrder) return a.topicOrder - b.topicOrder;
         return a.createdAt - b.createdAt;
       });
+  },
+});
+
+/** Paginated student library: drafts never enter search results. */
+export const library = query({
+  args: { paginationOpts: paginationOptsValidator, subjectId: v.optional(v.id("subjects")), search: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    const term = args.search?.trim();
+    const source = term
+      ? ctx.db.query("lessons").withSearchIndex("published_title", q => {
+          const search = q.search("title", term).eq("status", "published");
+          return args.subjectId ? search.eq("subjectId", args.subjectId) : search;
+        })
+      : args.subjectId
+        ? ctx.db.query("lessons").withIndex("by_subject_and_status", q => q.eq("subjectId", args.subjectId!).eq("status", "published"))
+        : ctx.db.query("lessons").withIndex("by_status", q => q.eq("status", "published"));
+    const result = await source.paginate(args.paginationOpts);
+    const subjects = await Promise.all([...new Set(result.page.map(l => l.subjectId))].map(id => ctx.db.get(id)));
+    const bySubject = new Map(subjects.flatMap(s => s ? [[s._id, s] as const] : []));
+    const page = await Promise.all(result.page.map(async lesson => {
+      const subject = bySubject.get(lesson.subjectId);
+      const progress = userId ? await ctx.db.query("videoProgress").withIndex("by_user_and_lesson", q => q.eq("userId", userId).eq("lessonId", lesson._id)).unique() : null;
+      return { _id: lesson._id, title: lesson.title, description: lesson.description, subjectName: subject?.name ?? "Subject", subjectSlug: subject?.slug ?? "", subjectColor: subject?.color ?? "#38bdf8", subjectIcon: subject?.icon, estimatedMinutes: lesson.estimatedMinutes, pointsAwarded: lesson.pointsAwarded, difficultyLevel: lesson.difficultyLevel, kind: lesson.kind ?? "lesson", progress: progress?.percentageWatched ?? 0, completed: progress?.completed ?? false };
+    }));
+    return { ...result, page };
   },
 });

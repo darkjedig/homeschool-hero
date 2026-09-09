@@ -1,3 +1,4 @@
+import { SpaceArt } from "@/components/shared/space-art";
 import Link from "next/link";
 import { Play } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -23,8 +24,8 @@ export function ContinueLearningCard({
 }: ContinueLearningCardProps) {
   return (
     <section className="flex flex-1 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md">
-      <div className="relative aspect-[16/8] w-full bg-gradient-to-br from-indigo-900/60 via-purple-900/40 to-blue-900/50">
-        <div className="absolute inset-0 opacity-30 [background:radial-gradient(circle_at_30%_40%,#a855f7,transparent_40%),radial-gradient(circle_at_70%_70%,#3b82f6,transparent_40%)]" />
+      <div className="relative aspect-[16/7] w-full bg-gradient-to-br from-indigo-900/60 via-purple-900/40 to-blue-900/50">
+        <SpaceArt kind="planets" className="absolute inset-0" />
         <div className="absolute left-4 top-4">
           <Badge className="border-white/10 bg-black/40 text-white">{subject}</Badge>
         </div>
@@ -49,7 +50,7 @@ export function ContinueLearningCard({
         <Progress value={progress} className="h-2" />
         <Link
           href={href}
-          className="mt-auto block w-full rounded-xl bg-blue-500 px-6 py-3 text-center font-semibold text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] transition hover:bg-blue-400"
+          className="mt-4 block w-full rounded-xl bg-gradient-to-b from-sky-400 to-blue-600 px-4 py-2 text-center font-semibold text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] transition hover:bg-blue-400"
         >
           Continue Lesson
         </Link>

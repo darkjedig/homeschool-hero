@@ -40,31 +40,26 @@ export const ensureMine = mutation({
   },
 });
 
-/**
- * Dev-only role switch. Lets a signed-in user act as parent/student so the
- * parent dashboard can be exercised before real invitation flows exist.
- * Replaced by proper role assignment in Phase 9.
- */
-export const setMyRole = mutation({
-  args: { role: v.union(v.literal("parent"), v.literal("student")) },
+/** Profile editing never accepts roles or identities from the browser. */
+export const updateMine = mutation({
+  args: { displayName: v.string(), reducedMotion: v.boolean() },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not authenticated");
-    const existing = await ctx.db
-      .query("userProfiles")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .unique();
-    const now = Date.now();
-    if (existing) {
-      await ctx.db.patch(existing._id, { role: args.role, updatedAt: now });
-      return existing._id;
-    }
-    return await ctx.db.insert("userProfiles", {
-      userId,
-      role: args.role,
-      displayName: args.role === "parent" ? "Parent" : "Student",
-      createdAt: now,
-      updatedAt: now,
-    });
+    if (!userId) throw new Error("Not authenticated");
+    const profile = await ctx.db.query("userProfiles").withIndex("by_user", q => q.eq("userId", userId)).unique();
+    if (!profile) throw new Error("Profile not found");
+    const displayName = args.displayName.trim();
+    if (!displayName || displayName.length > 40) throw new Error("Use a name between 1 and 40 characters.");
+    await ctx.db.patch(profile._id, { displayName, reducedMotion: args.reducedMotion, updatedAt: Date.now() });
+  },
+});
+
+export const hasParentAccess = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return false;
+    const account = await ctx.db.query("familyAccounts").withIndex("by_role", q => q.eq("role", "parent")).unique();
+    return account?.userId === userId;
   },
 });

@@ -31,16 +31,17 @@ export function MissionCard({
   return (
     <Link
       href={href}
-      className="flex h-full flex-col rounded-2xl border bg-gradient-to-b from-white/[0.06] to-transparent p-4 transition hover:-translate-y-0.5 hover:scale-[1.02]"
+      className="mission-card flex h-full flex-col rounded-2xl border bg-gradient-to-b from-white/[0.06] to-transparent p-4 transition hover:-translate-y-0.5 hover:scale-[1.02]"
       style={{
         borderColor: `${accent}4d`,
-        boxShadow: `0 0 24px rgba(${rgb},0.15)`,
+        boxShadow: `inset 0 0 35px rgba(${rgb},0.14)`,
+        backgroundColor: `rgba(${rgb},0.09)`,
       }}
     >
       <div className="mb-3 flex items-center gap-2">
         <div
           className="grid h-9 w-9 place-items-center rounded-lg"
-          style={{ backgroundColor: `${accent}22` }}
+          style={{ backgroundColor: `${accent}33` }}
         >
           <SubjectIcon slug={subjectSlug} iconName={iconName} color={accent} size={18} />
         </div>

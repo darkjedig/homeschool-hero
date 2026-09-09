@@ -40,7 +40,7 @@ export function StudentSidebar() {
   );
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-white/5 bg-sidebar p-4 lg:flex">
+    <aside className="app-sidebar relative z-40 flex w-full lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 flex-col border-r border-white/5 bg-sidebar p-4 lg:flex">
       <div className="flex items-center gap-2 px-2 py-3">
         <div className="grid h-9 w-9 place-items-center rounded-xl bg-blue-500/20 shadow-[0_0_16px_rgba(59,130,246,0.35)]">
           <Rocket size={20} className="text-blue-400" />
@@ -50,15 +50,16 @@ export function StudentSidebar() {
         </span>
       </div>
 
-      <nav className="mt-4 flex flex-col gap-1" aria-label="Student navigation">
+      <nav className="mt-4 flex flex-row gap-1 overflow-x-auto lg:flex-col lg:overflow-x-visible" aria-label="Student navigation">
         {NAV.map((item, i) => {
           const active = i === activeIndex;
           return (
             <Link
               key={item.href}
+              aria-current={active ? "page" : undefined}
               href={item.href}
               className={
-                "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition " +
+                "flex shrink-0 items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition " +
                 (active
                   ? "bg-blue-500/20 text-blue-400 shadow-[0_0_16px_rgba(59,130,246,0.25)]"
                   : "text-muted-foreground hover:bg-white/5 hover:text-white")
@@ -71,7 +72,7 @@ export function StudentSidebar() {
         })}
       </nav>
 
-      <div className="mt-auto flex flex-col gap-4">
+      <div className="hidden lg:flex lg:flex-col mt-auto flex flex-col gap-4">
         <ProfileCard />
         <StreakTracker />
       </div>

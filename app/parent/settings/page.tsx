@@ -1,5 +1,6 @@
 "use client";
 
+import { AccountSettings } from "@/components/shared/account-settings";
 import { useState } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -25,20 +26,22 @@ export default function ParentSettingsPage() {
 
   const [keyInput, setKeyInput] = useState("");
   const [model, setModel] = useState("");
-  const [youtube, setYoutube] = useState(false);
+  const [youtube, setYoutube] = useState<boolean | null>(null);
   const [customModel, setCustomModel] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
   // Sync defaults once config loads.
   const effectiveModel = model || config?.model || MODELS[0];
-  const effectiveYoutube = config ? (youtube || config.youtubeSearchEnabled) : false;
+  const effectiveYoutube = youtube ?? config?.youtubeSearchEnabled ?? false;
 
   const doSave = async () => {
     setSaving(true);
     setSaved(false);
+    setError("");
     try {
       await save({
         openRouterKey: keyInput.trim() || undefined,
@@ -47,6 +50,8 @@ export default function ParentSettingsPage() {
       });
       setKeyInput("");
       setSaved(true);
+    } catch {
+      setError("Could not save settings. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -57,6 +62,8 @@ export default function ParentSettingsPage() {
     setTestResult(null);
     try {
       setTestResult(await test({}));
+    } catch {
+      setTestResult({ ok: false, message: "Could not test the connection. Please try again." });
     } finally {
       setTesting(false);
     }
@@ -71,6 +78,8 @@ export default function ParentSettingsPage() {
           key is stored server-side and never sent to the browser.
         </p>
       </header>
+
+      <AccountSettings />
 
       <section className="space-y-5 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
         <div>
@@ -178,6 +187,7 @@ export default function ParentSettingsPage() {
           )}
         </div>
 
+        {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
         {testResult && (
           <div
             className={

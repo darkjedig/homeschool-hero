@@ -49,6 +49,10 @@ export async function requireRole(
   if (profile.role !== role) {
     throw new Error(`Requires ${role} role`);
   }
+  if (role === "parent") {
+    const account = await ctx.db.query("familyAccounts").withIndex("by_role", q => q.eq("role", "parent")).unique();
+    if (account?.userId !== profile.userId) throw new Error("Sign in with the parent PIN.");
+  }
   return profile.userId;
 }
 

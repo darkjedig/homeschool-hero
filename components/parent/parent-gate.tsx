@@ -12,9 +12,10 @@ import { Loader2, ShieldCheck, ShieldAlert } from "lucide-react";
  */
 export function ParentGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useConvexAuth();
+  const hasParentAccess = useQuery(api.userProfiles.hasParentAccess);
   const profile = useQuery(api.userProfiles.getMine);
 
-  if (isLoading || profile === undefined) {
+  if (isLoading || profile === undefined || hasParentAccess === undefined) {
     return (
       <div className="grid min-h-[60vh] place-items-center text-muted-foreground">
         <Loader2 className="animate-spin" />
@@ -32,12 +33,12 @@ export function ParentGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (profile.role !== "parent") {
+  if (profile.role !== "parent" || !hasParentAccess) {
     return (
       <GateCard
         icon={<ShieldAlert size={26} className="text-orange-300" />}
         title="Parent access only"
-        body={`You're signed in as a ${profile.role}. Switch to a parent account to manage content.`}
+        body="Enter your parent PIN to manage lessons, progress and rewards."
       />
     );
   }

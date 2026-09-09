@@ -1,5 +1,6 @@
 "use client";
 
+import styles from "@/components/student/core-subject-card.module.css";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { DashboardHeader } from "@/components/student/dashboard-header";
@@ -41,8 +42,8 @@ export default function DashboardPage() {
   const firstName = (profile?.displayName ?? "there").split(" ")[0];
 
   return (
-    <StaggerGroup className="space-y-8">
-      <DashboardHeader name={firstName} />
+    <StaggerGroup className="student-dashboard space-y-4">
+      <DashboardHeader name={firstName} points={overview?.points} badges={myBadges?.length} />
 
       {/* Top row — 4 stat cards */}
       <StaggerItem>
@@ -94,11 +95,11 @@ export default function DashboardPage() {
       {/* Middle row — missions | continue learning | friday challenge */}
       <StaggerItem>
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-        <div className="xl:col-span-4">
-          <h2 className="mb-3 text-lg font-semibold text-white">
+        <div className="space-panel mission-panel xl:col-span-5">
+          <h2 className="mb-3 text-base font-semibold text-cyan-300">
             Today&apos;s Missions
           </h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-4">
             {missions.map((m) => (
               <MissionCard
                 key={m._id}
@@ -120,7 +121,7 @@ export default function DashboardPage() {
                 />
               ))}
             {today !== undefined && missions.length === 0 && (
-              <div className="col-span-2 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
+              <div className="col-span-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
                 <Coffee size={24} className="text-orange-300" />
                 <p className="text-sm font-medium text-white">
                   No missions scheduled for today
@@ -139,8 +140,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="flex flex-col xl:col-span-5">
-          <h2 className="mb-3 text-lg font-semibold text-white">
+        <div className="space-panel learning-panel flex flex-col xl:col-span-3">
+          <h2 className="mb-3 text-base font-semibold text-cyan-300">
             Continue Learning
           </h2>
           <ContinueLearningCard
@@ -153,8 +154,8 @@ export default function DashboardPage() {
           />
         </div>
 
-        <div className="flex flex-col xl:col-span-3">
-          <h2 className="mb-3 text-lg font-semibold text-white">
+        <div className="space-panel challenge-panel flex flex-col xl:col-span-4">
+          <h2 className="mb-3 text-base font-semibold text-cyan-300">
             Friday Challenge
           </h2>
           <FridayChallengeCard
@@ -165,11 +166,19 @@ export default function DashboardPage() {
       </section>
       </StaggerItem>
 
-      {/* Core subjects — full-width band of larger tiles */}
+      {/* Bottom row — 3 widgets */}
       <StaggerItem>
-        <section aria-label="Core subjects">
-          <h2 className="mb-3 text-lg font-semibold text-white">Core Subjects</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <section className="dashboard-details grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <OverallProgressChart
+          lessons={overview?.overall.lessonsPct}
+          quizzes={overview?.overall.quizzesPct}
+          challenges={overview?.overall.challengesPct}
+          badges={overview?.overall.badgesPct}
+        />
+
+<section aria-label="Core subjects" className="space-panel core-panel">
+          <h2 className="mb-3 text-base font-semibold text-cyan-300">Core Subjects</h2>
+          <div className={styles.subjectGrid}>
             {subjectProgress.map((s) => (
               <CoreSubjectCard
                 key={s._id}
@@ -183,18 +192,6 @@ export default function DashboardPage() {
             ))}
           </div>
         </section>
-      </StaggerItem>
-
-      {/* Bottom row — 3 widgets */}
-      <StaggerItem>
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <OverallProgressChart
-          lessons={overview?.overall.lessonsPct}
-          quizzes={overview?.overall.quizzesPct}
-          challenges={overview?.overall.challengesPct}
-          badges={overview?.overall.badgesPct}
-        />
-
         <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md">
           <h3 className="mb-4 text-sm font-semibold text-muted-foreground">
             Recent Achievements
@@ -219,6 +216,18 @@ export default function DashboardPage() {
           </div>
         </div>
 
+
+      </section>
+      </StaggerItem>
+
+      {/* Adaptive recommended review (auto-hides when nothing is weak) */}
+      <RecommendedReview />
+
+      {/* Footer widgets */}
+      <StaggerItem>
+      <section className="dashboard-footer grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <RewardShopStrip />
+        <HintCard />
         <section className="flex h-full flex-col justify-between rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md">
           <div>
             <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl bg-blue-500/20">
@@ -236,17 +245,6 @@ export default function DashboardPage() {
             Open Parent View
           </a>
         </section>
-      </section>
-      </StaggerItem>
-
-      {/* Adaptive recommended review (auto-hides when nothing is weak) */}
-      <RecommendedReview />
-
-      {/* Footer widgets */}
-      <StaggerItem>
-      <section className="flex flex-wrap gap-4">
-        <RewardShopStrip />
-        <HintCard />
       </section>
       </StaggerItem>
     </StaggerGroup>
@@ -275,24 +273,19 @@ function CoreSubjectCard({
   return (
     <Link
       href={href}
-      className="group flex h-full flex-col rounded-2xl border bg-gradient-to-b from-white/[0.07] to-transparent p-4 backdrop-blur-md transition duration-200 hover:-translate-y-1 hover:scale-[1.02]"
+      className={styles.card}
       style={{ borderColor: `${accent}40`, boxShadow: `0 0 22px rgba(${rgb},0.12)` }}
     >
       <div
-        className="mb-3 grid h-11 w-11 place-items-center rounded-xl"
+        className={styles.icon}
         style={{ backgroundColor: `${accent}22`, boxShadow: `0 0 14px ${accent}55` }}
       >
         <SubjectIcon slug={slug} iconName={iconName} color={accent} size={22} />
       </div>
-      <p className="text-sm font-semibold leading-snug text-white">{name}</p>
-      <p className="mt-0.5 text-[11px] text-muted-foreground">{progress}% complete</p>
-      <div className="mt-auto pt-3">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full transition-all"
-            style={{ width: `${progress}%`, backgroundColor: accent, boxShadow: `0 0 8px ${accent}` }}
-          />
-        </div>
+      <p className={styles.name}>{name}</p>
+      <p className={styles.progressLabel}>{progress}% complete</p>
+      <div className={styles.progress}>
+        <div style={{ width: `${Math.min(100, Math.max(0, progress))}%`, backgroundColor: accent }} />
       </div>
     </Link>
   );

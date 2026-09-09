@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Bot, LifeBuoy } from "lucide-react";
+import { LifeBuoy } from "lucide-react";
+import { SpaceArt } from "@/components/shared/space-art";
 import { GetHelpDrawer } from "./get-help-drawer";
 
 /** "Need a Hint?" card that opens the adaptive Get Help drawer. */
@@ -9,10 +10,8 @@ export function HintCard() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <section className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
-        <div className="grid h-10 w-10 place-items-center rounded-full bg-blue-500/20 shadow-[0_0_16px_rgba(59,130,246,0.35)]">
-          <Bot size={18} className="text-blue-300" />
-        </div>
+      <section className="hint-card flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+        <SpaceArt kind="robot" className="h-24 w-20 shrink-0" />
         <div className="mr-auto">
           <p className="text-sm font-semibold text-white">Need a Hint?</p>
           <p className="text-xs text-muted-foreground">Stuck? Ask for help.</p>
