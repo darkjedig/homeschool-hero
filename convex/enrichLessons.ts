@@ -1,8 +1,16 @@
 import { mutation } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
-import type { Doc, Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 import { deriveInteractive } from "./curriculum/derive";
 import type { Question } from "./curriculum/types";
+import {
+  hydrateLesson,
+  patchLessonContent,
+  stripLessonFatFields,
+  syncCalendarLessonMeta,
+  upsertLessonBody,
+  type LessonContent,
+} from "./lib/lessonBodies";
 
 /**
  * Ensure existing teaching lessons each carry at least ONE logged interactive
@@ -19,7 +27,7 @@ import type { Question } from "./curriculum/types";
  *
  *   npx convex run enrichLessons:ensureInteractivePractice
  */
-type ContentBlock = NonNullable<Doc<"lessons">["content"]>[number];
+type ContentBlock = LessonContent[number];
 
 export const ensureInteractivePractice = mutation({
   args: {},
@@ -39,7 +47,8 @@ export const ensureInteractivePractice = mutation({
       }
       teaching += 1;
 
-      const content: ContentBlock[] = [...(lesson.content ?? [])];
+      const hydrated = await hydrateLesson(ctx, lesson);
+      const content: ContentBlock[] = [...(hydrated.content ?? [])];
       const hasInteractive = content.some((b) => b.type === "interactive");
       if (hasInteractive) {
         alreadyInteractive += 1;
@@ -62,13 +71,10 @@ export const ensureInteractivePractice = mutation({
         continue;
       }
 
-      await ctx.db.patch(lesson._id, {
-        content: [
-          ...content,
-          { type: "interactive" as const, variant: derived.variant, data: derived.data },
-        ],
-        updatedAt: Date.now(),
-      });
+      await patchLessonContent(ctx, lesson, [
+        ...content,
+        { type: "interactive" as const, variant: derived.variant, data: derived.data },
+      ]);
       enriched += 1;
     }
 
@@ -143,7 +149,8 @@ export const attachBodySimulations = mutation({
         continue;
       }
 
-      const content: ContentBlock[] = [...(lesson.content ?? [])];
+      const hydrated = await hydrateLesson(ctx, lesson);
+      const content: ContentBlock[] = [...(hydrated.content ?? [])];
       const hasSim = content.some(
         (b) =>
           b.type === "interactive" &&
@@ -170,10 +177,7 @@ export const attachBodySimulations = mutation({
       const insertAt = kpIdx >= 0 ? kpIdx + 1 : content.length;
       content.splice(insertAt, 0, simBlock);
 
-      await ctx.db.patch(lesson._id, {
-        content,
-        updatedAt: Date.now(),
-      });
+      await patchLessonContent(ctx, lesson, content);
       patched += 1;
     }
 
@@ -279,7 +283,8 @@ export const attachElectricityActivities = mutation({
         skipped += 1;
         continue;
       }
-      const content: ContentBlock[] = [...(lesson.content ?? [])];
+      const hydrated = await hydrateLesson(ctx, lesson);
+      const content: ContentBlock[] = [...(hydrated.content ?? [])];
       const already = content.some(
         (b) => b.type === "interactive" && b.variant === spec.block.variant,
       );
@@ -290,7 +295,7 @@ export const attachElectricityActivities = mutation({
       const kpIdx = content.findIndex((b) => b.type === "keyPoints");
       const insertAt = kpIdx >= 0 ? kpIdx + 1 : content.length;
       content.splice(insertAt, 0, spec.block);
-      await ctx.db.patch(lesson._id, { content, updatedAt: Date.now() });
+      await patchLessonContent(ctx, lesson, content);
       patched += 1;
     }
 
@@ -527,12 +532,17 @@ export const replaceDuplicateLessons = mutation({
       await ctx.db.patch(lesson._id, {
         title: spec.newTitle,
         description: spec.summary,
-        lessonNotes: spec.summary,
-        content: spec.blocks,
         difficultyLevel: spec.difficulty,
         pointsAwarded: spec.points,
         updatedAt: now,
       });
+      await upsertLessonBody(ctx, lesson._id, {
+        lessonNotes: spec.summary,
+        content: spec.blocks,
+      });
+      const fresh = await ctx.db.get(lesson._id);
+      if (fresh) await stripLessonFatFields(ctx, fresh);
+      await syncCalendarLessonMeta(ctx, lesson._id, spec.newTitle, spec.points);
 
       // Rebuild the lesson quiz: reuse the quiz row, wipe old questions, insert new.
       const quiz = await ctx.db
@@ -557,6 +567,7 @@ export const replaceDuplicateLessons = mutation({
           type: "lesson",
           difficultyLevel: spec.difficulty,
           pointsAwarded: spec.points,
+          questionCount: spec.questions.length,
         });
       }
 
@@ -580,6 +591,7 @@ export const replaceDuplicateLessons = mutation({
           title: `${spec.newTitle} — Quiz`,
           difficultyLevel: spec.difficulty,
           pointsAwarded: spec.points,
+          questionCount: spec.questions.length,
         });
       }
 
@@ -640,7 +652,8 @@ export const attachElectricitySims = mutation({
 
       // Drop the match/fillBlank activity blocks (the things we're replacing).
       // Keep the original reveal/flashcards quick-check + any existing sim.
-      let content: ContentBlock[] = (lesson.content ?? []).filter(
+      const hydrated = await hydrateLesson(ctx, lesson);
+      let content: ContentBlock[] = (hydrated.content ?? []).filter(
         (b) => !(b.type === "interactive" && (b.variant === "match" || b.variant === "fillBlank")),
       );
 
@@ -668,7 +681,7 @@ export const attachElectricitySims = mutation({
       const insertAt = kpIdx >= 0 ? kpIdx + 1 : content.length;
       content = [...content.slice(0, insertAt), simBlock, ...content.slice(insertAt)];
 
-      await ctx.db.patch(lesson._id, { content, updatedAt: Date.now() });
+      await patchLessonContent(ctx, lesson, content);
       upgraded += 1;
     }
 

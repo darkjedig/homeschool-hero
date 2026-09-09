@@ -3,40 +3,50 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireParent } from "./authHelpers";
+import {
+  hydrateLesson,
+  insertLessonWithBody,
+  projectLessonCard,
+  syncCalendarLessonMeta,
+  upsertLessonBody,
+} from "./lib/lessonBodies";
 
-/** Published lessons for a topic (student-facing). */
+/** Published lessons for a topic (student-facing). Metadata only. */
 export const listPublishedByTopic = query({
   args: { topicId: v.id("topics") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const lessons = await ctx.db
       .query("lessons")
       .withIndex("by_topic_and_status", (q) =>
         q.eq("topicId", args.topicId).eq("status", "published"),
       )
       .take(100);
+    return lessons.map(projectLessonCard);
   },
 });
 
-/** Published lessons for a subject (across all its topics). */
+/** Published lessons for a subject (across all its topics). Metadata only. */
 export const listPublishedBySubject = query({
   args: { subjectId: v.id("subjects") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const lessons = await ctx.db
       .query("lessons")
       .withIndex("by_subject_and_status", (q) =>
         q.eq("subjectId", args.subjectId).eq("status", "published"),
       )
       .take(100);
+    return lessons.map(projectLessonCard);
   },
 });
 
-/** A single lesson by id. */
+/** A single lesson by id (hydrates body). */
 export const get = query({
   args: { lessonId: v.id("lessons") },
   handler: async (ctx, args) => {
     const lesson = await ctx.db.get(args.lessonId);
-    if (lesson && lesson.status !== "published") await requireParent(ctx);
-    return lesson;
+    if (!lesson) return null;
+    if (lesson.status !== "published") await requireParent(ctx);
+    return await hydrateLesson(ctx, lesson);
   },
 });
 
@@ -45,8 +55,9 @@ export const bySlug = query({
   args: { slug: v.string() },
   handler: async (ctx, args) => {
     const lesson = await ctx.db.query("lessons").withIndex("by_slug", q => q.eq("slug", args.slug)).unique();
-    if (lesson && lesson.status !== "published") await requireParent(ctx);
-    return lesson;
+    if (!lesson) return null;
+    if (lesson.status !== "published") await requireParent(ctx);
+    return await hydrateLesson(ctx, lesson);
   },
 });
 
@@ -64,12 +75,20 @@ const quizQuestion = v.object({
   explanation: v.string(),
 });
 
-/** All lessons for the parent manager (incl. drafts). */
+/** All lessons for the parent manager (incl. drafts). Metadata only. */
 export const listAll = query({
   args: {},
   handler: async (ctx) => {
     await requireParent(ctx);
-    return await ctx.db.query("lessons").withIndex("by_status").take(200);
+    const published = await ctx.db
+      .query("lessons")
+      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .take(400);
+    const drafts = await ctx.db
+      .query("lessons")
+      .withIndex("by_status", (q) => q.eq("status", "draft"))
+      .take(100);
+    return [...published, ...drafts].map(projectLessonCard);
   },
 });
 
@@ -92,23 +111,26 @@ export const createSingle = mutation({
     const parent = await requireParent(ctx);
     const now = Date.now();
     const slug = `${args.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${now.toString(36)}`;
-    const lessonId = await ctx.db.insert("lessons", {
-      subjectId: args.subjectId,
-      topicId: args.topicId,
-      title: args.title,
-      slug,
-      description: args.description,
-      lessonNotes: args.lessonNotes,
-      videoUrl: args.videoUrl,
-      videoProvider: "youtube",
-      difficultyLevel: args.difficultyLevel,
-      estimatedMinutes: args.estimatedMinutes,
-      pointsAwarded: args.pointsAwarded,
-      status: args.status,
-      createdBy: parent,
-      createdAt: now,
-      updatedAt: now,
-    });
+    const lessonId = await insertLessonWithBody(
+      ctx,
+      {
+        subjectId: args.subjectId,
+        topicId: args.topicId,
+        title: args.title,
+        slug,
+        description: args.description,
+        videoUrl: args.videoUrl,
+        videoProvider: "youtube",
+        difficultyLevel: args.difficultyLevel,
+        estimatedMinutes: args.estimatedMinutes,
+        pointsAwarded: args.pointsAwarded,
+        status: args.status,
+        createdBy: parent,
+        createdAt: now,
+        updatedAt: now,
+      },
+      { lessonNotes: args.lessonNotes },
+    );
 
     if (args.quizQuestions.length > 0) {
       const quizId = await ctx.db.insert("quizzes", {
@@ -119,6 +141,7 @@ export const createSingle = mutation({
         type: "lesson",
         difficultyLevel: args.difficultyLevel,
         pointsAwarded: args.pointsAwarded,
+        questionCount: args.quizQuestions.length,
       });
       for (let qi = 0; qi < args.quizQuestions.length; qi++) {
         const q = args.quizQuestions[qi];
@@ -169,10 +192,11 @@ export const update = mutation({
   },
   handler: async (ctx, args) => {
     await requireParent(ctx);
+    const existing = await ctx.db.get(args.lessonId);
+    if (!existing) throw new Error("Lesson not found");
     await ctx.db.patch(args.lessonId, {
       title: args.title,
       description: args.description,
-      lessonNotes: args.lessonNotes,
       videoUrl: args.videoUrl,
       difficultyLevel: args.difficultyLevel,
       estimatedMinutes: args.estimatedMinutes,
@@ -180,6 +204,12 @@ export const update = mutation({
       status: args.status,
       updatedAt: Date.now(),
     });
+    const hydrated = await hydrateLesson(ctx, existing);
+    await upsertLessonBody(ctx, args.lessonId, {
+      content: hydrated.content,
+      lessonNotes: args.lessonNotes,
+    });
+    await syncCalendarLessonMeta(ctx, args.lessonId, args.title, args.pointsAwarded);
   },
 });
 
@@ -188,7 +218,7 @@ export const listAllWithSubject = query({
   args: {},
   handler: async (ctx) => {
     await requireParent(ctx);
-    const lessons = await ctx.db.query("lessons").take(300);
+    const lessons = await ctx.db.query("lessons").withIndex("by_status").take(400);
     const subjectIds = [...new Set(lessons.map((l) => l.subjectId))];
     const [subjectResults, topics] = await Promise.all([
       Promise.all(subjectIds.map((id) => ctx.db.get(id))),

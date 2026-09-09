@@ -29,10 +29,12 @@ import {
   Sunrise,
   LineChart,
 } from "lucide-react";
+import { useStableNow } from "@/lib/use-stable-now";
 
 export default function DashboardPage() {
-  const overview = useQuery(api.dashboard.studentOverview);
-  const today = useQuery(api.calendar.getToday);
+  const now = useStableNow();
+  const overview = useQuery(api.dashboard.studentOverview, { now });
+  const today = useQuery(api.calendar.getToday, { now });
   const myBadges = useQuery(api.badges.mine);
   const profile = useQuery(api.userProfiles.getMine);
 

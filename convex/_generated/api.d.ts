@@ -38,6 +38,8 @@ import type * as hello from "../hello.js";
 import type * as http from "../http.js";
 import type * as interactiveResults from "../interactiveResults.js";
 import type * as lessons from "../lessons.js";
+import type * as lib_lessonBodies from "../lib/lessonBodies.js";
+import type * as migrateIo from "../migrateIo.js";
 import type * as points from "../points.js";
 import type * as quizzes from "../quizzes.js";
 import type * as rewards from "../rewards.js";
@@ -87,6 +89,8 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   interactiveResults: typeof interactiveResults;
   lessons: typeof lessons;
+  "lib/lessonBodies": typeof lib_lessonBodies;
+  migrateIo: typeof migrateIo;
   points: typeof points;
   quizzes: typeof quizzes;
   rewards: typeof rewards;

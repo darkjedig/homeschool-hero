@@ -10,6 +10,7 @@ import { building } from "./curriculum/building";
 import { geography } from "./curriculum/geography";
 import type { Block, Question, SubjectCurriculum } from "./curriculum/types";
 import { deriveInteractive } from "./curriculum/derive";
+import { insertLessonWithBody } from "./lib/lessonBodies";
 
 /**
  * One-off seed: rich multi-lesson curriculum for every subject. Each TOPIC is
@@ -126,24 +127,29 @@ export const seedRichCurriculum = mutation({
         }
 
         const now = Date.now();
-        const lessonId = await ctx.db.insert("lessons", {
-          subjectId: subject._id,
-          topicId,
-          title: entry.title,
-          slug: `${subjectBlock.slug}-${entry.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-          description: entry.summary,
-          lessonNotes: toFallbackNotes(entry.summary, entry.blocks),
-          content: toContent(blocks),
-          kind: entry.kind ?? "lesson",
-          videoUrl: "",
-          videoProvider: "youtube",
-          difficultyLevel: entry.difficulty,
-          estimatedMinutes: entry.minutes,
-          pointsAwarded: entry.points,
-          status: "published",
-          createdAt: now,
-          updatedAt: now,
-        });
+        const lessonId = await insertLessonWithBody(
+          ctx,
+          {
+            subjectId: subject._id,
+            topicId,
+            title: entry.title,
+            slug: `${subjectBlock.slug}-${entry.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+            description: entry.summary,
+            kind: entry.kind ?? "lesson",
+            videoUrl: "",
+            videoProvider: "youtube",
+            difficultyLevel: entry.difficulty,
+            estimatedMinutes: entry.minutes,
+            pointsAwarded: entry.points,
+            status: "published",
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            lessonNotes: toFallbackNotes(entry.summary, entry.blocks),
+            content: toContent(blocks),
+          },
+        );
         createdLessons += 1;
         have.add(entry.title);
 
@@ -156,6 +162,7 @@ export const seedRichCurriculum = mutation({
             type: "lesson",
             difficultyLevel: entry.difficulty,
             pointsAwarded: entry.points,
+            questionCount: entry.questions.length,
           });
           for (let qi = 0; qi < entry.questions.length; qi++) {
             const q: Question = entry.questions[qi];

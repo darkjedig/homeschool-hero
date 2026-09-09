@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireParent } from "./authHelpers";
+import { deleteLessonBody } from "./lib/lessonBodies";
 
 /** All active subjects, ordered by `order`. */
 export const list = query({
@@ -9,7 +10,7 @@ export const list = query({
     return await ctx.db
       .query("subjects")
       .withIndex("by_active_order", (q) => q.eq("active", true))
-      .collect();
+      .take(100);
   },
 });
 
@@ -129,6 +130,7 @@ export const remove = mutation({
           for (const qqd of questions) await ctx.db.delete(qqd._id);
           await ctx.db.delete(q._id);
         }
+        await deleteLessonBody(ctx, l._id);
         await ctx.db.delete(l._id);
       }
       await ctx.db.delete(t._id);

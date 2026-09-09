@@ -20,6 +20,11 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - Source of truth: `.cursor/skills/design/SKILL.md`. Applied in `app/globals.css` (`:root` permanent dark theme) + `tailwind.config.ts` (reference).
 - Tailwind v4: tokens live in CSS `@theme`. Note: design skill's `text-primary`/`text-secondary` map to shadcn `text-foreground` (#fff) / `text-muted-foreground` (#94a3b8) to avoid clobbering shadcn component tokens. Subject + accent utilities available (`bg-maths`, `text-accent-purple`, etc.).
 
+## Recent Progress — Convex DB I/O cut (2026-09-09)
+- **Root cause**: Convex bills full documents. List/dashboard/calendar queries were scanning `lessons` rows that still carried `content` + `lessonNotes` (~hundreds of KB each). `dashboard.studentOverview` was subscribed from the student sidebar on every student page (`lessons.take(500)`). Calendar `getMonth` called `enrich` per day and `db.get` every slotted lesson.
+- **Fix**: New `lessonBodies` table. Lesson metadata stays slim; bodies load only on `lessons.get`. Calendar entries denormalize `lessonTitle` + `pointsAwarded`. Quizzes store `questionCount`. Sidebar now uses `dashboard.studentChrome` (points/level/streak only). `studentOverview` / `getToday` / `getWeek` / `fridayQuiz.getCurrent` take a stable `now` from the client. `getMonth`/`getWeek` do one date-range read and enrich once. Parent `quizzes.listAll` no longer N+1s questions. Migration `migrateIo:start` already ran on dev: **454 bodies, 0 fat lessons, 0 quizzes missing counts, 0 calendar titles missing**. Re-run `npx convex run migrateIo:start` after any environment that still has fat lesson rows (idempotent).
+- Commands: `npx convex dev --once` then `npx convex run migrateIo:start`; check `npx convex run migrateIo:progress`.
+
 ## Recent Progress — Phases 1–8 COMPLETE, Phase 9 COMPLETE (rich curriculum shipped), Phase 10 COMPLETE (student dashboard fully live)
 - Phases 1–6: foundation, schema, student portal, parent console, Friday Challenge, adaptive learning.
 - Phase 7: AI lesson builder (OpenRouter BYOK). Settings, AI Builder, draft lifecycle, transactional approve.
@@ -87,6 +92,7 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 
 ### Remaining work
 - Phase 10 COMPLETE — student dashboard fully live (see Phase 10 COMPLETE note below).
+- **Convex I/O** (2026-09-09): fat lesson bodies split; sidebar no longer scans curriculum. Re-run `npx convex run migrateIo:start` on any other deployment that still has `content` on `lessons`. Do not browse `lessonBodies` in the Convex Data explorer unless needed (same fat-doc cost).
 - Phase 11: Full RBAC audit, Playwright + Vitest, mobile polish, error boundaries, README.
 
 - Phase 9g — **Big content batch + 4 new science sims (reduce IXL / fill "soon")**:

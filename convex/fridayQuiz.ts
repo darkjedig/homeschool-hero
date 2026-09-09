@@ -35,9 +35,9 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 
 /** The current week's Friday challenge with its sampled questions (student-facing). */
 export const getCurrent = query({
-  args: {},
-  handler: async (ctx) => {
-    const start = weekStart(Date.now());
+  args: { now: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const start = weekStart(args.now ?? Date.now());
     const fq = await ctx.db
       .query("fridayQuizzes")
       .withIndex("by_week", (q) => q.eq("weekStartDate", String(start)))

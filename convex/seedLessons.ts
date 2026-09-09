@@ -1,4 +1,5 @@
 import { mutation } from "./_generated/server";
+import { insertLessonWithBody } from "./lib/lessonBodies";
 
 /**
  * One-off seed: real text lessons + quizzes for every topic across all 8
@@ -40,22 +41,25 @@ export const seedLessons = mutation({
         const topicId = topicById.get(entry.topic);
         if (!topicId || have.has(entry.lesson.title)) continue;
         const now = Date.now();
-        const lessonId = await ctx.db.insert("lessons", {
-          subjectId: subject._id,
-          topicId,
-          title: entry.lesson.title,
-          slug: `${subjectBlock.slug}-${entry.lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-          description: entry.lesson.notes.slice(0, 140),
-          lessonNotes: entry.lesson.notes,
-          videoUrl: "",
-          videoProvider: "youtube",
-          difficultyLevel: entry.lesson.difficulty,
-          estimatedMinutes: 10,
-          pointsAwarded: entry.lesson.points,
-          status: "published",
-          createdAt: now,
-          updatedAt: now,
-        });
+        const lessonId = await insertLessonWithBody(
+          ctx,
+          {
+            subjectId: subject._id,
+            topicId,
+            title: entry.lesson.title,
+            slug: `${subjectBlock.slug}-${entry.lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+            description: entry.lesson.notes.slice(0, 140),
+            videoUrl: "",
+            videoProvider: "youtube",
+            difficultyLevel: entry.lesson.difficulty,
+            estimatedMinutes: 10,
+            pointsAwarded: entry.lesson.points,
+            status: "published",
+            createdAt: now,
+            updatedAt: now,
+          },
+          { lessonNotes: entry.lesson.notes },
+        );
         createdLessons += 1;
 
         if (entry.lesson.questions.length > 0) {
@@ -67,6 +71,7 @@ export const seedLessons = mutation({
             type: "lesson",
             difficultyLevel: entry.lesson.difficulty,
             pointsAwarded: entry.lesson.points,
+            questionCount: entry.lesson.questions.length,
           });
           for (let qi = 0; qi < entry.lesson.questions.length; qi++) {
             const q = entry.lesson.questions[qi];

@@ -19,6 +19,7 @@ import { subjectMeta } from "@/lib/subjects";
 import { toast } from "sonner";
 import { celebrate } from "@/lib/confetti";
 import Link from "next/link";
+import { useStableNow } from "@/lib/use-stable-now";
 
 type Q = {
   _id: string;
@@ -30,7 +31,8 @@ type Q = {
 };
 
 export default function FridayQuizPage() {
-  const data = useQuery(api.fridayQuiz.getCurrent);
+  const now = useStableNow();
+  const data = useQuery(api.fridayQuiz.getCurrent, { now });
   const submit = useMutation(api.fridayQuiz.submitFriday);
 
   const [phase, setPhase] = useState<"intro" | "quiz" | "done">("intro");

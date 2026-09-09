@@ -63,3 +63,14 @@ export const requireParent = (ctx: QueryCtx | MutationCtx) =>
 /** Require the student role. */
 export const requireStudent = (ctx: QueryCtx | MutationCtx) =>
   requireRole(ctx, "student");
+
+/** The household student auth user (single-student MVP). */
+export async function householdStudentUserId(
+  ctx: QueryCtx | MutationCtx,
+): Promise<Id<"users"> | null> {
+  const account = await ctx.db
+    .query("familyAccounts")
+    .withIndex("by_role", (q) => q.eq("role", "student"))
+    .unique();
+  return account?.userId ?? null;
+}

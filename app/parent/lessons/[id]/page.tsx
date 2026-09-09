@@ -37,7 +37,7 @@ export default function EditLessonPage() {
       setForm({
         title: lesson.title,
         description: lesson.description,
-        lessonNotes: lesson.lessonNotes,
+        lessonNotes: lesson.lessonNotes ?? "",
         videoUrl: lesson.videoUrl,
         difficultyLevel: lesson.difficultyLevel,
         estimatedMinutes: lesson.estimatedMinutes,

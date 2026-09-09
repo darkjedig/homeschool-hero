@@ -1,7 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import type { QueryCtx, MutationCtx } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { requireParent } from "./authHelpers";
 import type { Id, Doc } from "./_generated/dataModel";
@@ -44,11 +43,11 @@ export const getSchoolYear = query({
   },
 });
 
-/** Ordered published lesson ids per subject (topic order → creation time). */
+/** Ordered published lessons per subject (topic order → creation time). */
 async function orderedLessonsBySubject(
   ctx: MutationCtx,
-): Promise<Map<Id<"subjects">, Id<"lessons">[]>> {
-  const map = new Map<Id<"subjects">, Id<"lessons">[]>();
+): Promise<Map<Id<"subjects">, { id: Id<"lessons">; title: string; pointsAwarded: number }[]>> {
+  const map = new Map<Id<"subjects">, { id: Id<"lessons">; title: string; pointsAwarded: number }[]>();
   const subjects = await ctx.db.query("subjects").take(50);
   for (const s of subjects) {
     const lessons = await ctx.db
@@ -69,7 +68,14 @@ async function orderedLessonsBySubject(
         (topicOrder.get(a.topicId) ?? 0) - (topicOrder.get(b.topicId) ?? 0) ||
         a._creationTime - b._creationTime,
     );
-    map.set(s._id, lessons.map((l) => l._id));
+    map.set(
+      s._id,
+      lessons.map((l) => ({
+        id: l._id,
+        title: l.title,
+        pointsAwarded: l.pointsAwarded,
+      })),
+    );
   }
   return map;
 }
@@ -175,8 +181,9 @@ export const generateYear = mutation({
       for (const subjectId of rot.subjectIds) {
         const list = lessonsBySubject.get(subjectId) ?? [];
         const idx = pointer.get(subjectId) ?? 0;
-        const lessonId = idx < list.length ? list[idx] : undefined;
+        const next = idx < list.length ? list[idx] : undefined;
         if (idx < list.length) pointer.set(subjectId, idx + 1);
+        const lessonId = next?.id;
 
         const subject = subjectById.get(subjectId);
         let label: string | undefined;
@@ -190,6 +197,8 @@ export const generateYear = mutation({
           subjectId,
           lessonId,
           label,
+          lessonTitle: next?.title,
+          pointsAwarded: next?.pointsAwarded,
           weekIndex,
         });
         slot += 1;
@@ -281,34 +290,39 @@ async function enrich(
   entries: Doc<"calendarEntries">[],
   userId: Id<"users"> | null,
 ): Promise<EntryView[]> {
-  const subjects = await ctx.db.query("subjects").take(50);
+  const subjects = await ctx.db.query("subjects").withIndex("by_active_order").take(50);
   const subjectById = new Map<Id<"subjects">, Doc<"subjects">>(
     subjects.map((s) => [s._id, s]),
   );
   const parentAccount = await ctx.db.query("familyAccounts").withIndex("by_role", q => q.eq("role", "parent")).unique();
   const isParent = userId !== null && parentAccount?.userId === userId;
+
+  const progressByLesson = new Map<Id<"lessons">, Doc<"videoProgress">>();
+  if (userId) {
+    const rows = await ctx.db
+      .query("videoProgress")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .take(500);
+    for (const r of rows) progressByLesson.set(r.lessonId, r);
+  }
+
   const out: EntryView[] = [];
   for (const e of entries) {
     const subject = subjectById.get(e.subjectId);
-    let lessonTitle: string | null = null;
+    let lessonTitle: string | null = e.lessonTitle ?? null;
     let completed = false;
-    let points: number | null = null;
+    let points: number | null = e.pointsAwarded ?? null;
     let progress: number | null = null;
     if (e.lessonId) {
-      const lesson = await ctx.db.get(e.lessonId);
-      if (!lesson || (lesson.status !== "published" && !isParent)) continue;
-      lessonTitle = lesson?.title ?? null;
-      points = lesson?.pointsAwarded ?? null;
-      if (userId && lesson) {
-        const vp = await ctx.db
-          .query("videoProgress")
-          .withIndex("by_user_and_lesson", (q) =>
-            q.eq("userId", userId).eq("lessonId", e.lessonId!),
-          )
-          .unique();
-        completed = !!vp?.completed;
-        progress = vp ? (vp.completed ? 100 : Math.round(vp.percentageWatched)) : null;
+      if (lessonTitle === null || points === null) {
+        const lesson = await ctx.db.get(e.lessonId);
+        if (!lesson || (lesson.status !== "published" && !isParent)) continue;
+        lessonTitle = lesson.title;
+        points = lesson.pointsAwarded;
       }
+      const vp = progressByLesson.get(e.lessonId);
+      completed = !!vp?.completed;
+      progress = vp ? (vp.completed ? 100 : Math.round(vp.percentageWatched)) : null;
     }
     out.push({
       _id: e._id,
@@ -328,15 +342,28 @@ async function enrich(
       weekIndex: e.weekIndex,
     });
   }
-  return out.sort((a, b) => a.slotOrder - b.slotOrder);
+  return out.sort((a, b) =>
+    a.date === b.date ? a.slotOrder - b.slotOrder : a.date < b.date ? -1 : 1,
+  );
+}
+
+async function entriesInRange(
+  ctx: QueryCtx,
+  start: string,
+  end: string,
+): Promise<Doc<"calendarEntries">[]> {
+  return await ctx.db
+    .query("calendarEntries")
+    .withIndex("by_date", (q) => q.gte("date", start).lte("date", end))
+    .take(200);
 }
 
 /** Today's planned lessons with completion status. */
 export const getToday = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { now: v.optional(v.number()) },
+  handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    const today = toISO(new Date());
+    const today = toISO(new Date(args.now ?? Date.now()));
     const entries = await ctx.db
       .query("calendarEntries")
       .withIndex("by_date", (q) => q.eq("date", today))
@@ -347,10 +374,14 @@ export const getToday = query({
 
 /** A week of entries (Mon–Sun) around the given date (yyyy-mm-dd). */
 export const getWeek = query({
-  args: { around: v.optional(v.string()) },
+  args: { around: v.optional(v.string()), now: v.optional(v.number()) },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    const ref = args.around ? parseISO(args.around) : new Date();
+    const ref = args.around
+      ? parseISO(args.around)
+      : args.now
+        ? new Date(args.now)
+        : new Date();
     const dow = ref.getUTCDay();
     const monday = new Date(ref);
     monday.setUTCDate(ref.getUTCDate() - ((dow + 6) % 7));
@@ -360,14 +391,16 @@ export const getWeek = query({
       d.setUTCDate(monday.getUTCDate() + i);
       dates.push(toISO(d));
     }
-    const out: Record<string, EntryView[]> = {};
-    for (const date of dates) {
-      const entries = await ctx.db
-        .query("calendarEntries")
-        .withIndex("by_date", (q) => q.eq("date", date))
-        .take(20);
-      out[date] = await enrich(ctx, entries, userId);
+    const all = await entriesInRange(ctx, dates[0]!, dates[6]!);
+    const enriched = await enrich(ctx, all, userId);
+    const byIdDate = new Map<string, EntryView[]>();
+    for (const row of enriched) {
+      const arr = byIdDate.get(row.date) ?? [];
+      arr.push(row);
+      byIdDate.set(row.date, arr);
     }
+    const out: Record<string, EntryView[]> = {};
+    for (const date of dates) out[date] = byIdDate.get(date) ?? [];
     return { dates, days: out };
   },
 });
@@ -383,24 +416,41 @@ export const getMonth = query({
     for (let d = new Date(firstDay); d <= lastDay; d.setUTCDate(d.getUTCDate() + 1)) {
       dates.push(toISO(d));
     }
+    const all = await entriesInRange(ctx, dates[0]!, dates[dates.length - 1]!);
+    const enriched = await enrich(ctx, all, userId);
     const days: Record<string, EntryView[]> = {};
-    for (const date of dates) {
-      const entries = await ctx.db
-        .query("calendarEntries")
-        .withIndex("by_date", (q) => q.eq("date", date))
-        .take(20);
-      days[date] = await enrich(ctx, entries, userId);
+    for (const date of dates) days[date] = [];
+    for (const row of enriched) {
+      const bucket = days[row.date];
+      if (bucket) bucket.push(row);
     }
     return { dates, days };
   },
 });
+
+async function lessonCalendarMeta(
+  ctx: MutationCtx,
+  lessonId: Id<"lessons"> | undefined,
+): Promise<{ lessonTitle?: string; pointsAwarded?: number }> {
+  if (!lessonId) return {};
+  const lesson = await ctx.db.get(lessonId);
+  return {
+    lessonTitle: lesson?.title,
+    pointsAwarded: lesson?.pointsAwarded,
+  };
+}
 
 /** Assign a specific lesson to a calendar entry (parent). */
 export const assignLesson = mutation({
   args: { entryId: v.id("calendarEntries"), lessonId: v.optional(v.id("lessons")) },
   handler: async (ctx, args) => {
     await requireParent(ctx);
-    await ctx.db.patch(args.entryId, { lessonId: args.lessonId });
+    const meta = await lessonCalendarMeta(ctx, args.lessonId);
+    await ctx.db.patch(args.entryId, {
+      lessonId: args.lessonId,
+      lessonTitle: meta.lessonTitle,
+      pointsAwarded: meta.pointsAwarded,
+    });
   },
 });
 
@@ -409,7 +459,11 @@ export const clearEntry = mutation({
   args: { entryId: v.id("calendarEntries") },
   handler: async (ctx, args) => {
     await requireParent(ctx);
-    await ctx.db.patch(args.entryId, { lessonId: undefined });
+    await ctx.db.patch(args.entryId, {
+      lessonId: undefined,
+      lessonTitle: undefined,
+      pointsAwarded: undefined,
+    });
   },
 });
 
@@ -451,11 +505,16 @@ async function relayFrom(ctx: MutationCtx, startDate: string): Promise<void> {
     );
   const queues = new Map<
     Id<"subjects">,
-    { lessonId?: Id<"lessons">; label?: string }[]
+    { lessonId?: Id<"lessons">; label?: string; lessonTitle?: string; pointsAwarded?: number }[]
   >();
   for (const e of ordered) {
     const q = queues.get(e.subjectId) ?? [];
-    q.push({ lessonId: e.lessonId, label: e.label });
+    q.push({
+      lessonId: e.lessonId,
+      label: e.label,
+      lessonTitle: e.lessonTitle,
+      pointsAwarded: e.pointsAwarded,
+    });
     queues.set(e.subjectId, q);
   }
   for (const e of affected) await ctx.db.delete(e._id);
@@ -507,6 +566,8 @@ async function relayFrom(ctx: MutationCtx, startDate: string): Promise<void> {
           subjectId,
           lessonId: next.lessonId,
           label: next.label,
+          lessonTitle: next.lessonTitle,
+          pointsAwarded: next.pointsAwarded,
           weekIndex,
         });
         lastPlaced = date;
@@ -597,8 +658,18 @@ export const moveLesson = mutation({
       ctx.db.get(args.targetEntryId),
     ]);
     if (!src || !tgt) throw new Error("Calendar entry not found.");
-    await ctx.db.patch(src._id, { lessonId: tgt.lessonId, label: tgt.label });
-    await ctx.db.patch(tgt._id, { lessonId: src.lessonId, label: src.label });
+    await ctx.db.patch(src._id, {
+      lessonId: tgt.lessonId,
+      label: tgt.label,
+      lessonTitle: tgt.lessonTitle,
+      pointsAwarded: tgt.pointsAwarded,
+    });
+    await ctx.db.patch(tgt._id, {
+      lessonId: src.lessonId,
+      label: src.label,
+      lessonTitle: src.lessonTitle,
+      pointsAwarded: src.pointsAwarded,
+    });
   },
 });
 

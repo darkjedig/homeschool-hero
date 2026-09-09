@@ -7,13 +7,15 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { SubjectIcon } from "@/components/shared/subject-icon";
 import { BookOpen, Clock, Search, Star, CalendarDays, CheckCircle2 } from "lucide-react";
+import { useStableNow } from "@/lib/use-stable-now";
 
 export default function LessonsIndex() {
   const [search, setSearch] = useState("");
   const [subjectId, setSubjectId] = useState<Id<"subjects"> | "">("");
   const deferredSearch = useDeferredValue(search);
+  const now = useStableNow();
   const subjects = useQuery(api.subjects.list);
-  const week = useQuery(api.calendar.getWeek, {});
+  const week = useQuery(api.calendar.getWeek, { now });
   const { results, status, loadMore } = usePaginatedQuery(api.lessons.library, { search: deferredSearch, subjectId: subjectId || undefined }, { initialNumItems: 24 });
   const scheduled = week?.dates.flatMap(date => (week.days[date] ?? []).filter(e => e.lessonId)) ?? [];
 

@@ -117,15 +117,15 @@ export const recentForParents = query({
     const limit = Math.min(args.limit ?? 25, 100);
     const rows = await ctx.db
       .query("interactiveResults")
+      .withIndex("by_created_at", (q) => q.gte("createdAt", 0))
       .order("desc")
-      .take(300);
-    const top = rows.slice(0, limit);
+      .take(limit);
 
     const lessonCache = new Map<string, { title: string; subjectId: Id<"subjects"> } | null>();
     const subjectCache = new Map<string, { name: string; color: string } | null>();
 
     const out: ParentResult[] = [];
-    for (const r of top) {
+    for (const r of rows) {
       let lesson = lessonCache.get(r.lessonId);
       if (lesson === undefined) {
         const doc = await ctx.db.get(r.lessonId);

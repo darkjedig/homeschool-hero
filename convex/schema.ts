@@ -104,7 +104,10 @@ export default defineSchema({
     title: v.string(),
     slug: v.string(),
     description: v.string(),
-    lessonNotes: v.string(),
+    // Deprecated on the lesson row. Bodies live in `lessonBodies` so list
+    // queries do not pay for full curriculum documents. Kept optional so
+    // existing fat rows can be stripped in a follow-up migration.
+    lessonNotes: v.optional(v.string()),
     content: v.optional(contentBlocks),
     // Distinguishes a normal teaching lesson from an interactive activity/game
     // lesson (drives the "Activity" badge in the UI). Absent = teaching lesson.
@@ -132,6 +135,15 @@ export default defineSchema({
     .searchIndex("search_title", { searchField: "title" })
     .searchIndex("published_title", { searchField: "title", filterFields: ["status", "subjectId"] }),
 
+  // Fat lesson payload (blocks + notes). List/calendar/dashboard queries must
+  // never scan this table — only `lessons.get` / the editor hydrate it.
+  lessonBodies: defineTable({
+    lessonId: v.id("lessons"),
+    content: v.optional(contentBlocks),
+    lessonNotes: v.string(),
+    updatedAt: v.number(),
+  }).index("by_lesson", ["lessonId"]),
+
   quizzes: defineTable({
     lessonId: v.id("lessons"),
     subjectId: v.id("subjects"),
@@ -144,6 +156,7 @@ export default defineSchema({
       v.literal("advanced"),
     ),
     pointsAwarded: v.number(),
+    questionCount: v.optional(v.number()),
   })
     .index("by_lesson", ["lessonId"])
     .index("by_subject", ["subjectId"])
@@ -240,7 +253,8 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_lesson", ["lessonId"])
-    .index("by_user_and_lesson", ["userId", "lessonId"]),
+    .index("by_user_and_lesson", ["userId", "lessonId"])
+    .index("by_created_at", ["createdAt"]),
 
   pointsLedger: defineTable({
     userId: v.id("users"),
@@ -441,11 +455,15 @@ export default defineSchema({
     subjectId: v.id("subjects"),
     lessonId: v.optional(v.id("lessons")),
     label: v.optional(v.string()),
+    // Denormalized so month/week grids never `get` fat lesson documents.
+    lessonTitle: v.optional(v.string()),
+    pointsAwarded: v.optional(v.number()),
     weekIndex: v.number(),
   })
     .index("by_date", ["date"])
     .index("by_subject", ["subjectId"])
-    .index("by_date_and_slot", ["date", "slotOrder"]),
+    .index("by_date_and_slot", ["date", "slotOrder"])
+    .index("by_lesson", ["lessonId"]),
 
   // Single parent-scoped settings doc. openRouterKey is write-only from the
   // client's perspective (queries return keyIsSet only); the raw key is read

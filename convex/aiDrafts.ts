@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { requireParent } from "./authHelpers";
 import { contentBlocks } from "./schema";
 import type { Id } from "./_generated/dataModel";
+import { insertLessonWithBody } from "./lib/lessonBodies";
 
 const DIFF = v.union(
   v.literal("beginner"),
@@ -187,24 +188,26 @@ export const approveCourseDraft = mutation({
     for (const lesson of args.lessons) {
       const topicId = topicIds[lesson.topicIndex] ?? topicIds[0];
       if (!topicId) continue;
-      const lessonId = await ctx.db.insert("lessons", {
-        subjectId,
-        topicId,
-        title: lesson.title,
-        slug: `${args.slug}-${topicIds.indexOf(topicId)}-${now.toString(36)}`.toLowerCase(),
-        description: lesson.notes.slice(0, 140),
-        lessonNotes: lesson.notes,
-        content: lesson.content,
-        videoUrl: lesson.videoUrl,
-        videoProvider: "youtube",
-        difficultyLevel: lesson.difficultyLevel,
-        estimatedMinutes: 10,
-        pointsAwarded: lesson.pointsAwarded,
-        status: "published",
-        createdBy: parent,
-        createdAt: now,
-        updatedAt: now,
-      });
+      const lessonId = await insertLessonWithBody(
+        ctx,
+        {
+          subjectId,
+          topicId,
+          title: lesson.title,
+          slug: `${args.slug}-${topicIds.indexOf(topicId)}-${now.toString(36)}`.toLowerCase(),
+          description: lesson.notes.slice(0, 140),
+          videoUrl: lesson.videoUrl,
+          videoProvider: "youtube",
+          difficultyLevel: lesson.difficultyLevel,
+          estimatedMinutes: 10,
+          pointsAwarded: lesson.pointsAwarded,
+          status: "published",
+          createdBy: parent,
+          createdAt: now,
+          updatedAt: now,
+        },
+        { lessonNotes: lesson.notes, content: lesson.content },
+      );
       if (lesson.quizQuestions.length > 0) {
         const quizId = await ctx.db.insert("quizzes", {
           lessonId,
@@ -214,6 +217,7 @@ export const approveCourseDraft = mutation({
           type: "lesson",
           difficultyLevel: lesson.difficultyLevel,
           pointsAwarded: lesson.pointsAwarded,
+          questionCount: lesson.quizQuestions.length,
         });
         for (let qi = 0; qi < lesson.quizQuestions.length; qi++) {
           const q = lesson.quizQuestions[qi];
@@ -350,24 +354,26 @@ export const approveLessonDraft = mutation({
     const parent = await requireParent(ctx);
     const now = Date.now();
     const slug = `${args.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${now.toString(36)}`;
-    const lessonId = await ctx.db.insert("lessons", {
-      subjectId: args.subjectId,
-      topicId: args.topicId,
-      title: args.title,
-      slug,
-      description: args.notes.slice(0, 140),
-      lessonNotes: args.notes,
-      content: args.content,
-      videoUrl: args.videoUrl,
-      videoProvider: "youtube",
-      difficultyLevel: args.difficultyLevel,
-      estimatedMinutes: 10,
-      pointsAwarded: args.pointsAwarded,
-      status: "published",
-      createdBy: parent,
-      createdAt: now,
-      updatedAt: now,
-    });
+    const lessonId = await insertLessonWithBody(
+      ctx,
+      {
+        subjectId: args.subjectId,
+        topicId: args.topicId,
+        title: args.title,
+        slug,
+        description: args.notes.slice(0, 140),
+        videoUrl: args.videoUrl,
+        videoProvider: "youtube",
+        difficultyLevel: args.difficultyLevel,
+        estimatedMinutes: 10,
+        pointsAwarded: args.pointsAwarded,
+        status: "published",
+        createdBy: parent,
+        createdAt: now,
+        updatedAt: now,
+      },
+      { lessonNotes: args.notes, content: args.content },
+    );
     if (args.quizQuestions.length > 0) {
       const quizId = await ctx.db.insert("quizzes", {
         lessonId,
@@ -377,6 +383,7 @@ export const approveLessonDraft = mutation({
         type: "lesson",
         difficultyLevel: args.difficultyLevel,
         pointsAwarded: args.pointsAwarded,
+        questionCount: args.quizQuestions.length,
       });
       for (let qi = 0; qi < args.quizQuestions.length; qi++) {
         const q = args.quizQuestions[qi];

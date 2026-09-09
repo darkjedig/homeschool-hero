@@ -11,7 +11,7 @@ export const listBySubject = query({
       .withIndex("by_subject_and_order", (q) =>
         q.eq("subjectId", args.subjectId),
       )
-      .collect();
+      .take(200);
   },
 });
 
@@ -32,7 +32,7 @@ export const create = mutation({
     const existing = await ctx.db
       .query("topics")
       .withIndex("by_subject", (q) => q.eq("subjectId", args.subjectId))
-      .collect();
+      .take(200);
     const order = existing.length; // append at the end
     return await ctx.db.insert("topics", {
       subjectId: args.subjectId,

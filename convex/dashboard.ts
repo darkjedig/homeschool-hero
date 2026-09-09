@@ -1,8 +1,9 @@
-import { requireParent } from "./authHelpers";
+import { householdStudentUserId, requireParent } from "./authHelpers";
 import { query } from "./_generated/server";
 import type { QueryCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { v } from "convex/values";
 
 /**
  * A recent quiz attempt joined to a human-readable name, its lesson/subject,
@@ -77,19 +78,38 @@ export const overview = query({
   args: {},
   handler: async (ctx) => {
     await requireParent(ctx);
-    const [subjects, lessons, quizzes, attempts, rewards, redemptions, points] =
+    const studentId = await householdStudentUserId(ctx);
+    const [subjects, published, drafts, quizzes, attempts, rewards, redemptions, points] =
       await Promise.all([
         ctx.db.query("subjects").withIndex("by_active_order").take(50),
-        ctx.db.query("lessons").withIndex("by_status").take(200),
-        ctx.db.query("quizzes").withIndex("by_type").take(200),
-        ctx.db.query("quizAttempts").withIndex("by_user").take(500),
+        ctx.db
+          .query("lessons")
+          .withIndex("by_status", (q) => q.eq("status", "published"))
+          .take(400),
+        ctx.db
+          .query("lessons")
+          .withIndex("by_status", (q) => q.eq("status", "draft"))
+          .take(100),
+        ctx.db.query("quizzes").withIndex("by_type", (q) => q.eq("type", "lesson")).take(400),
+        studentId
+          ? ctx.db
+              .query("quizAttempts")
+              .withIndex("by_user", (q) => q.eq("userId", studentId))
+              .take(500)
+          : Promise.resolve([] as Doc<"quizAttempts">[]),
         ctx.db.query("rewards").withIndex("by_active").take(100),
         ctx.db.query("rewardRedemptions").withIndex("by_status").take(200),
-        ctx.db.query("pointsLedger").withIndex("by_user").take(1000),
+        studentId
+          ? ctx.db
+              .query("pointsLedger")
+              .withIndex("by_user", (q) => q.eq("userId", studentId))
+              .take(1000)
+          : Promise.resolve([] as Doc<"pointsLedger">[]),
       ]);
 
-    const published = lessons.filter((l) => l.status === "published").length;
-    const drafts = lessons.length - published;
+    const lessons = [...published, ...drafts];
+    const publishedCount = published.length;
+    const draftCount = drafts.length;
     const totalPoints = points.reduce((s, p) => s + p.points, 0);
     const avgScore =
       attempts.length > 0
@@ -122,8 +142,8 @@ export const overview = query({
     return {
       counts: {
         subjects: subjects.length,
-        publishedLessons: published,
-        draftLessons: drafts,
+        publishedLessons: publishedCount,
+        draftLessons: draftCount,
         quizzes: quizzes.length,
         attempts: attempts.length,
         rewards: rewards.length,
@@ -192,7 +212,7 @@ function isoPlusDays(iso: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-function computeStreaks(days: Set<string>): { current: number; best: number } {
+function computeStreaks(days: Set<string>, now: number): { current: number; best: number } {
   if (days.size === 0) return { current: 0, best: 0 };
   const sorted = [...days].sort();
   let best = 1;
@@ -205,7 +225,7 @@ function computeStreaks(days: Set<string>): { current: number; best: number } {
       run = 1;
     }
   }
-  const today = localDay(Date.now());
+  const today = localDay(now);
   const yesterday = shiftLocalDay(today, -1);
   let cursor: string | null = null;
   if (days.has(today)) cursor = today;
@@ -218,63 +238,126 @@ function computeStreaks(days: Set<string>): { current: number; best: number } {
   return { current, best: Math.max(best, current) };
 }
 
-export const studentOverview = query({
-  args: {},
-  handler: async (ctx) => {
+type Chrome = {
+  points: number;
+  pointsThisWeek: number;
+  level: number;
+  levelTitle: string;
+  levelProgress: number;
+  xpIntoLevel: number;
+  xpForLevel: number;
+  streak: number;
+  bestStreak: number;
+  weekActivity: boolean[];
+  weekTodayIndex: number;
+};
+
+async function loadChrome(
+  ctx: QueryCtx,
+  userId: Id<"users">,
+  now: number,
+): Promise<{
+  chrome: Chrome;
+  attempts: Doc<"quizAttempts">[];
+  progressRows: Doc<"videoProgress">[];
+  completedLessonIds: Set<Id<"lessons">>;
+}> {
+  const [attempts, progressRows, points] = await Promise.all([
+    ctx.db.query("quizAttempts").withIndex("by_user", (q) => q.eq("userId", userId)).take(500),
+    ctx.db.query("videoProgress").withIndex("by_user", (q) => q.eq("userId", userId)).take(500),
+    ctx.db.query("pointsLedger").withIndex("by_user", (q) => q.eq("userId", userId)).take(1000),
+  ]);
+  const totalPoints = points.reduce((s, p) => s + p.points, 0);
+  const weekStart = weekStartMs(now);
+  const pointsThisWeek = points
+    .filter((p) => p.createdAt >= weekStart)
+    .reduce((s, p) => s + p.points, 0);
+  const level = Math.floor(totalPoints / XP_PER_LEVEL) + 1;
+  const xpIntoLevel = totalPoints % XP_PER_LEVEL;
+  const levelProgress = Math.round((xpIntoLevel / XP_PER_LEVEL) * 100);
+
+  const activityDays = new Set<string>();
+  for (const p of progressRows) if (p.completed) activityDays.add(localDay(p.updatedAt));
+  for (const a of attempts) activityDays.add(localDay(a.completedAt));
+  const { current: streak, best: bestStreak } = computeStreaks(activityDays, now);
+
+  const mondayKey = localDay(weekStart);
+  const weekActivity: boolean[] = [];
+  for (let i = 0; i < 7; i++) {
+    weekActivity.push(activityDays.has(shiftLocalDay(mondayKey, i)));
+  }
+  const weekTodayIndex = (new Date(now).getDay() + 6) % 7;
+
+  return {
+    chrome: {
+      points: totalPoints,
+      pointsThisWeek,
+      level,
+      levelTitle: rankFor(level),
+      levelProgress,
+      xpIntoLevel,
+      xpForLevel: XP_PER_LEVEL,
+      streak,
+      bestStreak,
+      weekActivity,
+      weekTodayIndex,
+    },
+    attempts,
+    progressRows,
+    completedLessonIds: new Set(
+      progressRows.filter((p) => p.completed).map((p) => p.lessonId),
+    ),
+  };
+}
+
+/** Sidebar-only: points, level, streak. Does not scan lessons. */
+export const studentChrome = query({
+  args: { now: v.number() },
+  handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) return null;
+    const { chrome } = await loadChrome(ctx, userId, args.now);
+    return chrome;
+  },
+});
 
-    const [subjects, lessons, quizzes, fridayQuizzes, attempts, progressRows, points, badgeRows, allBadges] =
+export const studentOverview = query({
+  args: { now: v.number() },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) return null;
+    const now = args.now;
+
+    const { chrome, attempts, progressRows, completedLessonIds } = await loadChrome(
+      ctx,
+      userId,
+      now,
+    );
+
+    const [subjects, publishedLessons, lessonQuizzes, fridayQuizzes, badgeRows, allBadges] =
       await Promise.all([
         ctx.db.query("subjects").withIndex("by_active_order").take(50),
-        ctx.db.query("lessons").take(500),
-        ctx.db.query("quizzes").take(500),
-        ctx.db.query("fridayQuizzes").take(200),
-        ctx.db.query("quizAttempts").withIndex("by_user", (q) => q.eq("userId", userId)).take(500),
-        ctx.db.query("videoProgress").withIndex("by_user", (q) => q.eq("userId", userId)).take(500),
-        ctx.db.query("pointsLedger").withIndex("by_user", (q) => q.eq("userId", userId)).take(1000),
+        ctx.db
+          .query("lessons")
+          .withIndex("by_status", (q) => q.eq("status", "published"))
+          .take(400),
+        ctx.db
+          .query("quizzes")
+          .withIndex("by_type", (q) => q.eq("type", "lesson"))
+          .take(400),
+        ctx.db.query("fridayQuizzes").withIndex("by_status").take(50),
         ctx.db.query("studentBadges").withIndex("by_user", (q) => q.eq("userId", userId)).take(50),
         ctx.db.query("badges").withIndex("by_active").take(50),
       ]);
 
-    const publishedLessons = lessons.filter((l) => l.status === "published");
-    const completedLessonIds = new Set(
-      progressRows.filter((p) => p.completed).map((p) => p.lessonId),
-    );
-
-    // ── Points + level ──
-    const totalPoints = points.reduce((s, p) => s + p.points, 0);
-    const weekStart = weekStartMs(Date.now());
-    const pointsThisWeek = points
-      .filter((p) => p.createdAt >= weekStart)
-      .reduce((s, p) => s + p.points, 0);
-    const level = Math.floor(totalPoints / XP_PER_LEVEL) + 1;
-    const xpIntoLevel = totalPoints % XP_PER_LEVEL;
-    const levelProgress = Math.round((xpIntoLevel / XP_PER_LEVEL) * 100);
-
-    // ── Streak (a day counts if the student completed a lesson or took a quiz) ──
-    const activityDays = new Set<string>();
-    for (const p of progressRows) if (p.completed) activityDays.add(localDay(p.updatedAt));
-    for (const a of attempts) activityDays.add(localDay(a.completedAt));
-    const { current: streak, best: bestStreak } = computeStreaks(activityDays);
-
-    // ── This week's per-day activity (Mon–Sun) for the sidebar streak tracker ──
-    const mondayKey = localDay(weekStart);
-    const weekActivity: boolean[] = [];
-    for (let i = 0; i < 7; i++) {
-      weekActivity.push(activityDays.has(shiftLocalDay(mondayKey, i)));
-    }
-    const weekTodayIndex = (new Date().getDay() + 6) % 7; // 0 = Monday
-
-    // ── Weekly goal (this week's planned lessons completed) ──
-    const monday = utcMondayISO(Date.now());
+    const monday = utcMondayISO(now);
     const sunday = isoPlusDays(monday, 6);
     const weekEntries = await ctx.db
       .query("calendarEntries")
-      .withIndex("by_date", (q) => q.gte("date", monday))
+      .withIndex("by_date", (q) => q.gte("date", monday).lte("date", sunday))
       .take(60);
     const plannedIds = new Set(
-      weekEntries.filter((e) => e.date <= sunday && e.lessonId).map((e) => e.lessonId!),
+      weekEntries.filter((e) => e.lessonId).map((e) => e.lessonId!),
     );
     let weeklyDone = 0;
     for (const id of plannedIds) if (completedLessonIds.has(id)) weeklyDone += 1;
@@ -282,7 +365,6 @@ export const studentOverview = query({
     const weeklyGoalPct =
       weeklyPlanned > 0 ? Math.round((weeklyDone / weeklyPlanned) * 100) : 0;
 
-    // ── Continue learning: most-recent incomplete lesson (else most-recent overall) ──
     let continueLearning: {
       title: string;
       subject: string;
@@ -312,13 +394,15 @@ export const studentOverview = query({
       }
     }
 
-    // ── Friday card title ──
-    const fq = fridayQuizzes.find((f) => f.weekStartDate === String(weekStart));
+    const weekStart = String(weekStartMs(now));
+    const fq = await ctx.db
+      .query("fridayQuizzes")
+      .withIndex("by_week", (q) => q.eq("weekStartDate", weekStart))
+      .unique();
     const friday = fq
       ? { title: fq.title, subtitle: `${fq.questionIds.length} questions · 2× points` }
       : null;
 
-    // ── Per-subject progress (Core Subjects) ──
     const subjectProgress = subjects.map((s) => {
       const inSubject = publishedLessons.filter((l) => l.subjectId === s._id);
       const done = inSubject.filter((l) => completedLessonIds.has(l._id)).length;
@@ -334,11 +418,9 @@ export const studentOverview = query({
       };
     });
 
-    // ── Overall progress donut ──
     const completedPublished = publishedLessons.filter((l) =>
       completedLessonIds.has(l._id),
     ).length;
-    const lessonQuizzes = quizzes.filter((q) => q.type === "lesson");
     const distinctQuizzesTaken = new Set(
       attempts.filter((a) => a.quizId).map((a) => a.quizId!),
     ).size;
@@ -361,17 +443,7 @@ export const studentOverview = query({
     };
 
     return {
-      points: totalPoints,
-      pointsThisWeek,
-      level,
-      levelTitle: rankFor(level),
-      levelProgress,
-      xpIntoLevel,
-      xpForLevel: XP_PER_LEVEL,
-      streak,
-      bestStreak,
-      weekActivity,
-      weekTodayIndex,
+      ...chrome,
       weeklyDone,
       weeklyPlanned,
       weeklyGoalPct,

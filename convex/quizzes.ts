@@ -2,7 +2,7 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
-import { requireParent } from "./authHelpers";
+import { householdStudentUserId, requireParent } from "./authHelpers";
 import type { Id } from "./_generated/dataModel";
 
 type AwardedBadge = { key: string; title: string; icon: string; pointsBonus: number };
@@ -50,7 +50,7 @@ export const subjectCards = query({
     const userId = await getAuthUserId(ctx);
     const [subjects, quizzes, attempts] = await Promise.all([
       ctx.db.query("subjects").withIndex("by_active_order").take(50),
-      ctx.db.query("quizzes").take(500),
+      ctx.db.query("quizzes").withIndex("by_type", (q) => q.eq("type", "lesson")).take(400),
       userId
         ? ctx.db
             .query("quizAttempts")
@@ -166,40 +166,76 @@ export const listAll = query({
   args: {},
   handler: async (ctx) => {
     await requireParent(ctx);
-    const quizzes = await ctx.db.query("quizzes").take(300);
+    const quizzes = await ctx.db
+      .query("quizzes")
+      .withIndex("by_type", (q) => q.eq("type", "lesson"))
+      .take(400);
     const lessonIds = [...new Set(quizzes.map((q) => q.lessonId))];
     const lessons = await Promise.all(lessonIds.map((id) => ctx.db.get(id)));
-    const lessonById = new Map(lessons.map((l) => (l ? [l._id, l] : [null, null])));
-    const out = [];
-    for (const q of quizzes) {
+    const lessonById = new Map(
+      lessons.flatMap((l) => (l ? [[l._id, l] as const] : [])),
+    );
+    const subjectIds = [
+      ...new Set(
+        [...lessonById.values()]
+          .map((l) => l.subjectId)
+          .concat(quizzes.map((q) => q.subjectId)),
+      ),
+    ];
+    const subjects = await Promise.all(subjectIds.map((id) => ctx.db.get(id)));
+    const subjectById = new Map(
+      subjects.flatMap((s) => (s ? [[s._id, s] as const] : [])),
+    );
+
+    const studentId = await householdStudentUserId(ctx);
+    const attempts = studentId
+      ? await ctx.db
+          .query("quizAttempts")
+          .withIndex("by_user", (q) => q.eq("userId", studentId))
+          .take(500)
+      : [];
+    const attemptsByQuiz = new Map<
+      Id<"quizzes">,
+      { count: number; latest: number; best: number; latestAt: number }
+    >();
+    for (const a of attempts) {
+      if (!a.quizId) continue;
+      const cur = attemptsByQuiz.get(a.quizId);
+      if (!cur) {
+        attemptsByQuiz.set(a.quizId, {
+          count: 1,
+          latest: a.percentage,
+          best: a.percentage,
+          latestAt: a.completedAt,
+        });
+      } else {
+        cur.count += 1;
+        cur.best = Math.max(cur.best, a.percentage);
+        if (a.completedAt >= cur.latestAt) {
+          cur.latest = a.percentage;
+          cur.latestAt = a.completedAt;
+        }
+      }
+    }
+
+    const out = quizzes.map((q) => {
       const lesson = lessonById.get(q.lessonId);
-      const subject = lesson ? await ctx.db.get(lesson.subjectId) : null;
-      const questions = await ctx.db
-        .query("quizQuestions")
-        .withIndex("by_quiz_and_order", (qq) => qq.eq("quizId", q._id))
-        .take(50);
-      const attempts = await ctx.db
-        .query("quizAttempts")
-        .withIndex("by_quiz", (qa) => qa.eq("quizId", q._id))
-        .take(20);
-      out.push({
+      const subject = subjectById.get(q.subjectId) ?? (lesson ? subjectById.get(lesson.subjectId) : undefined);
+      const stats = attemptsByQuiz.get(q._id);
+      return {
         _id: q._id,
         title: q.title,
         lessonId: q.lessonId,
         lessonTitle: lesson?.title ?? "—",
         subjectName: subject?.name ?? "—",
         subjectColor: subject?.color ?? "#3b82f6",
-        questionCount: questions.length,
+        questionCount: q.questionCount ?? 0,
         createdAt: q._creationTime,
-        attemptsCount: attempts.length,
-        latestPercentage: attempts.length > 0
-          ? attempts.sort((a, b) => b.completedAt - a.completedAt)[0].percentage
-          : null,
-        bestPercentage: attempts.length > 0
-          ? Math.max(...attempts.map((a) => a.percentage))
-          : null,
-      });
-    }
+        attemptsCount: stats?.count ?? 0,
+        latestPercentage: stats ? stats.latest : null,
+        bestPercentage: stats ? stats.best : null,
+      };
+    });
     return out.sort((a, b) =>
       a.subjectName === b.subjectName
         ? a.lessonTitle.localeCompare(b.lessonTitle)
@@ -308,7 +344,7 @@ export const addQuestion = mutation({
       .query("quizQuestions")
       .withIndex("by_quiz_and_order", (q) => q.eq("quizId", args.quizId))
       .take(50);
-    return await ctx.db.insert("quizQuestions", {
+    const questionId = await ctx.db.insert("quizQuestions", {
       quizId: args.quizId,
       questionText: args.questionText,
       questionType: "mcq",
@@ -318,6 +354,8 @@ export const addQuestion = mutation({
       difficultyLevel: quiz.difficultyLevel,
       order: existing.length,
     });
+    await ctx.db.patch(args.quizId, { questionCount: existing.length + 1 });
+    return questionId;
   },
 });
 
@@ -346,7 +384,14 @@ export const deleteQuestion = mutation({
   args: { questionId: v.id("quizQuestions") },
   handler: async (ctx, args) => {
     await requireParent(ctx);
+    const question = await ctx.db.get(args.questionId);
+    if (!question) return;
     await ctx.db.delete(args.questionId);
+    const remaining = await ctx.db
+      .query("quizQuestions")
+      .withIndex("by_quiz_and_order", (q) => q.eq("quizId", question.quizId))
+      .take(50);
+    await ctx.db.patch(question.quizId, { questionCount: remaining.length });
   },
 });
 
@@ -371,6 +416,7 @@ export const ensureForLesson = mutation({
       type: "lesson",
       difficultyLevel: lesson.difficultyLevel,
       pointsAwarded: lesson.pointsAwarded,
+      questionCount: 0,
     });
   },
 });

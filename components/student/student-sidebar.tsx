@@ -18,6 +18,7 @@ import {
   Flame,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useStableNow } from "@/lib/use-stable-now";
 
 const NAV = [
   { label: "Home", href: "/dashboard", icon: Home },
@@ -81,7 +82,8 @@ export function StudentSidebar() {
 }
 
 function ProfileCard() {
-  const overview = useQuery(api.dashboard.studentOverview);
+  const now = useStableNow();
+  const overview = useQuery(api.dashboard.studentChrome, { now });
   const profile = useQuery(api.userProfiles.getMine);
   const name = profile?.displayName ?? "Student";
   const rank = overview?.levelTitle ?? "Rookie";
@@ -115,7 +117,8 @@ function ProfileCard() {
 }
 
 function StreakTracker() {
-  const overview = useQuery(api.dashboard.studentOverview);
+  const now = useStableNow();
+  const overview = useQuery(api.dashboard.studentChrome, { now });
   const streak = overview?.streak ?? 0;
   const activity = overview?.weekActivity;
   const todayIdx = overview?.weekTodayIndex;

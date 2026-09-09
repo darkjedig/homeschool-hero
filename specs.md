@@ -180,6 +180,7 @@ Goal: every number/widget on the student dashboard reads from the database (per-
 
 
 ### Phase 11 — Security, Testing, Polish  ⏳
+- [x] **Convex DB I/O**: split `lessonBodies`; slim calendar/dashboard/quiz list queries; migrate existing fat lesson rows (454 bodies, 0 remaining fat lessons on dev)
 - [ ] RBAC audit on every Convex function + route group
 - [ ] Playwright smoke + Vitest unit tests
 - [ ] Mobile polish, error boundaries, optimistic updates
