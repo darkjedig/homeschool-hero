@@ -181,6 +181,8 @@ Goal: every number/widget on the student dashboard reads from the database (per-
 
 ### Phase 11 — Security, Testing, Polish  ⏳
 - [x] **Convex DB I/O**: split `lessonBodies`; slim calendar/dashboard/quiz list queries; migrate existing fat lesson rows (454 bodies, 0 remaining fat lessons on dev)
+- [x] **Parent video watch + lessons chart**: `dashboard.overview` returns `lessonsBySubject` + `recentVideo` (watched / duration / %). Parent dashboard shows a Video watch time panel and live published-lesson bars. YouTube player logs `durationSeconds` and only upserts while playing.
+- [x] **Parent Videos + Progress pages**: `/parent/videos` charts watch % / finished vs in progress / time by subject + full list. `/parent/progress` tracks lessons completed via video, quiz, interactive, or parent mark. Dashboard stats link there (not Export). First school day (10 Sep 2026) can be marked complete. Recharts only mounts after the container has a real size.
 - [ ] RBAC audit on every Convex function + route group
 - [ ] Playwright smoke + Vitest unit tests
 - [ ] Mobile polish, error boundaries, optimistic updates

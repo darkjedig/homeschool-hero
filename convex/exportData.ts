@@ -79,6 +79,7 @@ export const allData = internalQuery({
       percentageWatched: v.percentageWatched,
       completed: v.completed,
       secondsWatched: v.secondsWatched,
+      durationSeconds: v.durationSeconds ?? null,
     }));
 
     const namedRedemptions = redemptions.map((r) => ({

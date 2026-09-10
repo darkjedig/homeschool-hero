@@ -14,10 +14,14 @@ import {
   Gift,
   Download,
   Settings,
+  PlayCircle,
+  CheckCircle2,
 } from "lucide-react";
 
 const NAV = [
   { label: "Dashboard", href: "/parent/dashboard", icon: LayoutDashboard },
+  { label: "Progress", href: "/parent/progress", icon: CheckCircle2 },
+  { label: "Videos", href: "/parent/videos", icon: PlayCircle },
   { label: "Calendar", href: "/parent/calendar", icon: CalendarDays },
   { label: "Subjects", href: "/parent/subjects", icon: Library },
   { label: "New Course", href: "/parent/courses/new", icon: FolderPlus },

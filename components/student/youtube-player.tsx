@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { formatClock } from "@/lib/utils";
 
 declare global {
   interface Window {
@@ -56,6 +57,27 @@ export function YouTubePlayer({
   });
   const upsert = useMutation(api.videoProgress.upsert);
 
+  const report = async (p: YT.Player, completed = false) => {
+    if (typeof p.getCurrentTime !== "function") return;
+    const t = p.getCurrentTime() || 0;
+    const dur = p.getDuration() || 0;
+    if (dur <= 0 && t <= 0) return;
+    const pct = dur > 0 ? Math.min(100, Math.round((t / dur) * 100)) : 0;
+    try {
+      await upsert({
+        lessonId: lessonId as never,
+        videoUrl,
+        secondsWatched: Math.floor(t),
+        lastTimestamp: Math.floor(t),
+        percentageWatched: pct,
+        durationSeconds: dur > 0 ? Math.round(dur) : undefined,
+        completed: completed || pct >= 90,
+      });
+    } catch {
+      // not authenticated yet during dev — ignore
+    }
+  };
+
   useEffect(() => {
     if (!videoId || !containerRef.current) return;
     let cancelled = false;
@@ -71,40 +93,20 @@ export function YouTubePlayer({
             if (progress?.lastTimestamp && progress.lastTimestamp > 3) {
               e.target.seekTo(progress.lastTimestamp, true);
             }
-            intervalRef.current = setInterval(async () => {
+            intervalRef.current = setInterval(() => {
               const p = playerRef.current;
-              if (!p || typeof p.getCurrentTime !== "function") return;
-              const t = p.getCurrentTime() || 0;
-              const dur = p.getDuration() || 0;
-              const pct = dur > 0 ? Math.min(100, Math.round((t / dur) * 100)) : 0;
-              try {
-                await upsert({
-                  lessonId: lessonId as never,
-                  videoUrl,
-                  secondsWatched: Math.floor(t),
-                  lastTimestamp: Math.floor(t),
-                  percentageWatched: pct,
-                  completed: pct >= 90,
-                });
-              } catch {
-                // not authenticated yet during dev — ignore
-              }
-            }, 1000);
+              if (!p || typeof p.getPlayerState !== "function") return;
+              if (p.getPlayerState() !== window.YT!.PlayerState.PLAYING) return;
+              void report(p);
+            }, 2500);
           },
           onStateChange: (e) => {
-            if (
-              e.data === window.YT!.PlayerState.ENDED &&
-              playerRef.current
-            ) {
-              const dur = playerRef.current.getDuration() || 1;
-              upsert({
-                lessonId: lessonId as never,
-                videoUrl,
-                secondsWatched: Math.floor(dur),
-                lastTimestamp: Math.floor(dur),
-                percentageWatched: 100,
-                completed: true,
-              }).catch(() => {});
+            const p = playerRef.current;
+            if (!p) return;
+            if (e.data === window.YT!.PlayerState.ENDED) {
+              void report(p, true);
+            } else if (e.data === window.YT!.PlayerState.PAUSED) {
+              void report(p);
             }
           },
         },
@@ -142,6 +144,16 @@ export function YouTubePlayer({
       {progress?.completed && (
         <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-green-500/20 px-3 py-1 text-xs font-semibold text-green-300">
           <CheckCircle2 size={14} /> Completed
+        </div>
+      )}
+      {progress && (progress.secondsWatched > 0 || (progress.durationSeconds ?? 0) > 0) && (
+        <div className="absolute bottom-3 left-3 rounded-full bg-black/70 px-3 py-1 text-xs font-medium text-white">
+          {formatClock(progress.secondsWatched)}
+          {progress.durationSeconds
+            ? ` / ${formatClock(progress.durationSeconds)}`
+            : ""}
+          {" · "}
+          {progress.percentageWatched}%
         </div>
       )}
     </div>

@@ -227,6 +227,8 @@ export default defineSchema({
     secondsWatched: v.number(),
     lastTimestamp: v.number(),
     percentageWatched: v.number(),
+    // YouTube duration in seconds (set once the player reports it).
+    durationSeconds: v.optional(v.number()),
     completed: v.boolean(),
     updatedAt: v.number(),
   })
@@ -255,6 +257,20 @@ export default defineSchema({
     .index("by_lesson", ["lessonId"])
     .index("by_user_and_lesson", ["userId", "lessonId"])
     .index("by_created_at", ["createdAt"]),
+
+  // Explicit lesson completion (parent mark, or a day closed out). Video /
+  // quiz / interactive still count as complete on their own; this row lets a
+  // parent record "Hudson finished today's lessons" when a piece has no log.
+  lessonCompletions: defineTable({
+    userId: v.id("users"),
+    lessonId: v.id("lessons"),
+    completedAt: v.number(),
+    via: v.union(v.literal("parent"), v.literal("student")),
+    date: v.optional(v.string()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_and_lesson", ["userId", "lessonId"])
+    .index("by_lesson", ["lessonId"]),
 
   pointsLedger: defineTable({
     userId: v.id("users"),

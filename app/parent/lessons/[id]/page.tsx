@@ -10,11 +10,13 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { YoutubeUrlField } from "@/components/shared/youtube-url-field";
 import { QuizEditor } from "@/components/parent/quiz-editor";
+import { formatClock } from "@/lib/utils";
 
 export default function EditLessonPage() {
   const { id } = useParams<{ id: string }>();
   const lesson = useQuery(api.lessons.get, { lessonId: id as never });
   const activity = useQuery(api.interactiveResults.forLesson, { lessonId: id as never });
+  const watch = useQuery(api.videoProgress.forLesson, { lessonId: id as never });
   const update = useMutation(api.lessons.update);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -151,6 +153,53 @@ export default function EditLessonPage() {
             Save changes
           </Button>
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+        <h2 className="mb-1 text-sm font-semibold text-white">Video watch time</h2>
+        <p className="mb-4 text-xs text-muted-foreground">
+          Farthest point watched in this lesson&apos;s YouTube video.
+        </p>
+        {watch === undefined ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : watch === null ? (
+          <p className="text-sm text-muted-foreground">
+            No watch log yet. This stays empty until a YouTube video is set and
+            played on the student lesson page.
+          </p>
+        ) : (
+          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm text-white">
+                {formatClock(watch.secondsWatched)}
+                {watch.durationSeconds
+                  ? ` / ${formatClock(watch.durationSeconds)}`
+                  : " watched"}
+                {" · "}
+                {watch.percentageWatched}%
+              </p>
+              <span
+                className={
+                  "rounded-full px-2 py-0.5 text-xs font-semibold " +
+                  (watch.completed
+                    ? "bg-green-500/15 text-green-300"
+                    : "bg-orange-500/15 text-orange-300")
+                }
+              >
+                {watch.completed ? "Finished" : "In progress"}
+              </span>
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-cyan-400"
+                style={{ width: `${Math.min(100, watch.percentageWatched)}%` }}
+              />
+            </div>
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Last updated {new Date(watch.updatedAt).toLocaleString()}
+            </p>
+          </div>
+        )}
       </section>
 
       <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">

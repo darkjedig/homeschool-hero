@@ -4,7 +4,6 @@ import { AiMascot } from "@/components/student/ai-mascot";
 import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
   CheckCircle2,
@@ -12,11 +11,11 @@ import {
   Coins,
   Trophy,
   Gamepad2,
+  PlayCircle,
   Check,
   X,
 } from "lucide-react";
 import {
-  ResponsiveContainer,
   BarChart,
   Bar,
   Cell,
@@ -27,7 +26,8 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { subjectMeta, hexToRgb } from "@/lib/subjects";
+import { subjectMeta } from "@/lib/subjects";
+import { formatClock, formatWatchMinutes } from "@/lib/utils";
 import Link from "next/link";
 import type { Id } from "@/convex/_generated/dataModel";
 import {
@@ -37,6 +37,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Panel, Stat } from "@/components/parent/space-panel";
+import { SizedChart, CHART_TOOLTIP } from "@/components/charts/sized-chart";
 
 function formatDate(ms: number): string {
   return new Date(ms).toLocaleDateString(undefined, {
@@ -45,33 +47,26 @@ function formatDate(ms: number): string {
   });
 }
 
-// Shared Recharts tooltip — light text on dark glass so it's readable.
-const TOOLTIP_STYLE = {
-  contentStyle: {
-    background: "#0f172a",
-    border: "1px solid rgba(255,255,255,0.12)",
-    borderRadius: "0.75rem",
-    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-    color: "#ffffff",
-    fontSize: "12px",
-  },
-  itemStyle: { color: "#e2e8f0" },
-  labelStyle: { color: "#94a3b8", marginBottom: "2px" },
-  cursor: { fill: "rgba(255,255,255,0.06)" },
-};
+function formatDateTime(ms: number): string {
+  return new Date(ms).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 
 export default function ParentDashboardPage() {
   const stats = useQuery(api.dashboard.overview);
-  const subjects = useQuery(api.subjects.list);
   const interactive = useQuery(api.interactiveResults.recentForParents, { limit: 12 });
   const [selectedAttemptId, setSelectedAttemptId] = useState<
     Id<"quizAttempts"> | null
   >(null);
 
-  const lessonsBySubject = (subjects ?? []).map((s) => ({
+  const lessonsBySubject = (stats?.lessonsBySubject ?? []).map((s) => ({
     name: subjectMeta(s.slug).shortName,
-    lessons: 0,
-    color: subjectMeta(s.slug).color,
+    lessons: s.lessons,
+    color: s.color || subjectMeta(s.slug).color,
   }));
 
   const scoreOverTime = (stats?.recentAttempts ?? [])
@@ -87,37 +82,44 @@ export default function ParentDashboardPage() {
         <Link href="/parent/lessons/new" className="rounded-xl border border-cyan-400/30 bg-gradient-to-b from-sky-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20">+ Create a lesson</Link>
       </header>
 
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <Stat icon={BookOpen} color="#3b82f6" value={stats ? String(stats.counts.subjects) : "—"} label="Subjects" href="/parent/subjects" />
-        <Stat icon={CheckCircle2} color="#22c55e" value={stats ? String(stats.counts.publishedLessons) : "—"} label="Published lessons" href="/parent/lessons" />
+      <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        <Stat icon={CheckCircle2} color="#22c55e" value={stats ? String(stats.counts.lessonsCompleted) : "—"} label="Lessons completed" href="/parent/progress" />
+        <Stat icon={PlayCircle} color="#06b6d4" value={stats ? `${stats.counts.videosCompleted}/${stats.counts.videosWatched}` : "—"} label="Videos finished" href="/parent/videos" />
         <Stat icon={Brain} color="#a855f7" value={stats ? String(stats.counts.attempts) : "—"} label="Quiz attempts" href="/parent/quizzes" />
         <Stat icon={Trophy} color="#f97316" value={stats ? `${stats.avgScore}%` : "—"} label="Avg score" href="/parent/quizzes" />
         <Stat icon={Coins} color="#eab308" value={stats ? stats.totalPoints.toLocaleString() : "—"} label="Points earned" href="/parent/history" />
+        <Stat icon={BookOpen} color="#3b82f6" value={stats ? String(stats.counts.publishedLessons) : "—"} label="Published lessons" href="/parent/lessons" />
       </section>
 
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Panel title="Lessons published per subject" subtitle="Distribution of live lessons" accent="#3b82f6">
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={lessonsBySubject} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
-                <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.08)" }} />
-                <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} allowDecimals={false} tickLine={false} axisLine={false} />
-                <Tooltip {...TOOLTIP_STYLE} />
-                <Bar dataKey="lessons" radius={[6, 6, 0, 0]} maxBarSize={48}>
-                  {lessonsBySubject.map((d, i) => (
-                    <Cell key={i} fill={d.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <SizedChart>
+            {({ width, height }) =>
+              lessonsBySubject.length === 0 ? (
+                <p className="grid h-full place-items-center text-sm text-muted-foreground">
+                  {stats === undefined ? "Loading…" : "No published lessons yet."}
+                </p>
+              ) : (
+                <BarChart width={width} height={height} data={lessonsBySubject} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.08)" }} />
+                  <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} allowDecimals={false} tickLine={false} axisLine={false} />
+                  <Tooltip {...CHART_TOOLTIP} />
+                  <Bar dataKey="lessons" radius={[6, 6, 0, 0]} maxBarSize={48}>
+                    {lessonsBySubject.map((d, i) => (
+                      <Cell key={i} fill={d.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              )
+            }
+          </SizedChart>
         </Panel>
 
         <Panel title="Quiz scores over recent attempts" subtitle="Last 8 results (%)" accent="#22c55e">
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={scoreOverTime} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+          <SizedChart>
+            {({ width, height }) => (
+              <AreaChart width={width} height={height} data={scoreOverTime} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                 <defs>
                   <linearGradient id="scoreFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#22c55e" stopOpacity={0.5} />
@@ -127,11 +129,11 @@ export default function ParentDashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.08)" }} />
                 <YAxis domain={[0, 100]} tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={false} />
-                <Tooltip {...TOOLTIP_STYLE} />
+                <Tooltip {...CHART_TOOLTIP} />
                 <Area type="monotone" dataKey="score" stroke="#22c55e" strokeWidth={2} fill="url(#scoreFill)" />
               </AreaChart>
-            </ResponsiveContainer>
-          </div>
+            )}
+          </SizedChart>
         </Panel>
       </section>
 
@@ -206,6 +208,143 @@ export default function ParentDashboardPage() {
               )}
             </tbody>
           </table>
+        </div>
+      </Panel>
+
+      <Panel
+        title="Video watch time"
+        subtitle={
+          stats
+            ? `${formatWatchMinutes(stats.videoSeconds)} watched · ${stats.counts.videosCompleted} finished of ${stats.counts.videosWatched} started`
+            : "How much of each lesson video was actually watched"
+        }
+        accent="#06b6d4"
+      >
+        <div className="space-y-2">
+          {(stats?.recentVideo ?? []).map((v) => {
+            const accent = v.subjectColor ?? "#06b6d4";
+            const watched = formatClock(v.secondsWatched);
+            const total = v.durationSeconds ? formatClock(v.durationSeconds) : null;
+            return (
+              <div
+                key={v.progressId}
+                className="flex items-start gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3"
+              >
+                <span
+                  className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+                  style={{ backgroundColor: `${accent}22` }}
+                >
+                  <PlayCircle size={15} style={{ color: accent }} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    <Link
+                      href={`/parent/lessons/${v.lessonId}`}
+                      className="truncate text-sm font-medium text-white hover:text-cyan-300"
+                    >
+                      {v.lessonTitle}
+                    </Link>
+                    {v.subjectName && (
+                      <span className="text-[11px] text-muted-foreground">{v.subjectName}</span>
+                    )}
+                    {v.completed && (
+                      <span className="rounded-full bg-green-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-green-300">
+                        Finished
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {total ? `${watched} / ${total}` : `${watched} watched`}
+                    {" · "}
+                    {v.percentageWatched}%
+                    {" · "}
+                    {formatDateTime(v.updatedAt)}
+                  </p>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${Math.min(100, v.percentageWatched)}%`,
+                        backgroundColor: accent,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {(stats?.recentVideo ?? []).length === 0 && (
+            <p className="py-10 text-center text-sm text-muted-foreground">
+              No video watch logs yet. Time is recorded when a YouTube video plays
+              in a lesson — including how long the video is and how far it was
+              watched. Lessons without a YouTube URL (IXL days and most seeded
+              lessons) will not appear here. Interactive activity is listed below.
+            </p>
+          )}
+          <p className="pt-2 text-center">
+            <Link href="/parent/videos" className="text-xs font-medium text-cyan-400 hover:underline">
+              Open video watch page →
+            </Link>
+          </p>
+        </div>
+      </Panel>
+
+      <Panel
+        title="Lessons completed"
+        subtitle="Video, quiz, or activity finished — click for the full list"
+        accent="#22c55e"
+      >
+        <div className="space-y-2">
+          {(stats?.recentCompletedLessons ?? []).map((l) => (
+            <Link
+              key={l.lessonId}
+              href={`/parent/lessons/${l.lessonId}`}
+              className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3 transition hover:border-white/15"
+            >
+              <span
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+                style={{ backgroundColor: `${l.subjectColor ?? "#22c55e"}22` }}
+              >
+                <CheckCircle2 size={15} style={{ color: l.subjectColor ?? "#22c55e" }} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-white">{l.lessonTitle}</p>
+                <p className="text-xs text-muted-foreground">
+                  {l.subjectName ?? "Lesson"}
+                  {" · "}
+                  {formatDateTime(l.lastAt)}
+                </p>
+              </div>
+              <div className="flex flex-wrap justify-end gap-1">
+                {l.videoDone && (
+                  <span className="rounded-full bg-cyan-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-cyan-300">
+                    Video
+                  </span>
+                )}
+                {l.quizDone && (
+                  <span className="rounded-full bg-purple-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-purple-300">
+                    Quiz
+                  </span>
+                )}
+                {l.interactiveDone && (
+                  <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase text-orange-300">
+                    Activity
+                  </span>
+                )}
+              </div>
+            </Link>
+          ))}
+          {(stats?.recentCompletedLessons ?? []).length === 0 && (
+            <p className="py-10 text-center text-sm text-muted-foreground">
+              No completed lessons yet. When Hudson finishes a video, quiz, or
+              flashcards, they show up here.
+            </p>
+          )}
+          <p className="pt-2 text-center">
+            <Link href="/parent/progress" className="text-xs font-medium text-cyan-400 hover:underline">
+              Open lessons completed →
+            </Link>
+          </p>
         </div>
       </Panel>
 
@@ -400,78 +539,4 @@ function ScoreStat({
   );
 }
 
-function Panel({
-  title,
-  subtitle,
-  accent = "#3b82f6",
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  accent?: string;
-  children: React.ReactNode;
-}) {
-  const rgb = hexToRgb(accent);
-  return (
-    <section
-      className="space-panel"
-      style={{ boxShadow: `0 0 24px rgba(${rgb},0.08)` }}
-    >
-      <div className="mb-5 flex items-center gap-3">
-        <span
-          className="h-5 w-1 rounded-full"
-          style={{ backgroundColor: accent, boxShadow: `0 0 12px ${accent}` }}
-        />
-        <div>
-          <h3 className="text-base font-semibold text-cyan-300">{title}</h3>
-          {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
-        </div>
-      </div>
-      {children}
-    </section>
-  );
-}
 
-function Stat({
-  icon: Icon,
-  color,
-  value,
-  label,
-  href,
-}: {
-  icon: LucideIcon;
-  color: string;
-  value: string;
-  label: string;
-  href?: string;
-}) {
-  const rgb = hexToRgb(color);
-  const inner = (
-    <>
-      <div
-        className="mb-4 grid h-11 w-11 place-items-center rounded-xl"
-        style={{ backgroundColor: `${color}22`, boxShadow: `0 0 18px ${color}55` }}
-      >
-        <Icon size={20} style={{ color }} />
-      </div>
-      <p className="text-2xl font-bold text-white xl:text-3xl">{value}</p>
-      <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
-    </>
-  );
-  const cls = `relative block overflow-hidden rounded-2xl border bg-gradient-to-b from-white/[0.07] to-transparent p-5 backdrop-blur-md transition hover:-translate-y-0.5 ${
-    href ? "cursor-pointer hover:brightness-110" : ""
-  }`;
-  const style = { borderColor: `${color}33`, boxShadow: `0 0 24px rgba(${rgb},0.14)` };
-  if (href) {
-    return (
-      <Link href={href} className={cls} style={style}>
-        {inner}
-      </Link>
-    );
-  }
-  return (
-    <div className={cls} style={style}>
-      {inner}
-    </div>
-  );
-}

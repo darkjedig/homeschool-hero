@@ -2,8 +2,9 @@ import { query, mutation } from "./_generated/server";
 import type { QueryCtx, MutationCtx } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { requireParent } from "./authHelpers";
+import { requireParent, householdStudentUserId } from "./authHelpers";
 import type { Id, Doc } from "./_generated/dataModel";
+import { loadCompletion } from "./lib/completion";
 
 const SUBJECT_SLUGS = {
   maths: "maths",
@@ -296,14 +297,17 @@ async function enrich(
   );
   const parentAccount = await ctx.db.query("familyAccounts").withIndex("by_role", q => q.eq("role", "parent")).unique();
   const isParent = userId !== null && parentAccount?.userId === userId;
+  const studentId = (await householdStudentUserId(ctx)) ?? userId;
 
   const progressByLesson = new Map<Id<"lessons">, Doc<"videoProgress">>();
-  if (userId) {
+  let completedIds = new Set<Id<"lessons">>();
+  if (studentId) {
     const rows = await ctx.db
       .query("videoProgress")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .withIndex("by_user", (q) => q.eq("userId", studentId))
       .take(500);
     for (const r of rows) progressByLesson.set(r.lessonId, r);
+    completedIds = (await loadCompletion(ctx, studentId)).completedIds;
   }
 
   const out: EntryView[] = [];
@@ -321,8 +325,12 @@ async function enrich(
         points = lesson.pointsAwarded;
       }
       const vp = progressByLesson.get(e.lessonId);
-      completed = !!vp?.completed;
-      progress = vp ? (vp.completed ? 100 : Math.round(vp.percentageWatched)) : null;
+      completed = completedIds.has(e.lessonId);
+      progress = completed
+        ? 100
+        : vp
+          ? Math.round(vp.percentageWatched)
+          : null;
     }
     out.push({
       _id: e._id,

@@ -4,6 +4,8 @@ import type { QueryCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
+import { loadCompletion } from "./lib/completion";
+import type { LessonActivity } from "./lib/completion";
 
 /**
  * A recent quiz attempt joined to a human-readable name, its lesson/subject,
@@ -70,6 +72,55 @@ async function enrichAttempts(
   return out;
 }
 
+export type EnrichedVideo = {
+  progressId: Id<"videoProgress">;
+  lessonId: Id<"lessons">;
+  lessonTitle: string;
+  subjectName: string | null;
+  subjectColor: string | null;
+  secondsWatched: number;
+  durationSeconds: number | null;
+  percentageWatched: number;
+  completed: boolean;
+  updatedAt: number;
+};
+
+async function enrichVideoProgress(
+  ctx: QueryCtx,
+  rows: Doc<"videoProgress">[],
+): Promise<EnrichedVideo[]> {
+  const out: EnrichedVideo[] = [];
+  const subjectCache = new Map<string, { name: string; color: string } | null>();
+  for (const row of rows) {
+    const lesson = await ctx.db.get(row.lessonId);
+    let subjectName: string | null = null;
+    let subjectColor: string | null = null;
+    if (lesson) {
+      let subject = subjectCache.get(lesson.subjectId);
+      if (subject === undefined) {
+        const doc = await ctx.db.get(lesson.subjectId);
+        subject = doc ? { name: doc.name, color: doc.color } : null;
+        subjectCache.set(lesson.subjectId, subject);
+      }
+      subjectName = subject?.name ?? null;
+      subjectColor = subject?.color ?? null;
+    }
+    out.push({
+      progressId: row._id,
+      lessonId: row.lessonId,
+      lessonTitle: lesson?.title ?? "Lesson",
+      subjectName,
+      subjectColor,
+      secondsWatched: row.secondsWatched,
+      durationSeconds: row.durationSeconds ?? null,
+      percentageWatched: row.percentageWatched,
+      completed: row.completed,
+      updatedAt: row.updatedAt,
+    });
+  }
+  return out;
+}
+
 /**
  * Aggregate stats for the parent dashboard. Uses bounded reads; accurate for
  * MVP volumes. All counts derive from live Convex data.
@@ -79,13 +130,13 @@ export const overview = query({
   handler: async (ctx) => {
     await requireParent(ctx);
     const studentId = await householdStudentUserId(ctx);
-    const [subjects, published, drafts, quizzes, attempts, rewards, redemptions, points] =
+    const [subjects, published, drafts, quizzes, attempts, rewards, redemptions, points, videoFetched] =
       await Promise.all([
         ctx.db.query("subjects").withIndex("by_active_order").take(50),
         ctx.db
           .query("lessons")
           .withIndex("by_status", (q) => q.eq("status", "published"))
-          .take(400),
+          .take(800),
         ctx.db
           .query("lessons")
           .withIndex("by_status", (q) => q.eq("status", "draft"))
@@ -105,9 +156,21 @@ export const overview = query({
               .withIndex("by_user", (q) => q.eq("userId", studentId))
               .take(1000)
           : Promise.resolve([] as Doc<"pointsLedger">[]),
+        studentId
+          ? ctx.db
+              .query("videoProgress")
+              .withIndex("by_user", (q) => q.eq("userId", studentId))
+              .take(200)
+          : Promise.resolve([] as Doc<"videoProgress">[]),
       ]);
 
-    const lessons = [...published, ...drafts];
+    let videoRows = videoFetched;
+    // Single-student household: if the student pin isn't mapped yet, still
+    // surface any logged watch time so the parent dashboard isn't empty.
+    if (videoRows.length === 0) {
+      videoRows = await ctx.db.query("videoProgress").take(200);
+    }
+
     const publishedCount = published.length;
     const draftCount = drafts.length;
     const totalPoints = points.reduce((s, p) => s + p.points, 0);
@@ -118,26 +181,57 @@ export const overview = query({
           )
         : 0;
 
-    // Per-subject lesson counts + attempts (for weak-subject detection).
-    const bySubject = new Map<
-      string,
-      { lessons: number; attempts: number; totalPct: number }
-    >();
-    for (const l of lessons) {
-      const e = bySubject.get(l.subjectId) ?? {
-        lessons: 0,
-        attempts: 0,
-        totalPct: 0,
-      };
-      e.lessons += 1;
-      bySubject.set(l.subjectId, e);
+    const publishedBySubject = new Map<string, number>();
+    for (const l of published) {
+      publishedBySubject.set(l.subjectId, (publishedBySubject.get(l.subjectId) ?? 0) + 1);
     }
+    const lessonsBySubject = subjects.map((s) => ({
+      slug: s.slug,
+      name: s.name,
+      color: s.color,
+      lessons: publishedBySubject.get(s._id) ?? 0,
+    }));
 
     const recent = attempts
       .slice()
       .sort((a, b) => b.completedAt - a.completedAt)
       .slice(0, 8);
     const recentAttempts = await enrichAttempts(ctx, recent);
+
+    const recentVideo = await enrichVideoProgress(
+      ctx,
+      videoRows.slice().sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 12),
+    );
+    const videoCompleted = videoRows.filter((v) => v.completed).length;
+    const videoSeconds = videoRows.reduce((s, v) => s + v.secondsWatched, 0);
+
+    const completion = studentId
+      ? await loadCompletion(ctx, studentId)
+      : {
+          byLesson: new Map<Id<"lessons">, LessonActivity>(),
+          completedIds: new Set<Id<"lessons">>(),
+        };
+    const recentCompleted = [...completion.byLesson.values()]
+      .filter((r) => r.completed)
+      .sort((a, b) => b.lastAt - a.lastAt)
+      .slice(0, 8);
+    const recentCompletedLessons = [];
+    for (const row of recentCompleted) {
+      const lesson = await ctx.db.get("lessons", row.lessonId);
+      const subject = lesson
+        ? subjects.find((s) => s._id === lesson.subjectId)
+        : undefined;
+      recentCompletedLessons.push({
+        lessonId: row.lessonId,
+        lessonTitle: lesson?.title ?? "Lesson",
+        subjectName: subject?.name ?? null,
+        subjectColor: subject?.color ?? null,
+        videoDone: row.videoDone,
+        quizDone: row.quizDone,
+        interactiveDone: row.interactiveDone,
+        lastAt: row.lastAt,
+      });
+    }
 
     return {
       counts: {
@@ -148,10 +242,17 @@ export const overview = query({
         attempts: attempts.length,
         rewards: rewards.length,
         redemptions: redemptions.length,
+        videosWatched: videoRows.length,
+        videosCompleted: videoCompleted,
+        lessonsCompleted: completion.completedIds.size,
       },
       totalPoints,
       avgScore,
       recentAttempts,
+      lessonsBySubject,
+      recentVideo,
+      videoSeconds,
+      recentCompletedLessons,
     };
   },
 });
@@ -262,10 +363,11 @@ async function loadChrome(
   progressRows: Doc<"videoProgress">[];
   completedLessonIds: Set<Id<"lessons">>;
 }> {
-  const [attempts, progressRows, points] = await Promise.all([
+  const [attempts, progressRows, points, interactives] = await Promise.all([
     ctx.db.query("quizAttempts").withIndex("by_user", (q) => q.eq("userId", userId)).take(500),
     ctx.db.query("videoProgress").withIndex("by_user", (q) => q.eq("userId", userId)).take(500),
     ctx.db.query("pointsLedger").withIndex("by_user", (q) => q.eq("userId", userId)).take(1000),
+    ctx.db.query("interactiveResults").withIndex("by_user", (q) => q.eq("userId", userId)).take(500),
   ]);
   const totalPoints = points.reduce((s, p) => s + p.points, 0);
   const weekStart = weekStartMs(now);
@@ -279,6 +381,7 @@ async function loadChrome(
   const activityDays = new Set<string>();
   for (const p of progressRows) if (p.completed) activityDays.add(localDay(p.updatedAt));
   for (const a of attempts) activityDays.add(localDay(a.completedAt));
+  for (const i of interactives) if (i.completed) activityDays.add(localDay(i.createdAt));
   const { current: streak, best: bestStreak } = computeStreaks(activityDays, now);
 
   const mondayKey = localDay(weekStart);
@@ -304,9 +407,7 @@ async function loadChrome(
     },
     attempts,
     progressRows,
-    completedLessonIds: new Set(
-      progressRows.filter((p) => p.completed).map((p) => p.lessonId),
-    ),
+    completedLessonIds: (await loadCompletion(ctx, userId)).completedIds,
   };
 }
 

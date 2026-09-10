@@ -2,6 +2,7 @@ import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Id } from "./_generated/dataModel";
+import { loadCompletion } from "./lib/completion";
 
 // Badge definitions. `key` ties a badge doc to its criteria check below.
 const BADGE_DEFS: {
@@ -79,14 +80,12 @@ export const checkAndAward = internalMutation({
   handler: async (ctx, args): Promise<Awarded[]> => {
     const userId: Id<"users"> = args.userId;
 
-    const [progress, attempts, points] = await Promise.all([
-      ctx.db.query("videoProgress").withIndex("by_user", (q) => q.eq("userId", userId)).take(500),
+    const [attempts, points] = await Promise.all([
       ctx.db.query("quizAttempts").withIndex("by_user", (q) => q.eq("userId", userId)).take(500),
       ctx.db.query("pointsLedger").withIndex("by_user", (q) => q.eq("userId", userId)).take(1000),
     ]);
 
-    // Completed lessons → subject slugs (for Science count).
-    const completedLessonIds = progress.filter((p) => p.completed).map((p) => p.lessonId);
+    const completedLessonIds = [...(await loadCompletion(ctx, userId)).completedIds];
     let scienceCount = 0;
     for (const lid of completedLessonIds) {
       const lesson = await ctx.db.get(lid);

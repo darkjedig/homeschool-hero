@@ -20,6 +20,19 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - Source of truth: `.cursor/skills/design/SKILL.md`. Applied in `app/globals.css` (`:root` permanent dark theme) + `tailwind.config.ts` (reference).
 - Tailwind v4: tokens live in CSS `@theme`. Note: design skill's `text-primary`/`text-secondary` map to shadcn `text-foreground` (#fff) / `text-muted-foreground` (#94a3b8) to avoid clobbering shadcn component tokens. Subject + accent utilities available (`bg-maths`, `text-accent-purple`, etc.).
 
+## Recent Progress — Videos page + lesson completion (2026-09-10)
+- **Videos page** `/parent/videos`: percent-watched bars, finished vs in-progress pie, minutes by subject, full watch table. Dashboard "Videos finished" links here (was Export).
+- **Progress page** `/parent/progress`: a lesson is complete if Hudson finished the **video (90%+)**, **quiz**, **interactive/flashcards**, or a **parent mark**. Today’s calendar slots show Video/Quiz/Activity chips. `lessonCompletions` table for parent marks. Calendar + student weekly goal use the same rule.
+- Dashboard: Lessons completed stat + recent completed panel. Nav: Progress + Videos.
+- Mark 10 Sep via Progress page button or `npx convex run internal.progress.completeDate '{"date":"2026-09-10"}'`.
+- Recharts: `SizedChart` only renders after width/height > 0 (fixes width(-1) warnings).
+
+## Recent Progress — Parent video watch + lessons chart (2026-09-10)
+- Parent dashboard chart was hardcoded `lessons: 0`. `dashboard.overview` now returns `lessonsBySubject` (published counts) and a **Video watch time** panel (`recentVideo`: title, watched/duration, %, finished). Stat card: videos finished/started.
+- YouTube player now sends `durationSeconds`, keeps farthest progress (no rewind loss), and only upserts while playing (~2.5s) plus pause/end.
+- Watch log also on parent lesson editor (`videoProgress.forLesson`). Empty copy: no log until a real YouTube URL is played (IXL / seeded lessons with empty `videoUrl` will not appear).
+- Schema: optional `videoProgress.durationSeconds` (widen, no migration).
+
 ## Recent Progress — Convex DB I/O cut (2026-09-09)
 - **Root cause**: Convex bills full documents. List/dashboard/calendar queries were scanning `lessons` rows that still carried `content` + `lessonNotes` (~hundreds of KB each). `dashboard.studentOverview` was subscribed from the student sidebar on every student page (`lessons.take(500)`). Calendar `getMonth` called `enrich` per day and `db.get` every slotted lesson.
 - **Fix**: New `lessonBodies` table. Lesson metadata stays slim; bodies load only on `lessons.get`. Calendar entries denormalize `lessonTitle` + `pointsAwarded`. Quizzes store `questionCount`. Sidebar now uses `dashboard.studentChrome` (points/level/streak only). `studentOverview` / `getToday` / `getWeek` / `fridayQuiz.getCurrent` take a stable `now` from the client. `getMonth`/`getWeek` do one date-range read and enrich once. Parent `quizzes.listAll` no longer N+1s questions. Migration `migrateIo:start` already ran on dev: **454 bodies, 0 fat lessons, 0 quizzes missing counts, 0 calendar titles missing**. Re-run `npx convex run migrateIo:start` after any environment that still has fat lesson rows (idempotent).

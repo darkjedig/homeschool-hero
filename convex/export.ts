@@ -19,7 +19,15 @@ type DataBag = {
     pointsEarned: number;
     completedAt: number;
   }[];
-  videoProgress: { _id: string; userId: string; lessonTitle: string; percentageWatched: number; completed: boolean; secondsWatched: number }[];
+  videoProgress: {
+    _id: string;
+    userId: string;
+    lessonTitle: string;
+    percentageWatched: number;
+    completed: boolean;
+    secondsWatched: number;
+    durationSeconds: number | null;
+  }[];
   points: { _id: string; sourceType: string; points: number; description: string }[];
   redemptions: { _id: string; userId: string; rewardTitle: string; pointsSpent: number; status: string; createdAt: number }[];
   interactiveResults: {
@@ -59,7 +67,14 @@ function toCSV(d: DataBag): string {
       `${a.percentage}%`,
     ]);
   for (const v of d.videoProgress)
-    rows.push(["videoProgress", v._id, v.lessonTitle, `${v.percentageWatched}%`, v.completed ? "completed" : "in-progress", `${v.secondsWatched}s`]);
+    rows.push([
+      "videoProgress",
+      v._id,
+      v.lessonTitle,
+      `${v.percentageWatched}%`,
+      v.completed ? "completed" : "in-progress",
+      `${v.secondsWatched}s${v.durationSeconds ? ` / ${v.durationSeconds}s` : ""}`,
+    ]);
   for (const p of d.points)
     rows.push(["points", p._id, p.sourceType, `${p.points}`, p.description, ""]);
   for (const r of d.redemptions)

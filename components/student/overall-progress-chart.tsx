@@ -1,6 +1,7 @@
 "use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell } from "recharts";
+import { SizedChart } from "@/components/charts/sized-chart";
 
 export type OverallProgressChartProps = {
   lessons?: number;
@@ -30,22 +31,24 @@ export function OverallProgressChart({
       </h3>
       <div className="flex items-center gap-4">
         <div className="relative h-28 w-28 shrink-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={DATA}
-                dataKey="value"
-                innerRadius={38}
-                outerRadius={54}
-                paddingAngle={3}
-                stroke="none"
-              >
-                {DATA.map((d) => (
-                  <Cell key={d.name} fill={d.color} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
+          <SizedChart className="h-28 min-h-[7rem] w-28">
+            {({ width, height }) => (
+              <PieChart width={width} height={height}>
+                <Pie
+                  data={DATA}
+                  dataKey="value"
+                  innerRadius={38}
+                  outerRadius={54}
+                  paddingAngle={3}
+                  stroke="none"
+                >
+                  {DATA.map((d) => (
+                    <Cell key={d.name} fill={d.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            )}
+          </SizedChart>
           <div className="absolute inset-0 grid place-items-center">
             <span className="text-xl font-bold text-white">{overall}%</span>
           </div>
