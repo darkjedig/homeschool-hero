@@ -1,6 +1,7 @@
 "use client";
 
 import { AccountSettings } from "@/components/shared/account-settings";
+import { AiTeacherSettings } from "@/components/parent/ai-teacher-settings";
 import { useState } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -202,6 +203,8 @@ export default function ParentSettingsPage() {
           </div>
         )}
       </section>
+
+      <AiTeacherSettings />
     </div>
   );
 }

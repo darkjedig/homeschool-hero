@@ -10,6 +10,7 @@ import type { Doc } from "@/convex/_generated/dataModel";
 import { GetHelpDrawer, type HelpItem } from "@/components/student/get-help-drawer";
 import { toast } from "sonner";
 import { celebrate } from "@/lib/confetti";
+import { useSetTeacherContext } from "@/components/student/teacher-context";
 
 type Badge = { key: string; title: string; icon: string; pointsBonus: number };
 
@@ -32,6 +33,18 @@ export default function QuizPage() {
     newBadges?: Badge[];
   } | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
+
+  const currentQuestion = data?.questions[current];
+  useSetTeacherContext({
+    page: "quiz",
+    lessonTitle: data?.quiz.title,
+    lessonId: data?.quiz.lessonId,
+    currentQuestionText: result ? undefined : currentQuestion?.questionText,
+    currentQuestionOptions: result ? undefined : currentQuestion?.options,
+    currentQuestionIndex: current,
+    currentQuestionTotal: data?.questions.length,
+    today: new Date().toISOString().slice(0, 10),
+  });
 
   if (data === undefined) {
     return <div className="h-64 animate-pulse rounded-2xl bg-white/5" />;

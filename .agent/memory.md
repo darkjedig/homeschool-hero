@@ -20,6 +20,15 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - Source of truth: `.cursor/skills/design/SKILL.md`. Applied in `app/globals.css` (`:root` permanent dark theme) + `tailwind.config.ts` (reference).
 - Tailwind v4: tokens live in CSS `@theme`. Note: design skill's `text-primary`/`text-secondary` map to shadcn `text-foreground` (#fff) / `text-muted-foreground` (#94a3b8) to avoid clobbering shadcn component tokens. Subject + accent utilities available (`bg-maths`, `text-accent-purple`, etc.).
 
+## Recent Progress — Cosmo AI Teacher (2026-09-13)
+- Named **Cosmo**. Icon is the existing space-art robot (`SpaceArt kind="robot"`), not a new asset. Student launcher at `bottom-24 right-6` / desktop `bottom-6 right-24` so it does not cover the rewards FAB.
+- Convex actions in `convex/teacher.ts`: `chat`, `transcribe`, `speak`, `listModels`, `saveTeacherConfig`. Models come only from parent settings. Browser never talks to OpenRouter. Key is BYOK `settings.openRouterKey` with optional Convex env `OPENROUTER_API_KEY`. `getTeacherRuntimeConfig` is internal and does **not** use `requireParent` (student chat cannot reuse `getAiConfigInternal`).
+- Session-only chat (no message table). Slim client `appContext` from lesson/quiz/dashboard/calendar/friday pages — never re-reads `lessonBodies`, never sends quiz `correctAnswer`.
+- Allowlisted tools: today / date / topic progress % / recent quiz titles+%. Cap 2 tool rounds.
+- Defaults: chat `openai/gpt-5.6-luna`, fallback `openai/gpt-5.4-mini`, STT `openai/whisper-large-v3-turbo`, TTS `hexgrad/kokoro-82m` voice `bf_emma`. Spoken replies default off. Push-to-talk MediaRecorder, no audio storage. Catalogue cached in action memory TTL 6h.
+- Parent **Cosmo (AI Teacher)** section on `/parent/settings`. Presets + searchable catalogue pickers. Chat requests `provider.zdr: true` (retry without ZDR if the endpoint rejects). STT/TTS do not force ZDR.
+- No per-request usage writes in V1 (`dailyRequestCap` is stored for later).
+
 ## Recent Progress — Videos page + lesson completion (2026-09-10)
 - **Videos page** `/parent/videos`: percent-watched bars, finished vs in-progress pie, minutes by subject, full watch table. Dashboard "Videos finished" links here (was Export).
 - **Progress page** `/parent/progress`: a lesson is complete if Hudson finished the **video (90%+)**, **quiz**, **interactive/flashcards**, or a **parent mark**. Today’s calendar slots show Video/Quiz/Activity chips. `lessonCompletions` table for parent marks. Calendar + student weekly goal use the same rule.
@@ -87,6 +96,21 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 - Typecheck 0 errors; lint only harmless warnings. Dev server confirmed serving HTTP 200 with the HomeschoolHero shell.
 - Created `specs.md` (9-phase checklist).
 
+## Recent Progress — Edit existing rewards (2026-09-13)
+- Parent Reward Manager now has **Edit** (title, description, points cost). Hide/Show only toggles visibility. Cost no longer sat in a field that never saved.
+
+## Recent Progress — Cosmo TTS model fix (2026-09-13)
+- Preview voices all sounded like George because OpenRouter no longer serves `openai/gpt-4o-mini-tts-2025-12-15` (400 “does not exist”). Every attempt failed, then `maybeSpeak` fell back to Kokoro George.
+- Recommended TTS is now live Kokoro (`hexgrad/kokoro-82m`, Emma). Higher quality uses Gemini Flash TTS (`Kore`). Retired OpenAI TTS ids and Sage/Coral/etc. names remap to distinct Kokoro voices. `internal.settings.remapRetiredTts` patches stored settings.
+- Voice is a mode, not push-to-talk. Mic toggles it on/off. While on, Cosmo listens, auto-sends after a pause, then listens again after it finishes speaking.
+- TTS: `speechPlainText` turns `\frac{2}{7}` / `2/7` into “two sevenths”. Chat renders stacked fractions. Spoken replies default on. Icon is `/images/cosmo-robot.png`.
+
+## Recent Progress — Cosmo Markdown (2026-09-13)
+- Assistant bubbles were printing raw `**bold**` and `-` lists. `TeacherMarkdown` now renders Cosmo replies (react-markdown) and splits mid-paragraph `- item` into real lists.
+
+## Recent Progress — Login redirect (2026-09-13)
+- First Hudson/parent sign-in looked stuck on “Unlocking…” until refresh. Cause: login waited for `userProfiles.getMine` on a websocket that started logged-out; Convex Auth’s post-`signIn` handshake often never updated that subscription. Refresh loaded the JWT from localStorage, but redirect still required `pending`, so the second click jumped instantly. Fix: `window.location.assign` after `signingIn` so the next page opens a fresh authenticated client.
+
 ## Known Issues / Blockers
 - **Convex MCP**: `status` tool works (finds `oceanic-crane-853` dev + prod). `insights`/`run` require interactive login via `npx convex dev` in a terminal (deploy-key CLI works separately). Re-enable in Cursor MCP settings if disabled.
 - **GitHub**: repo `darkjedig/homeschool-hero` created (public). Fine-grained PAT now has Contents:Write. Push works via `git push "https://x-access-token:<PAT>@github.com/darkjedig/homeschool-hero.git" main:main`.
@@ -105,6 +129,7 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 
 ### Remaining work
 - Phase 10 COMPLETE — student dashboard fully live (see Phase 10 COMPLETE note below).
+- **Cosmo AI Teacher COMPLETE** (2026-09-13): text + voice mode (pause-to-send) + spoken TTS with English maths; parent model pickers; allowlisted tools. Later: persist chats, usage counter / daily cap enforcement, HintCard opening Cosmo, realtime WebRTC if natural conversation still feels laggy.
 - **Convex I/O** (2026-09-09): fat lesson bodies split; sidebar no longer scans curriculum. Re-run `npx convex run migrateIo:start` on any other deployment that still has `content` on `lessons`. Do not browse `lessonBodies` in the Convex Data explorer unless needed (same fat-doc cost).
 - Phase 11: Full RBAC audit, Playwright + Vitest, mobile polish, error boundaries, README.
 

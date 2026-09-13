@@ -42,9 +42,11 @@ function youTubeId(url: string): string | null {
 export function YouTubePlayer({
   lessonId,
   videoUrl,
+  onPercent,
 }: {
   lessonId: string;
   videoUrl: string;
+  onPercent?: (pct: number) => void;
 }) {
   const videoId = youTubeId(videoUrl);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,6 +58,8 @@ export function YouTubePlayer({
     lessonId: lessonId as never,
   });
   const upsert = useMutation(api.videoProgress.upsert);
+  const onPercentRef = useRef(onPercent);
+  onPercentRef.current = onPercent;
 
   const report = async (p: YT.Player, completed = false) => {
     if (typeof p.getCurrentTime !== "function") return;
@@ -63,6 +67,7 @@ export function YouTubePlayer({
     const dur = p.getDuration() || 0;
     if (dur <= 0 && t <= 0) return;
     const pct = dur > 0 ? Math.min(100, Math.round((t / dur) * 100)) : 0;
+    onPercentRef.current?.(pct);
     try {
       await upsert({
         lessonId: lessonId as never,

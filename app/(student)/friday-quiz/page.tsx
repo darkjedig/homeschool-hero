@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { celebrate } from "@/lib/confetti";
 import Link from "next/link";
 import { useStableNow } from "@/lib/use-stable-now";
+import { useSetTeacherContext } from "@/components/student/teacher-context";
 
 type Q = {
   _id: string;
@@ -50,6 +51,17 @@ export default function FridayQuizPage() {
     newBadges?: { key: string; title: string; icon: string; pointsBonus: number }[];
   } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const currentQuestion = data?.questions[current];
+  useSetTeacherContext({
+    page: "friday-quiz",
+    lessonTitle: data?.fridayQuiz.title,
+    currentQuestionText: phase === "quiz" ? currentQuestion?.questionText : undefined,
+    currentQuestionOptions: phase === "quiz" ? currentQuestion?.options : undefined,
+    currentQuestionIndex: current,
+    currentQuestionTotal: data?.questions.length,
+    today: new Date(now).toISOString().slice(0, 10),
+  });
 
   if (data === undefined) {
     return (

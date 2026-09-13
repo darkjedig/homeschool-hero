@@ -30,6 +30,7 @@ import {
   LineChart,
 } from "lucide-react";
 import { useStableNow } from "@/lib/use-stable-now";
+import { useSetTeacherContext } from "@/components/student/teacher-context";
 
 export default function DashboardPage() {
   const now = useStableNow();
@@ -42,6 +43,16 @@ export default function DashboardPage() {
   const subjectProgress = overview?.subjectProgress ?? [];
   const cont = overview?.continueLearning ?? null;
   const firstName = (profile?.displayName ?? "there").split(" ")[0];
+
+  useSetTeacherContext({
+    page: "dashboard",
+    todayLessons: today?.map((row) => ({
+      subjectName: row.subjectName,
+      title: row.lessonTitle ?? row.label ?? row.subjectName,
+      completed: row.completed,
+    })),
+    today: new Date(now).toISOString().slice(0, 10),
+  });
 
   return (
     <StaggerGroup className="student-dashboard space-y-4">

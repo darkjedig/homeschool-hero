@@ -1,27 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useQuery } from "convex/react";
+import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useRouter } from "next/navigation";
-import { api } from "@/convex/_generated/api";
 import { SpaceArt } from "@/components/shared/space-art";
 import { GraduationCap, ShieldCheck, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const { signIn } = useAuthActions();
-  const profile = useQuery(api.userProfiles.getMine);
-  const parentAccess = useQuery(api.userProfiles.hasParentAccess);
-  const router = useRouter();
   const [pin, setPin] = useState("");
   const [pending, setPending] = useState<"student" | "parent" | null>(null);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (pending && profile?.role === pending && (pending !== "parent" || parentAccess)) {
-      router.replace(pending === "parent" ? "/parent/dashboard" : "/dashboard");
-    }
-  }, [pending, profile, parentAccess, router]);
 
   async function enter(role: "student" | "parent") {
     setError("");
@@ -29,7 +17,10 @@ export default function LoginPage() {
     try {
       const result = await signIn("family", { role, ...(role === "parent" ? { pin } : {}) });
       if (!result.signingIn) throw new Error("Sign-in unsuccessful");
-      setPin("");
+      // Convex Auth stores the JWT, then needs a new websocket handshake.
+      // Waiting on this page's old unauthenticated queries never redirects.
+      // A full load lets StudentGate / ParentGate see the new session.
+      window.location.assign(role === "parent" ? "/parent/dashboard" : "/dashboard");
     } catch {
       setPending(null);
       setError(role === "parent" ? "Could not unlock parent access. Check your PIN. After 5 incorrect attempts, wait 5 minutes before trying again." : "Could not sign in. Please try again.");

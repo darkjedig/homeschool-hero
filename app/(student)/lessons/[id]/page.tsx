@@ -11,6 +11,22 @@ import { Button } from "@/components/ui/button";
 import { Clock, Star, ListChecks, Video, Lightbulb, Check, X } from "lucide-react";
 import { isYouTubeVideoUrl } from "@/lib/youtube";
 import { LessonBlocks } from "@/components/student/lesson-blocks";
+import { useSetTeacherContext } from "@/components/student/teacher-context";
+
+function lessonExcerpt(lesson: {
+  lessonNotes?: string;
+  content?: { type: string; text?: string; items?: string[] }[];
+} | null | undefined): string | undefined {
+  if (!lesson) return undefined;
+  const notes = lesson.lessonNotes?.trim();
+  if (notes) return notes.slice(0, 1500);
+  const parts = (lesson.content ?? [])
+    .filter((block) => block.type === "heading" || block.type === "text" || block.type === "example" || block.type === "keyPoints")
+    .map((block) => block.text || block.items?.join("; ") || "")
+    .filter(Boolean);
+  if (parts.length === 0) return undefined;
+  return parts.join("\n").slice(0, 1500);
+}
 
 export default function LessonPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +35,16 @@ export default function LessonPage() {
     api.quizzes.getForLesson,
     lesson ? { lessonId: lesson._id } : "skip",
   );
+  const [videoPercent, setVideoPercent] = useState<number | undefined>();
+
+  useSetTeacherContext({
+    page: "lesson",
+    lessonTitle: lesson?.title,
+    lessonId: lesson?._id,
+    excerpt: lessonExcerpt(lesson),
+    videoPercent,
+    today: new Date().toISOString().slice(0, 10),
+  });
 
   if (lesson === undefined || quiz === undefined) {
     return <div className="h-96 animate-pulse rounded-2xl bg-white/5" />;
@@ -47,7 +73,7 @@ export default function LessonPage() {
 
       {/* Video (or honest placeholder) */}
       {hasVideo ? (
-        <YouTubePlayer lessonId={lesson._id} videoUrl={lesson.videoUrl} />
+        <YouTubePlayer lessonId={lesson._id} videoUrl={lesson.videoUrl} onPercent={setVideoPercent} />
       ) : (
         <div className="grid aspect-video place-items-center rounded-2xl border border-dashed border-white/15 bg-white/[0.03] text-center">
           <div>

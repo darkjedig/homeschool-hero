@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, CalendarCheck, CheckCircle2, Circle } from "lucide-react";
 import { hexToRgb } from "@/lib/subjects";
+import { useSetTeacherContext } from "@/components/student/teacher-context";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -27,6 +28,12 @@ export default function CalendarPage() {
   const monthData = useQuery(api.calendar.getMonth, { year, month });
   const schoolYear = useQuery(api.calendar.getSchoolYear);
   const today = toISO(now);
+
+  useSetTeacherContext({
+    page: "calendar",
+    section: `${MONTHS[month]} ${year}`,
+    today,
+  });
 
   const prevMonth = () => {
     if (month === 0) { setYear(year - 1); setMonth(11); } else setMonth(month - 1);
