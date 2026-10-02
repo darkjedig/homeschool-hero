@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
 import { requireParent } from "./authHelpers";
+import { ensureActivityDay } from "./lib/activityDays";
 import type { Id } from "./_generated/dataModel";
 
 /** Points awarded the first time a student completes a given interactive. */
@@ -84,6 +85,7 @@ export const log = mutation({
         });
         await ctx.runMutation(internal.badges.checkAndAward, { userId });
       }
+      await ensureActivityDay(ctx, userId, now);
     }
 
     return { pointsEarned };

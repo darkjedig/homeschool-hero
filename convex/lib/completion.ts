@@ -1,5 +1,6 @@
 import type { QueryCtx, MutationCtx } from "../_generated/server";
 import type { Id } from "../_generated/dataModel";
+import { ensureActivityDay } from "./activityDays";
 
 export type LessonActivity = {
   lessonId: Id<"lessons">;
@@ -158,5 +159,6 @@ export async function markLessonsComplete(
     });
     marked += 1;
   }
+  if (marked > 0) await ensureActivityDay(ctx, userId, now);
   return { marked, titles };
 }

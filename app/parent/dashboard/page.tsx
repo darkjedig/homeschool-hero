@@ -58,6 +58,7 @@ function formatDateTime(ms: number): string {
 
 export default function ParentDashboardPage() {
   const stats = useQuery(api.dashboard.overview);
+  const pulse = useQuery(api.dashboard.householdPulse);
   const interactive = useQuery(api.interactiveResults.recentForParents, { limit: 12 });
   const [selectedAttemptId, setSelectedAttemptId] = useState<
     Id<"quizAttempts"> | null
@@ -83,8 +84,8 @@ export default function ParentDashboardPage() {
       </header>
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <Stat icon={CheckCircle2} color="#22c55e" value={stats ? String(stats.counts.lessonsCompleted) : "—"} label="Lessons completed" href="/parent/progress" />
-        <Stat icon={PlayCircle} color="#06b6d4" value={stats ? `${stats.counts.videosCompleted}/${stats.counts.videosWatched}` : "—"} label="Videos finished" href="/parent/videos" />
+        <Stat icon={CheckCircle2} color="#22c55e" value={pulse ? String(pulse.lessonsCompleted) : "—"} label="Lessons completed" href="/parent/progress" />
+        <Stat icon={PlayCircle} color="#06b6d4" value={pulse ? `${pulse.videosCompleted}/${pulse.videosWatched}` : "—"} label="Videos finished" href="/parent/videos" />
         <Stat icon={Brain} color="#a855f7" value={stats ? String(stats.counts.attempts) : "—"} label="Quiz attempts" href="/parent/quizzes" />
         <Stat icon={Trophy} color="#f97316" value={stats ? `${stats.avgScore}%` : "—"} label="Avg score" href="/parent/quizzes" />
         <Stat icon={Coins} color="#eab308" value={stats ? stats.totalPoints.toLocaleString() : "—"} label="Points earned" href="/parent/history" />
@@ -214,14 +215,14 @@ export default function ParentDashboardPage() {
       <Panel
         title="Video watch time"
         subtitle={
-          stats
-            ? `${formatWatchMinutes(stats.videoSeconds)} watched · ${stats.counts.videosCompleted} finished of ${stats.counts.videosWatched} started`
+          pulse
+            ? `${formatWatchMinutes(pulse.videoSeconds)} watched · ${pulse.videosCompleted} finished of ${pulse.videosWatched} started`
             : "How much of each lesson video was actually watched"
         }
         accent="#06b6d4"
       >
         <div className="space-y-2">
-          {(stats?.recentVideo ?? []).map((v) => {
+          {(pulse?.recentVideo ?? []).map((v) => {
             const accent = v.subjectColor ?? "#06b6d4";
             const watched = formatClock(v.secondsWatched);
             const total = v.durationSeconds ? formatClock(v.durationSeconds) : null;
@@ -273,7 +274,7 @@ export default function ParentDashboardPage() {
               </div>
             );
           })}
-          {(stats?.recentVideo ?? []).length === 0 && (
+          {(pulse?.recentVideo ?? []).length === 0 && (
             <p className="py-10 text-center text-sm text-muted-foreground">
               No video watch logs yet. Time is recorded when a YouTube video plays
               in a lesson — including how long the video is and how far it was
@@ -295,7 +296,7 @@ export default function ParentDashboardPage() {
         accent="#22c55e"
       >
         <div className="space-y-2">
-          {(stats?.recentCompletedLessons ?? []).map((l) => (
+          {(pulse?.recentCompletedLessons ?? []).map((l) => (
             <Link
               key={l.lessonId}
               href={`/parent/lessons/${l.lessonId}`}
@@ -334,7 +335,7 @@ export default function ParentDashboardPage() {
               </div>
             </Link>
           ))}
-          {(stats?.recentCompletedLessons ?? []).length === 0 && (
+          {(pulse?.recentCompletedLessons ?? []).length === 0 && (
             <p className="py-10 text-center text-sm text-muted-foreground">
               No completed lessons yet. When Hudson finishes a video, quiz, or
               flashcards, they show up here.

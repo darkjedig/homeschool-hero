@@ -38,6 +38,7 @@ import type * as hello from "../hello.js";
 import type * as http from "../http.js";
 import type * as interactiveResults from "../interactiveResults.js";
 import type * as lessons from "../lessons.js";
+import type * as lib_activityDays from "../lib/activityDays.js";
 import type * as lib_aiPresets from "../lib/aiPresets.js";
 import type * as lib_completion from "../lib/completion.js";
 import type * as lib_lessonBodies from "../lib/lessonBodies.js";
@@ -100,6 +101,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   interactiveResults: typeof interactiveResults;
   lessons: typeof lessons;
+  "lib/activityDays": typeof lib_activityDays;
   "lib/aiPresets": typeof lib_aiPresets;
   "lib/completion": typeof lib_completion;
   "lib/lessonBodies": typeof lib_lessonBodies;

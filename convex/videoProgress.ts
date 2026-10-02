@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
 import { householdStudentUserId, requireParent } from "./authHelpers";
+import { ensureActivityDay } from "./lib/activityDays";
 import type { Id } from "./_generated/dataModel";
 
 const videoProgressDoc = v.object({
@@ -71,6 +72,20 @@ export const upsert = mutation({
         : existing?.durationSeconds;
     const wasCompleted = existing?.completed ?? false;
     const completed = wasCompleted || args.completed || farthestPct >= 90;
+    // Playing a video used to patch this row every 2.5s. Every patch re-ran
+    // any query that had read videoProgress (the sidebar, parent dashboard)
+    // and re-read hundreds of documents. Skip the write unless progress
+    // actually moved.
+    if (existing) {
+      const pctGain = farthestPct - existing.percentageWatched;
+      const secGain = farthestSeconds - existing.secondsWatched;
+      const completing = completed && !wasCompleted;
+      const needsDuration =
+        durationSeconds !== undefined && existing.durationSeconds === undefined;
+      if (!completing && !needsDuration && pctGain < 5 && secGain < 45) {
+        return existing._id;
+      }
+    }
     const durationPatch =
       durationSeconds !== undefined ? { durationSeconds } : {};
     let progressId: Id<"videoProgress">;
@@ -101,6 +116,7 @@ export const upsert = mutation({
     if (completed && !wasCompleted) {
       await ctx.runMutation(internal.badges.checkAndAward, { userId });
     }
+    await ensureActivityDay(ctx, userId, now);
     return progressId;
   },
 });

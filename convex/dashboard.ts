@@ -130,7 +130,7 @@ export const overview = query({
   handler: async (ctx) => {
     await requireParent(ctx);
     const studentId = await householdStudentUserId(ctx);
-    const [subjects, published, drafts, quizzes, attempts, rewards, redemptions, points, videoFetched] =
+    const [subjects, published, drafts, quizzes, attempts, rewards, redemptions, points] =
       await Promise.all([
         ctx.db.query("subjects").withIndex("by_active_order").take(50),
         ctx.db
@@ -156,20 +156,7 @@ export const overview = query({
               .withIndex("by_user", (q) => q.eq("userId", studentId))
               .take(1000)
           : Promise.resolve([] as Doc<"pointsLedger">[]),
-        studentId
-          ? ctx.db
-              .query("videoProgress")
-              .withIndex("by_user", (q) => q.eq("userId", studentId))
-              .take(200)
-          : Promise.resolve([] as Doc<"videoProgress">[]),
       ]);
-
-    let videoRows = videoFetched;
-    // Single-student household: if the student pin isn't mapped yet, still
-    // surface any logged watch time so the parent dashboard isn't empty.
-    if (videoRows.length === 0) {
-      videoRows = await ctx.db.query("videoProgress").take(200);
-    }
 
     const publishedCount = published.length;
     const draftCount = drafts.length;
@@ -198,19 +185,55 @@ export const overview = query({
       .slice(0, 8);
     const recentAttempts = await enrichAttempts(ctx, recent);
 
+    return {
+      counts: {
+        subjects: subjects.length,
+        publishedLessons: publishedCount,
+        draftLessons: draftCount,
+        quizzes: quizzes.length,
+        attempts: attempts.length,
+        rewards: rewards.length,
+        redemptions: redemptions.length,
+      },
+      totalPoints,
+      avgScore,
+      recentAttempts,
+      lessonsBySubject,
+    };
+  },
+});
+
+/**
+ * Watch log and recent completions. Separate from `overview` so a video
+ * progress save does not re-read the published lesson catalogue.
+ */
+export const householdPulse = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireParent(ctx);
+    const studentId = await householdStudentUserId(ctx);
+    let videoRows = studentId
+      ? await ctx.db
+          .query("videoProgress")
+          .withIndex("by_user", (q) => q.eq("userId", studentId))
+          .take(200)
+      : [];
+    if (videoRows.length === 0) {
+      videoRows = await ctx.db.query("videoProgress").take(200);
+    }
     const recentVideo = await enrichVideoProgress(
       ctx,
       videoRows.slice().sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 12),
     );
     const videoCompleted = videoRows.filter((v) => v.completed).length;
     const videoSeconds = videoRows.reduce((s, v) => s + v.secondsWatched, 0);
-
     const completion = studentId
       ? await loadCompletion(ctx, studentId)
       : {
           byLesson: new Map<Id<"lessons">, LessonActivity>(),
           completedIds: new Set<Id<"lessons">>(),
         };
+    const subjects = await ctx.db.query("subjects").withIndex("by_active_order").take(50);
     const recentCompleted = [...completion.byLesson.values()]
       .filter((r) => r.completed)
       .sort((a, b) => b.lastAt - a.lastAt)
@@ -232,26 +255,12 @@ export const overview = query({
         lastAt: row.lastAt,
       });
     }
-
     return {
-      counts: {
-        subjects: subjects.length,
-        publishedLessons: publishedCount,
-        draftLessons: draftCount,
-        quizzes: quizzes.length,
-        attempts: attempts.length,
-        rewards: rewards.length,
-        redemptions: redemptions.length,
-        videosWatched: videoRows.length,
-        videosCompleted: videoCompleted,
-        lessonsCompleted: completion.completedIds.size,
-      },
-      totalPoints,
-      avgScore,
-      recentAttempts,
-      lessonsBySubject,
-      recentVideo,
+      videosWatched: videoRows.length,
+      videosCompleted: videoCompleted,
+      lessonsCompleted: completion.completedIds.size,
       videoSeconds,
+      recentVideo,
       recentCompletedLessons,
     };
   },
@@ -411,14 +420,62 @@ async function loadChrome(
   };
 }
 
-/** Sidebar-only: points, level, streak. Does not scan lessons. */
+/**
+ * Sidebar points and streak. Reads the points ledger and one activity-day
+ * document. Must not read `videoProgress`: that row is patched during a
+ * lesson, and a read here would re-run this query (and its ledger scan) on
+ * every save.
+ */
+async function loadSidebarChrome(
+  ctx: QueryCtx,
+  userId: Id<"users">,
+  now: number,
+): Promise<Chrome> {
+  const [points, activity] = await Promise.all([
+    ctx.db.query("pointsLedger").withIndex("by_user", (q) => q.eq("userId", userId)).take(1000),
+    ctx.db
+      .query("studentActivity")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique(),
+  ]);
+  const totalPoints = points.reduce((s, p) => s + p.points, 0);
+  const weekStart = weekStartMs(now);
+  const pointsThisWeek = points
+    .filter((p) => p.createdAt >= weekStart)
+    .reduce((s, p) => s + p.points, 0);
+  const level = Math.floor(totalPoints / XP_PER_LEVEL) + 1;
+  const xpIntoLevel = totalPoints % XP_PER_LEVEL;
+  const levelProgress = Math.round((xpIntoLevel / XP_PER_LEVEL) * 100);
+  const activityDays = new Set(activity?.days ?? []);
+  const { current: streak, best: bestStreak } = computeStreaks(activityDays, now);
+  const mondayKey = localDay(weekStart);
+  const weekActivity: boolean[] = [];
+  for (let i = 0; i < 7; i++) {
+    weekActivity.push(activityDays.has(shiftLocalDay(mondayKey, i)));
+  }
+  const weekTodayIndex = (new Date(now).getDay() + 6) % 7;
+  return {
+    points: totalPoints,
+    pointsThisWeek,
+    level,
+    levelTitle: rankFor(level),
+    levelProgress,
+    xpIntoLevel,
+    xpForLevel: XP_PER_LEVEL,
+    streak,
+    bestStreak,
+    weekActivity,
+    weekTodayIndex,
+  };
+}
+
+/** Sidebar-only: points, level, streak. Does not scan lessons or watch logs. */
 export const studentChrome = query({
   args: { now: v.number() },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) return null;
-    const { chrome } = await loadChrome(ctx, userId, args.now);
-    return chrome;
+    return await loadSidebarChrome(ctx, userId, args.now);
   },
 });
 

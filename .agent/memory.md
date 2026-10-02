@@ -99,6 +99,13 @@ Build a gamified homeschool learning platform (student + parent portals) per imp
 ## Recent Progress — Edit existing rewards (2026-09-13)
 - Parent Reward Manager now has **Edit** (title, description, points cost). Hide/Show only toggles visibility. Cost no longer sat in a field that never saved.
 
+## Recent Progress — Database bandwidth (2026-09-28)
+- Sep 28 read 1.59 GB because the YouTube player patched `videoProgress` every 2.5s and the sidebar `studentChrome` (plus parent `overview`) re-read history and the lesson catalogue on every patch. Lesson-body split did not cover this.
+- Writes now no-op unless watch progress moves 5% or 45s, or the video completes. Client interval is 30s. Sidebar streak reads one `studentActivity` doc plus the points ledger, not `videoProgress`. Parent watch stats moved to `dashboard.householdPulse` so a progress save does not re-read published lessons.
+
+## Recent Progress — Part 8 blog (2026-09-27)
+- `blog/2026-09-27-part-8-cosmo-the-ai-teacher.md` plus three images in `blog/`: dark featured collage (`2026-09-27-part-8-cosmo-featured.png`, center left empty for white title overlay), chat + fractions (`2026-09-27-part-8-cosmo-chat.png`), voice mode (`2026-09-27-part-8-cosmo-voice.png`).
+
 ## Recent Progress — Cosmo TTS model fix (2026-09-13)
 - Preview voices all sounded like George because OpenRouter no longer serves `openai/gpt-4o-mini-tts-2025-12-15` (400 “does not exist”). Every attempt failed, then `maybeSpeak` fell back to Kokoro George.
 - Recommended TTS is now live Kokoro (`hexgrad/kokoro-82m`, Emma). Higher quality uses Gemini Flash TTS (`Kore`). Retired OpenAI TTS ids and Sage/Coral/etc. names remap to distinct Kokoro voices. `internal.settings.remapRetiredTts` patches stored settings.

@@ -272,6 +272,14 @@ export default defineSchema({
     .index("by_user_and_lesson", ["userId", "lessonId"])
     .index("by_lesson", ["lessonId"]),
 
+  // One row per student. Sidebar streak reads this instead of scanning
+  // videoProgress (which is written throughout a lesson).
+  studentActivity: defineTable({
+    userId: v.id("users"),
+    days: v.array(v.string()),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
   pointsLedger: defineTable({
     userId: v.id("users"),
     sourceType: v.string(),

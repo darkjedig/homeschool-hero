@@ -60,24 +60,32 @@ export function YouTubePlayer({
   const upsert = useMutation(api.videoProgress.upsert);
   const onPercentRef = useRef(onPercent);
   onPercentRef.current = onPercent;
+  const lastSent = useRef({ pct: -1, seconds: -1 });
 
-  const report = async (p: YT.Player, completed = false) => {
+  const report = async (p: YT.Player, force = false) => {
     if (typeof p.getCurrentTime !== "function") return;
     const t = p.getCurrentTime() || 0;
     const dur = p.getDuration() || 0;
     if (dur <= 0 && t <= 0) return;
     const pct = dur > 0 ? Math.min(100, Math.round((t / dur) * 100)) : 0;
+    const seconds = Math.floor(t);
     onPercentRef.current?.(pct);
+    const prev = lastSent.current;
+    const pctGain = pct - prev.pct;
+    const secGain = seconds - prev.seconds;
+    const completing = pct >= 90 && prev.pct < 90;
+    if (!force && !completing && pctGain < 5 && secGain < 45) return;
     try {
       await upsert({
         lessonId: lessonId as never,
         videoUrl,
-        secondsWatched: Math.floor(t),
-        lastTimestamp: Math.floor(t),
+        secondsWatched: seconds,
+        lastTimestamp: seconds,
         percentageWatched: pct,
         durationSeconds: dur > 0 ? Math.round(dur) : undefined,
-        completed: completed || pct >= 90,
+        completed: force && pct >= 90 ? true : pct >= 90,
       });
+      lastSent.current = { pct, seconds };
     } catch {
       // not authenticated yet during dev — ignore
     }
@@ -103,7 +111,7 @@ export function YouTubePlayer({
               if (!p || typeof p.getPlayerState !== "function") return;
               if (p.getPlayerState() !== window.YT!.PlayerState.PLAYING) return;
               void report(p);
-            }, 2500);
+            }, 30_000);
           },
           onStateChange: (e) => {
             const p = playerRef.current;
@@ -111,7 +119,7 @@ export function YouTubePlayer({
             if (e.data === window.YT!.PlayerState.ENDED) {
               void report(p, true);
             } else if (e.data === window.YT!.PlayerState.PAUSED) {
-              void report(p);
+              void report(p, true);
             }
           },
         },

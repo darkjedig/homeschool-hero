@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
 import { householdStudentUserId, requireParent } from "./authHelpers";
+import { ensureActivityDay } from "./lib/activityDays";
 import type { Id } from "./_generated/dataModel";
 
 type AwardedBadge = { key: string; title: string; icon: string; pointsBonus: number };
@@ -154,6 +155,7 @@ export const submitAttempt = mutation({
       });
     }
 
+    await ensureActivityDay(ctx, userId, Date.now());
     const newBadges = await ctx.runMutation(internal.badges.checkAndAward, {
       userId,
     });
